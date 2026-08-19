@@ -21,20 +21,26 @@ export function FixedExpensesPage() {
   const [amount, setAmount] = useState("");
   const [category, setCategory] = useState<FixedCategory>("Streaming");
   const [cardId, setCardId] = useState("");
+  const [error, setError] = useState<string | null>(null);
 
   function openModal() {
     setName("");
     setAmount("");
     setCategory("Streaming");
     setCardId(cards[0]?.id ?? "");
+    setError(null);
     setOpen(true);
   }
 
   function submit(e: React.FormEvent) {
     e.preventDefault();
     const amt = Number(amount);
-    if (!name.trim() || !Number.isFinite(amt) || amt <= 0 || !cardId) return;
+    if (!name.trim()) return setError("Escribe el nombre del gasto.");
+    if (!Number.isFinite(amt) || amt <= 0)
+      return setError("Indica un importe mayor que cero.");
+    if (!cardId) return setError("Selecciona una tarjeta.");
     addFixed({ name: name.trim(), amount: amt, category, cardId });
+    setError(null);
     setOpen(false);
   }
 
@@ -131,6 +137,7 @@ export function FixedExpensesPage() {
                   step="0.01"
                   value={amount}
                   placeholder="0.00"
+                  onWheel={(e) => e.currentTarget.blur()}
                   onChange={(e) => setAmount(e.target.value)}
                 />
               </div>
@@ -163,6 +170,7 @@ export function FixedExpensesPage() {
                 ))}
               </select>
             </div>
+            {error && <p className="form-error">{error}</p>}
             <div className="modal__actions">
               <button
                 type="button"

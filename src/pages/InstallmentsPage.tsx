@@ -28,6 +28,7 @@ export function InstallmentsPage() {
   const [months, setMonths] = useState("");
   const [cardId, setCardId] = useState("");
   const [startMonth, setStartMonth] = useState(currentMonth());
+  const [error, setError] = useState<string | null>(null);
 
   const thisMonth = currentMonth();
 
@@ -37,6 +38,7 @@ export function InstallmentsPage() {
     setMonths("");
     setCardId(cards[0]?.id ?? "");
     setStartMonth(currentMonth());
+    setError(null);
     setOpen(true);
   }
 
@@ -44,16 +46,22 @@ export function InstallmentsPage() {
     e.preventDefault();
     const totalAmount = Number(total);
     const m = Number(months);
-    if (
-      !name.trim() ||
-      !Number.isFinite(totalAmount) ||
-      totalAmount <= 0 ||
-      !Number.isInteger(m) ||
-      m <= 0 ||
-      !cardId
-    )
-      return;
-    addInstallment({ name: name.trim(), totalAmount, months: m, cardId, startMonth });
+
+    if (!name.trim()) return setError("Escribe qué compraste.");
+    if (!Number.isFinite(totalAmount) || totalAmount <= 0)
+      return setError("Indica un total pendiente mayor que cero.");
+    if (!Number.isInteger(m) || m <= 0)
+      return setError("Indica un número de meses válido (entero mayor que 0).");
+    if (!cardId) return setError("Selecciona una tarjeta.");
+
+    addInstallment({
+      name: name.trim(),
+      totalAmount,
+      months: m,
+      cardId,
+      startMonth,
+    });
+    setError(null);
     setOpen(false);
   }
 
@@ -196,6 +204,7 @@ export function InstallmentsPage() {
                   step="0.01"
                   value={total}
                   placeholder="0.00"
+                  onWheel={(e) => e.currentTarget.blur()}
                   onChange={(e) => setTotal(e.target.value)}
                 />
               </div>
@@ -208,6 +217,7 @@ export function InstallmentsPage() {
                   step="1"
                   value={months}
                   placeholder="12"
+                  onWheel={(e) => e.currentTarget.blur()}
                   onChange={(e) => setMonths(e.target.value)}
                 />
               </div>
@@ -243,6 +253,7 @@ export function InstallmentsPage() {
                 />
               </div>
             </div>
+            {error && <p className="form-error">{error}</p>}
             <div className="modal__actions">
               <button
                 type="button"

@@ -42,6 +42,7 @@ export function SettingsPage() {
             step="0.01"
             value={salary}
             placeholder="0.00"
+            onWheel={(e) => e.currentTarget.blur()}
             onChange={(e) => saveSalary(e.target.value)}
           />
           <span className="muted">
