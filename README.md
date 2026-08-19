@@ -41,8 +41,34 @@ npm run dev       # app en http://localhost:5173
 
 ```bash
 npm run build     # type-check (tsc) + build de producción
-npm run preview   # sirve el build de producción
+npm run preview   # sirve el build de producción en http://localhost:4173/controlDeGastos/
 ```
+
+> En desarrollo (`npm run dev`) la app se sirve en la raíz `/`. En el build de
+> producción se usa el `base` `/controlDeGastos/` para GitHub Pages, por lo que
+> `npm run preview` la sirve bajo ese subpath.
+
+## Despliegue en GitHub Pages
+
+La app es 100% estática (sin backend), así que se publica directamente en
+GitHub Pages. El despliegue está automatizado con GitHub Actions
+(`.github/workflows/deploy.yml`): en cada push a `main` se compila y se publica.
+
+Pasos (una sola vez):
+
+1. En GitHub, ve a **Settings → Pages**.
+2. En **Build and deployment → Source**, elige **GitHub Actions**.
+3. Haz push a `main` (o ejecuta el workflow manualmente desde la pestaña Actions).
+
+La app quedará disponible en:
+
+```
+https://<tu-usuario>.github.io/controlDeGastos/
+```
+
+Como el sitio se sirve bajo el subpath `/controlDeGastos/`, el `base` de Vite se
+configura automáticamente en producción (ver `vite.config.ts`). Si renombras el
+repositorio, actualiza ese `base` para que coincida con el nuevo nombre.
 
 ## Estructura
 
