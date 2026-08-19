@@ -1,0 +1,16 @@
+{
+  "name": "controldegastos",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Aplicación de control de gastos personales (API Express + SQLite y frontend React/Vite).",
+  "workspaces": [
+    "server",
+    "web"
+  ],
+  "scripts": {
+    "dev:server": "npm run dev --workspace server",
+    "dev:web": "npm run dev --workspace web",
+    "build": "npm run build --workspace web",
+    "start": "npm run start --workspace server"
+  }
+}
