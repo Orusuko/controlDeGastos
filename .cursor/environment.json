@@ -1,18 +1,12 @@
 {
-  "name": "controlDeGastos",
+  "name": "Control Financiero",
   "install": "npm install",
   "terminals": [
     {
-      "name": "api",
-      "command": "npm run dev:server"
-    },
-    {
       "name": "web",
-      "command": "npm run dev:web"
+      "command": "npm run dev",
+      "description": "Servidor de desarrollo de Vite (app en http://localhost:5173)."
     }
   ],
-  "ports": [
-    { "name": "api", "port": 3001 },
-    { "name": "web", "port": 5173 }
-  ]
+  "ports": [{ "name": "web", "port": 5173 }]
 }

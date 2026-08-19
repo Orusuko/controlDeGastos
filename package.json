@@ -1,16 +1,25 @@
 {
-  "name": "controldegastos",
+  "name": "control-financiero",
   "version": "1.0.0",
   "private": true,
-  "description": "Aplicación de control de gastos personales (API Express + SQLite y frontend React/Vite).",
-  "workspaces": [
-    "server",
-    "web"
-  ],
+  "type": "module",
+  "description": "App de control financiero personal (local-first, pensada para navegador Android). Tarjetas, gastos fijos, mensualidades, dashboard y consejos.",
   "scripts": {
-    "dev:server": "npm run dev --workspace server",
-    "dev:web": "npm run dev --workspace web",
-    "build": "npm run build --workspace web",
-    "start": "npm run start --workspace server"
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview --host --port 4173"
+  },
+  "dependencies": {
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
+    "recharts": "^3.10.1",
+    "zustand": "^5.0.15"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.4",
+    "@vitejs/plugin-react": "^6.0.5",
+    "typescript": "^7.0.2",
+    "vite": "^8.2.1"
   }
 }
