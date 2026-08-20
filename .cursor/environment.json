@@ -1,0 +1,12 @@
+{
+  "name": "Control Financiero",
+  "install": "npm install",
+  "terminals": [
+    {
+      "name": "web",
+      "command": "npm run dev",
+      "description": "Servidor de desarrollo de Vite (app en http://localhost:5173)."
+    }
+  ],
+  "ports": [{ "name": "web", "port": 5173 }]
+}

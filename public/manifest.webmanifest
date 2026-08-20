@@ -1,0 +1,19 @@
+{
+  "name": "Control Financiero",
+  "short_name": "Finanzas",
+  "description": "Controla gastos fijos, mensualidades y tarjetas desde tu teléfono.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0f172a",
+  "theme_color": "#4f46e5",
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
