@@ -36,6 +36,10 @@ jobs:
 
       - name: Configurar Pages
         uses: actions/configure-pages@v5
+        with:
+          # Habilita GitHub Pages automáticamente (build type "GitHub Actions")
+          # si aún no está activado, evitando el error "Get Pages site failed".
+          enablement: true
 
       - name: Subir artefacto
         uses: actions/upload-pages-artifact@v3
