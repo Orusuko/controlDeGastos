@@ -1,7 +1,8 @@
 # Control Financiero
 
-App web *local-first* para el **control de finanzas personales**, pensada
-principalmente para el navegador de Android. Permite:
+App *local-first* para el **control de finanzas personales**, disponible como
+web (PWA) y como **app nativa de Android** (vía [Capacitor](https://capacitorjs.com/)).
+Permite:
 
 - Registrar **tarjetas** de crédito (solo el nombre, sin datos bancarios) para
   distinguir los gastos de cada una.
@@ -19,16 +20,41 @@ navegador vía Zustand `persist`). La capa de datos está aislada en
 `src/store/useFinanceStore.ts` para poder migrarla a una base de datos en la
 nube (por ejemplo Supabase) más adelante.
 
+## 📲 Descargar el APK
+
+**[⬇️ Descargar Control Financiero.apk](https://github.com/Orusuko/controlDeGastos/releases/download/android-latest/control-financiero.apk)**
+
+Enlace directo y estable: siempre apunta a la última compilación generada
+automáticamente desde `main` (workflow
+[`android-release.yml`](.github/workflows/android-release.yml)). Es un APK de
+depuración (sin firmar para producción ni publicado en Google Play), pensado
+para instalar y probar la app directamente en tu teléfono:
+
+1. Descarga el APK desde el enlace anterior en tu Android.
+2. Si Android lo bloquea, activa **"Instalar apps desconocidas"** para el
+   navegador/gestor de archivos que usaste para descargarlo.
+3. Abre el archivo descargado y confirma la instalación.
+
+> El enlace empieza a funcionar en cuanto el workflow `android-release.yml` se
+> ejecuta por primera vez en `main` (o se lanza manualmente desde la pestaña
+> **Actions** del repositorio). Cada nuevo push a `main` que toque la app
+> regenera automáticamente este mismo APK.
+
 ## Stack
 
 - **React 19** + **TypeScript** + **Vite**
 - **Zustand** (estado + persistencia en `localStorage`)
 - **Recharts** (gráficas)
+- **Capacitor** (empaquetado como app nativa de Android; reutiliza el 100%
+  del código web, sin reescribir la UI)
 
 ## Requisitos
 
 - Node.js 22+
 - npm 10+
+- Para compilar/ejecutar la app Android: **Android Studio** (o el Android
+  SDK + JDK 17+ por línea de comandos) — ver la sección
+  [App de Android](#app-de-android)
 
 ## Puesta en marcha
 
@@ -70,6 +96,75 @@ Como el sitio se sirve bajo el subpath `/controlDeGastos/`, el `base` de Vite se
 configura automáticamente en producción (ver `vite.config.ts`). Si renombras el
 repositorio, actualiza ese `base` para que coincida con el nuevo nombre.
 
+## App de Android
+
+La app se empaqueta como app **nativa de Android** con
+[Capacitor](https://capacitorjs.com/): el mismo código React se compila a
+estáticos y se embebe en un proyecto Android (carpeta `android/`) que renderiza
+la UI en un `WebView`, sin necesidad de reescribir nada. Toda la
+persistencia (Zustand + `localStorage`) sigue funcionando igual dentro del
+`WebView`.
+
+### Requisitos
+
+- [Android Studio](https://developer.android.com/studio) (recomendado), o
+  bien el Android SDK command-line tools + JDK 17+ instalados manualmente.
+- Un dispositivo Android conectado por USB (con depuración USB activada) o un
+  emulador (AVD) ya creado.
+
+### Compilar y ejecutar
+
+```bash
+npm install
+
+# 1) Compila la web (modo "capacitor", rutas relativas) y la copia al proyecto Android
+npm run build:android
+
+# 2) Sincroniza el proyecto nativo (copia assets + plugins de Capacitor)
+npx cap sync android
+
+#(los dos pasos anteriores también se pueden hacer juntos con)
+npm run android:sync
+
+# 3) Abre el proyecto en Android Studio para compilar/firmar/ejecutar desde ahí
+npm run android:open
+
+# — o, por línea de comandos, con un dispositivo/emulador ya conectado —
+npm run android:run
+```
+
+También puedes generar un APK de depuración directamente con Gradle:
+
+```bash
+cd android
+./gradlew assembleDebug
+# APK resultante en android/app/build/outputs/apk/debug/app-debug.apk
+```
+
+### Descarga automática (CI)
+
+En cada push a `main` que modifique la app, el workflow
+[`android-release.yml`](.github/workflows/android-release.yml) compila el APK
+de depuración en GitHub Actions y lo publica (o actualiza) en la release fija
+`android-latest`, disponible siempre en el mismo enlace de descarga que
+aparece al principio de este README, en la sección "Descargar el APK".
+También se puede lanzar a mano desde **Actions → Compilar y publicar APK de
+Android → Run workflow**.
+
+### Notas
+
+- El `appId` de la app es `com.controlfinanciero.app` (ver
+  `capacitor.config.json`).
+- El ícono de Android se genera a partir de `resources/logo.png` con
+  `npx capacitor-assets generate --android`. La imagen usa un gráfico de
+  billetera y crecimiento para representar las finanzas personales.
+- El build web para Android usa el modo `capacitor` de Vite (rutas relativas,
+  carpeta de salida `dist-android/`), distinto del build para GitHub Pages
+  (`dist/`, rutas bajo `/controlDeGastos/`). Ver `vite.config.ts`.
+- Cada vez que cambies código en `src/`, vuelve a ejecutar
+  `npm run android:sync` antes de recompilar/ejecutar la app Android para que
+  los cambios se reflejen.
+
 ## Estructura
 
 ```
@@ -82,6 +177,8 @@ src/
     format.ts              # formato de moneda y fechas
   components/              # Modal, navegación inferior
   pages/                   # Dashboard, Tarjetas, Gastos fijos, Mensualidades, Ajustes
+android/                   # Proyecto nativo de Android generado por Capacitor
+resources/                 # Logo fuente para generar íconos/splash de Android
 ```
 
 ## Entorno de Cloud Agent

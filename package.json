@@ -3,19 +3,27 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "description": "App de control financiero personal (local-first, pensada para navegador Android). Tarjetas, gastos fijos, mensualidades, dashboard y consejos.",
+  "description": "App de control financiero personal (local-first), disponible como web y como app nativa de Android vía Capacitor. Tarjetas, gastos fijos, mensualidades, dashboard y consejos.",
   "scripts": {
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
-    "preview": "vite preview --host --port 4173"
+    "preview": "vite preview --host --port 4173",
+    "build:android": "tsc --noEmit && vite build --mode capacitor",
+    "android:sync": "npm run build:android && npx cap sync android",
+    "android:open": "npx cap open android",
+    "android:run": "npm run android:sync && npx cap run android"
   },
   "dependencies": {
+    "@capacitor/android": "^8.5.0",
+    "@capacitor/core": "^8.5.0",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
     "recharts": "^3.10.1",
     "zustand": "^5.0.15"
   },
   "devDependencies": {
+    "@capacitor/assets": "^3.0.5",
+    "@capacitor/cli": "^8.5.0",
     "@types/react": "^19.2.18",
     "@types/react-dom": "^19.2.4",
     "@vitejs/plugin-react": "^6.0.5",

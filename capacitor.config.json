@@ -1,0 +1,11 @@
+{
+  "appId": "com.controlfinanciero.app",
+  "appName": "Control Financiero",
+  "webDir": "dist-android",
+  "android": {
+    "allowMixedContent": false
+  },
+  "server": {
+    "androidScheme": "https"
+  }
+}
