@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useFinanceStore } from "../store/useFinanceStore";
 import { Modal } from "../components/Modal";
 import { currentMonth, formatCurrency, formatMonth } from "../lib/format";
@@ -10,66 +10,6 @@ import {
   remainingMonths,
   isPaidForMonth,
 } from "../lib/finance";
-
-const DEBUG_PREFIX = "AGENT_DEBUG ";
-
-function agentDebugLog(
-  hypothesisId: string,
-  location: string,
-  message: string,
-  data: Record<string, unknown>,
-) {
-  console.info(
-    DEBUG_PREFIX +
-      JSON.stringify({ hypothesisId, location, message, data, timestamp: Date.now() }),
-  );
-}
-
-function traceNumericFocus(field: "total" | "months", input: HTMLInputElement) {
-  // #region agent log
-  agentDebugLog("B", "InstallmentsPage.tsx:numeric-focus", "Numeric input focused", {
-    field,
-    value: input.value,
-    selectionStart: input.selectionStart,
-    selectionEnd: input.selectionEnd,
-  });
-  // #endregion
-}
-
-function traceNumericBeforeInput(
-  field: "total" | "months",
-  input: HTMLInputElement,
-  event: InputEvent,
-) {
-  // #region agent log
-  agentDebugLog(
-    "A,C",
-    "InstallmentsPage.tsx:numeric-beforeinput",
-    "Numeric input beforeinput",
-    {
-      field,
-      inputType: event.inputType,
-      data: event.data,
-      isComposing: event.isComposing,
-      valueBefore: input.value,
-      selectionStart: input.selectionStart,
-      selectionEnd: input.selectionEnd,
-    },
-  );
-  // #endregion
-}
-
-function traceNumericChange(field: "total" | "months", input: HTMLInputElement) {
-  // #region agent log
-  agentDebugLog("A,C,D", "InstallmentsPage.tsx:numeric-change", "React change received", {
-    field,
-    rawValue: input.value,
-    valueAsNumber: Number.isNaN(input.valueAsNumber) ? "NaN" : input.valueAsNumber,
-    badInput: input.validity.badInput,
-    stepMismatch: input.validity.stepMismatch,
-  });
-  // #endregion
-}
 
 export function InstallmentsPage() {
   const {
@@ -92,18 +32,6 @@ export function InstallmentsPage() {
 
   const thisMonth = currentMonth();
 
-  useEffect(() => {
-    const lastInstallment = installments[installments.length - 1];
-    // #region agent log
-    agentDebugLog("G", "InstallmentsPage.tsx:render-state", "Installment view state committed", {
-      open,
-      installmentCount: installments.length,
-      lastTotal: lastInstallment?.totalAmount ?? null,
-      lastMonths: lastInstallment?.months ?? null,
-    });
-    // #endregion
-  }, [installments, open]);
-
   function openModal() {
     setName("");
     setTotal("");
@@ -118,44 +46,6 @@ export function InstallmentsPage() {
     e.preventDefault();
     const totalAmount = Number(total);
     const m = Number(months);
-    const numericInputs = e.currentTarget.querySelectorAll<HTMLInputElement>(
-      'input[type="number"]',
-    );
-
-    // #region agent log
-    agentDebugLog("B,D", "InstallmentsPage.tsx:submit", "Installment form submitted", {
-      stateTotal: total,
-      stateMonths: months,
-      parsedTotal: Number.isNaN(totalAmount) ? "NaN" : totalAmount,
-      parsedMonths: Number.isNaN(m) ? "NaN" : m,
-      domTotal: numericInputs[0]?.value ?? null,
-      domMonths: numericInputs[1]?.value ?? null,
-      activeElement:
-        document.activeElement === numericInputs[0]
-          ? "total"
-          : document.activeElement === numericInputs[1]
-            ? "months"
-            : document.activeElement?.tagName ?? null,
-    });
-    // #endregion
-
-    const validationFailure = !name.trim()
-      ? "missing-name"
-      : !Number.isFinite(totalAmount) || totalAmount <= 0
-        ? "invalid-total"
-        : !Number.isInteger(m) || m <= 0
-          ? "invalid-months"
-          : !cardId
-            ? "missing-card"
-            : null;
-    // #region agent log
-    agentDebugLog("E", "InstallmentsPage.tsx:validation", "Validation branch evaluated", {
-      validationFailure,
-      nameLength: name.trim().length,
-      cardSelected: Boolean(cardId),
-      cardExists: cards.some((card) => card.id === cardId),
-    });
-    // #endregion
 
     if (!name.trim()) return setError("Escribe qué compraste.");
     if (!Number.isFinite(totalAmount) || totalAmount <= 0)
@@ -164,15 +54,6 @@ export function InstallmentsPage() {
       return setError("Indica un número de meses válido (entero mayor que 0).");
     if (!cardId) return setError("Selecciona una tarjeta.");
 
-    // #region agent log
-    agentDebugLog("E,F", "InstallmentsPage.tsx:add-before", "Calling addInstallment", {
-      installmentCountBefore: installments.length,
-      totalAmount,
-      months: m,
-      cardExists: cards.some((card) => card.id === cardId),
-      startMonth,
-    });
-    // #endregion
     addInstallment({
       name: name.trim(),
       totalAmount,
@@ -180,26 +61,6 @@ export function InstallmentsPage() {
       cardId,
       startMonth,
     });
-    const committedState = useFinanceStore.getState();
-    let persistedInstallmentCount: number | "missing" | "parse-error" = "missing";
-    try {
-      const persisted = JSON.parse(localStorage.getItem("control-financiero:v1") ?? "null");
-      if (Array.isArray(persisted?.state?.installments)) {
-        persistedInstallmentCount = persisted.state.installments.length;
-      }
-    } catch {
-      persistedInstallmentCount = "parse-error";
-    }
-    // #region agent log
-    agentDebugLog("F,H", "InstallmentsPage.tsx:add-after", "addInstallment returned", {
-      storeInstallmentCount: committedState.installments.length,
-      persistedInstallmentCount,
-      lastTotal:
-        committedState.installments[committedState.installments.length - 1]?.totalAmount ?? null,
-      lastMonths:
-        committedState.installments[committedState.installments.length - 1]?.months ?? null,
-    });
-    // #endregion
     setError(null);
     setOpen(false);
   }
@@ -344,18 +205,7 @@ export function InstallmentsPage() {
                   value={total}
                   placeholder="0.00"
                   onWheel={(e) => e.currentTarget.blur()}
-                  onFocus={(e) => traceNumericFocus("total", e.currentTarget)}
-                  onBeforeInput={(e) =>
-                    traceNumericBeforeInput(
-                      "total",
-                      e.currentTarget,
-                      e.nativeEvent as InputEvent,
-                    )
-                  }
-                  onChange={(e) => {
-                    traceNumericChange("total", e.currentTarget);
-                    setTotal(e.target.value);
-                  }}
+                  onChange={(e) => setTotal(e.target.value)}
                 />
               </div>
               <div className="field">
@@ -368,18 +218,7 @@ export function InstallmentsPage() {
                   value={months}
                   placeholder="12"
                   onWheel={(e) => e.currentTarget.blur()}
-                  onFocus={(e) => traceNumericFocus("months", e.currentTarget)}
-                  onBeforeInput={(e) =>
-                    traceNumericBeforeInput(
-                      "months",
-                      e.currentTarget,
-                      e.nativeEvent as InputEvent,
-                    )
-                  }
-                  onChange={(e) => {
-                    traceNumericChange("months", e.currentTarget);
-                    setMonths(e.target.value);
-                  }}
+                  onChange={(e) => setMonths(e.target.value)}
                 />
               </div>
             </div>
