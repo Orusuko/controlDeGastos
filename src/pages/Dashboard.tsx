@@ -158,6 +158,12 @@ export function Dashboard({ onNavigate }: { onNavigate: (v: View) => void }) {
                 </Pie>
                 <Tooltip
                   formatter={(value) => formatCurrency(Number(value), settings)}
+                  contentStyle={{
+                    background: "var(--surface)",
+                    border: "1px solid var(--border)",
+                    borderRadius: 12,
+                    color: "var(--text)",
+                  }}
                 />
               </PieChart>
             </ResponsiveContainer>
@@ -191,7 +197,7 @@ export function Dashboard({ onNavigate }: { onNavigate: (v: View) => void }) {
               >
                 <XAxis
                   dataKey="name"
-                  tick={{ fontSize: 12 }}
+                  tick={{ fontSize: 12, fill: "var(--muted)" }}
                   tickLine={false}
                   axisLine={false}
                 />
@@ -199,6 +205,12 @@ export function Dashboard({ onNavigate }: { onNavigate: (v: View) => void }) {
                 <Tooltip
                   formatter={(value) => formatCurrency(Number(value), settings)}
                   cursor={{ fill: "rgba(99,102,241,0.08)" }}
+                  contentStyle={{
+                    background: "var(--surface)",
+                    border: "1px solid var(--border)",
+                    borderRadius: 12,
+                    color: "var(--text)",
+                  }}
                 />
                 <Bar dataKey="total" radius={[8, 8, 0, 0]}>
                   {bars.map((b) => (

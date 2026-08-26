@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useFinanceStore } from "../store/useFinanceStore";
 import { formatCurrency } from "../lib/format";
+import type { ThemePreference } from "../types";
 
 const CURRENCIES: { code: string; label: string; locale: string }[] = [
   { code: "MXN", label: "Peso mexicano (MXN)", locale: "es-MX" },
@@ -12,11 +13,18 @@ const CURRENCIES: { code: string; label: string; locale: string }[] = [
   { code: "PEN", label: "Sol peruano (PEN)", locale: "es-PE" },
 ];
 
+const THEMES: { value: ThemePreference; label: string; hint: string }[] = [
+  { value: "system", label: "Sistema", hint: "Sigue el teléfono" },
+  { value: "light", label: "Claro", hint: "Ledger diurno" },
+  { value: "dark", label: "Oscuro", hint: "Ledger nocturno" },
+];
+
 export function SettingsPage() {
   const { settings, updateSettings, resetAll } = useFinanceStore();
   const [salary, setSalary] = useState(
     settings.monthlySalary ? String(settings.monthlySalary) : ""
   );
+  const theme: ThemePreference = settings.theme ?? "system";
 
   function saveSalary(value: string) {
     setSalary(value);
@@ -31,6 +39,30 @@ export function SettingsPage() {
 
   return (
     <>
+      <div className="card">
+        <h2>Apariencia</h2>
+        <div className="theme-card__preview" aria-hidden />
+        <p className="muted" style={{ marginTop: 0 }}>
+          Elige cómo se ve el ledger. Si no has elegido, se usa el tema del
+          sistema.
+        </p>
+        <div className="seg seg--grow" role="radiogroup" aria-label="Tema">
+          {THEMES.map((t) => (
+            <button
+              key={t.value}
+              type="button"
+              role="radio"
+              aria-checked={theme === t.value}
+              aria-pressed={theme === t.value}
+              title={t.hint}
+              onClick={() => updateSettings({ theme: t.value })}
+            >
+              {t.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
       <div className="card">
         <h2>Sueldo mensual</h2>
         <div className="field">
@@ -79,8 +111,8 @@ export function SettingsPage() {
         <h2>Datos</h2>
         <p className="muted" style={{ marginTop: 0 }}>
           Toda tu información se guarda localmente en este dispositivo
-          (almacenamiento del navegador). Está preparada para migrarse a una base
-          de datos en la nube más adelante.
+          (almacenamiento del navegador). Actualizar la app no borra tus datos;
+          desinstalarla sí.
         </p>
         <button
           className="btn btn--danger"
