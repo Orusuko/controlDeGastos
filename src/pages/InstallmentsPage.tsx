@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useFinanceStore } from "../store/useFinanceStore";
 import { Modal } from "../components/Modal";
 import { currentMonth, formatCurrency, formatMonth } from "../lib/format";
@@ -92,6 +92,18 @@ export function InstallmentsPage() {
 
   const thisMonth = currentMonth();
 
+  useEffect(() => {
+    const lastInstallment = installments.at(-1);
+    // #region agent log
+    agentDebugLog("G", "InstallmentsPage.tsx:render-state", "Installment view state committed", {
+      open,
+      installmentCount: installments.length,
+      lastTotal: lastInstallment?.totalAmount ?? null,
+      lastMonths: lastInstallment?.months ?? null,
+    });
+    // #endregion
+  }, [installments, open]);
+
   function openModal() {
     setName("");
     setTotal("");
@@ -127,6 +139,24 @@ export function InstallmentsPage() {
     });
     // #endregion
 
+    const validationFailure = !name.trim()
+      ? "missing-name"
+      : !Number.isFinite(totalAmount) || totalAmount <= 0
+        ? "invalid-total"
+        : !Number.isInteger(m) || m <= 0
+          ? "invalid-months"
+          : !cardId
+            ? "missing-card"
+            : null;
+    // #region agent log
+    agentDebugLog("E", "InstallmentsPage.tsx:validation", "Validation branch evaluated", {
+      validationFailure,
+      nameLength: name.trim().length,
+      cardSelected: Boolean(cardId),
+      cardExists: cards.some((card) => card.id === cardId),
+    });
+    // #endregion
+
     if (!name.trim()) return setError("Escribe qué compraste.");
     if (!Number.isFinite(totalAmount) || totalAmount <= 0)
       return setError("Indica un total pendiente mayor que cero.");
@@ -134,6 +164,15 @@ export function InstallmentsPage() {
       return setError("Indica un número de meses válido (entero mayor que 0).");
     if (!cardId) return setError("Selecciona una tarjeta.");
 
+    // #region agent log
+    agentDebugLog("E,F", "InstallmentsPage.tsx:add-before", "Calling addInstallment", {
+      installmentCountBefore: installments.length,
+      totalAmount,
+      months: m,
+      cardExists: cards.some((card) => card.id === cardId),
+      startMonth,
+    });
+    // #endregion
     addInstallment({
       name: name.trim(),
       totalAmount,
@@ -141,6 +180,24 @@ export function InstallmentsPage() {
       cardId,
       startMonth,
     });
+    const committedState = useFinanceStore.getState();
+    let persistedInstallmentCount: number | "missing" | "parse-error" = "missing";
+    try {
+      const persisted = JSON.parse(localStorage.getItem("control-financiero:v1") ?? "null");
+      if (Array.isArray(persisted?.state?.installments)) {
+        persistedInstallmentCount = persisted.state.installments.length;
+      }
+    } catch {
+      persistedInstallmentCount = "parse-error";
+    }
+    // #region agent log
+    agentDebugLog("F,H", "InstallmentsPage.tsx:add-after", "addInstallment returned", {
+      storeInstallmentCount: committedState.installments.length,
+      persistedInstallmentCount,
+      lastTotal: committedState.installments.at(-1)?.totalAmount ?? null,
+      lastMonths: committedState.installments.at(-1)?.months ?? null,
+    });
+    // #endregion
     setError(null);
     setOpen(false);
   }
