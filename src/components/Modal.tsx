@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { useEffect, type ReactNode } from "react";
 
 interface ModalProps {
   title: string;
@@ -7,6 +7,25 @@ interface ModalProps {
 }
 
 export function Modal({ title, onClose, children }: ModalProps) {
+  useEffect(() => {
+    function handleBack(event: Event) {
+      if (
+        event.type === "nativeBackButton" ||
+        (event instanceof KeyboardEvent && event.key === "Escape")
+      ) {
+        onClose();
+      }
+    }
+
+    window.addEventListener("nativeBackButton", handleBack);
+    window.addEventListener("keydown", handleBack);
+
+    return () => {
+      window.removeEventListener("nativeBackButton", handleBack);
+      window.removeEventListener("keydown", handleBack);
+    };
+  }, [onClose]);
+
   return (
     <div
       className="modal-backdrop"

@@ -1,4 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { Capacitor } from "@capacitor/core";
+import { App as CapacitorApp } from "@capacitor/app";
+import { StatusBar, Style } from "@capacitor/status-bar";
 import { BottomNav, type View } from "./components/BottomNav";
 import { Dashboard } from "./pages/Dashboard";
 import { CardsPage } from "./pages/CardsPage";
@@ -17,6 +20,33 @@ const SUBTITLES: Record<View, string> = {
 
 export default function App() {
   const [view, setView] = useState<View>("dashboard");
+
+  useEffect(() => {
+    if (!Capacitor.isNativePlatform()) return;
+
+    void StatusBar.setOverlaysWebView({ overlay: false });
+    void StatusBar.setBackgroundColor({ color: "#4f46e5" });
+    void StatusBar.setStyle({ style: Style.Light });
+
+    const backButton = CapacitorApp.addListener("backButton", () => {
+      if (document.querySelector('[role="dialog"]')) {
+        window.dispatchEvent(new Event("nativeBackButton"));
+        return;
+      }
+
+      setView((currentView) => {
+        if (currentView === "dashboard") {
+          void CapacitorApp.minimizeApp();
+          return currentView;
+        }
+        return "dashboard";
+      });
+    });
+
+    return () => {
+      void backButton.then((listener) => listener.remove());
+    };
+  }, []);
 
   return (
     <div className="app">

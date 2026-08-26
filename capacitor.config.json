@@ -1,0 +1,10 @@
+{
+  "appId": "com.orusuko.controlfinanciero",
+  "appName": "Control Financiero",
+  "webDir": "dist",
+  "backgroundColor": "#f1f5f9",
+  "android": {
+    "allowMixedContent": false,
+    "backgroundColor": "#f1f5f9"
+  }
+}

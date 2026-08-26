@@ -1,7 +1,7 @@
-# Control Financiero
+# Control Financiero para Android
 
-App web *local-first* para el **control de finanzas personales**, pensada
-principalmente para el navegador de Android. Permite:
+Aplicación Android *local-first* para el **control de finanzas personales**.
+También conserva una versión web instalable. Permite:
 
 - Registrar **tarjetas** de crédito (solo el nombre, sin datos bancarios) para
   distinguir los gastos de cada una.
@@ -14,8 +14,9 @@ principalmente para el navegador de Android. Permite:
   (distribución por categoría y gasto por tarjeta) y **consejos financieros**
   según tu sueldo mensual.
 
-Los datos se guardan **localmente en el dispositivo** (almacenamiento del
-navegador vía Zustand `persist`). La capa de datos está aislada en
+Los datos se guardan **localmente en el espacio privado de la aplicación**
+mediante Zustand `persist`; no requieren una cuenta ni salen del teléfono. La
+capa de datos está aislada en
 `src/store/useFinanceStore.ts` para poder migrarla a una base de datos en la
 nube (por ejemplo Supabase) más adelante.
 
@@ -24,11 +25,14 @@ nube (por ejemplo Supabase) más adelante.
 - **React 19** + **TypeScript** + **Vite**
 - **Zustand** (estado + persistencia en `localStorage`)
 - **Recharts** (gráficas)
+- **Capacitor 8** (aplicación nativa Android)
 
 ## Requisitos
 
 - Node.js 22+
 - npm 10+
+- Para compilar el APK: Android Studio o Android SDK 36 y Java 21
+- Android 7.0 (API 24) o posterior en el dispositivo
 
 ## Puesta en marcha
 
@@ -36,6 +40,32 @@ nube (por ejemplo Supabase) más adelante.
 npm install
 npm run dev       # app en http://localhost:5173
 ```
+
+## Compilar la aplicación Android
+
+```bash
+npm install
+npm run android:sync  # compila React y sincroniza el proyecto nativo
+npm run android:open  # abre el proyecto en Android Studio
+```
+
+Para generar directamente un APK de desarrollo:
+
+```bash
+npm run android:apk
+```
+
+El APK queda en
+`android/app/build/outputs/apk/debug/app-debug.apk`. Se puede instalar con
+Android Studio o con:
+
+```bash
+adb install -r android/app/build/outputs/apk/debug/app-debug.apk
+```
+
+La aplicación usa el identificador `com.orusuko.controlfinanciero`. El botón
+Atrás de Android cierra primero un formulario abierto, vuelve después al
+resumen y, desde el resumen, envía la aplicación a segundo plano.
 
 ## Otros comandos
 
@@ -82,6 +112,9 @@ src/
     format.ts              # formato de moneda y fechas
   components/              # Modal, navegación inferior
   pages/                   # Dashboard, Tarjetas, Gastos fijos, Mensualidades, Ajustes
+android/                   # Proyecto nativo Gradle para Android
+assets/                    # Fuente del icono y splash nativos
+capacitor.config.json      # Identidad y configuración de Capacitor
 ```
 
 ## Entorno de Cloud Agent
