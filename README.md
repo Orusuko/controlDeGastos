@@ -125,8 +125,9 @@ cd android
 
 - El `appId` de la app es `com.controlfinanciero.app` (ver
   `capacitor.config.json`).
-- Los íconos y la pantalla de splash se generan a partir de los SVG en
-  `resources/` con `npx capacitor-assets generate --android`.
+- El ícono de Android se genera a partir de `resources/logo.png` con
+  `npx capacitor-assets generate --android`. La imagen usa un gráfico de
+  billetera y crecimiento para representar las finanzas personales.
 - El build web para Android usa el modo `capacitor` de Vite (rutas relativas,
   carpeta de salida `dist-android/`), distinto del build para GitHub Pages
   (`dist/`, rutas bajo `/controlDeGastos/`). Ver `vite.config.ts`.
