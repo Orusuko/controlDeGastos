@@ -78,9 +78,9 @@ export function SettingsPage() {
       <div className="card">
         <h2>Datos</h2>
         <p className="muted" style={{ marginTop: 0 }}>
-          Toda tu información se guarda localmente en este dispositivo
-          (almacenamiento del navegador). Está preparada para migrarse a una base
-          de datos en la nube más adelante.
+          Toda tu información se guarda localmente en este dispositivo. No sale
+          del teléfono y está preparada para migrarse a una base de datos en la
+          nube más adelante.
         </p>
         <button
           className="btn btn--danger"

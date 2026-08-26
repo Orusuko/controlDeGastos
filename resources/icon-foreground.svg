@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 432 432">
+  <!-- Zona segura de icono adaptativo (~66 % central) -->
+  <path d="M126 296V136h117a54 54 0 0 1 0 108H162" fill="none" stroke="#fff" stroke-width="32" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M180 100v232" fill="none" stroke="#fff" stroke-width="32" stroke-linecap="round"/>
+</svg>

@@ -1,4 +1,5 @@
-import type { ReactNode } from "react";
+import { useCallback, type ReactNode } from "react";
+import { useAndroidBack } from "../native/backButton";
 
 interface ModalProps {
   title: string;
@@ -7,6 +8,12 @@ interface ModalProps {
 }
 
 export function Modal({ title, onClose, children }: ModalProps) {
+  const handleBack = useCallback(() => {
+    onClose();
+    return true;
+  }, [onClose]);
+  useAndroidBack(handleBack);
+
   return (
     <div
       className="modal-backdrop"

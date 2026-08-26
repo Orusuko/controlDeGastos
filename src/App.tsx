@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { BottomNav, type View } from "./components/BottomNav";
 import { Dashboard } from "./pages/Dashboard";
 import { CardsPage } from "./pages/CardsPage";
@@ -6,6 +6,7 @@ import { FixedExpensesPage } from "./pages/FixedExpensesPage";
 import { InstallmentsPage } from "./pages/InstallmentsPage";
 import { SettingsPage } from "./pages/SettingsPage";
 import { formatMonth, currentMonth } from "./lib/format";
+import { startAndroidBackListener } from "./native/backButton";
 
 const SUBTITLES: Record<View, string> = {
   dashboard: "Tu mes en un vistazo",
@@ -17,6 +18,18 @@ const SUBTITLES: Record<View, string> = {
 
 export default function App() {
   const [view, setView] = useState<View>("dashboard");
+  const viewRef = useRef(view);
+  viewRef.current = view;
+
+  useEffect(() => {
+    return startAndroidBackListener(() => {
+      if (viewRef.current !== "dashboard") {
+        setView("dashboard");
+        return true;
+      }
+      return false;
+    });
+  }, []);
 
   return (
     <div className="app">
