@@ -20,6 +20,26 @@ navegador vía Zustand `persist`). La capa de datos está aislada en
 `src/store/useFinanceStore.ts` para poder migrarla a una base de datos en la
 nube (por ejemplo Supabase) más adelante.
 
+## 📲 Descargar el APK
+
+**[⬇️ Descargar Control Financiero.apk](https://github.com/Orusuko/controlDeGastos/releases/download/android-latest/control-financiero.apk)**
+
+Enlace directo y estable: siempre apunta a la última compilación generada
+automáticamente desde `main` (workflow
+[`android-release.yml`](.github/workflows/android-release.yml)). Es un APK de
+depuración (sin firmar para producción ni publicado en Google Play), pensado
+para instalar y probar la app directamente en tu teléfono:
+
+1. Descarga el APK desde el enlace anterior en tu Android.
+2. Si Android lo bloquea, activa **"Instalar apps desconocidas"** para el
+   navegador/gestor de archivos que usaste para descargarlo.
+3. Abre el archivo descargado y confirma la instalación.
+
+> El enlace empieza a funcionar en cuanto el workflow `android-release.yml` se
+> ejecuta por primera vez en `main` (o se lanza manualmente desde la pestaña
+> **Actions** del repositorio). Cada nuevo push a `main` que toque la app
+> regenera automáticamente este mismo APK.
+
 ## Stack
 
 - **React 19** + **TypeScript** + **Vite**
@@ -120,6 +140,15 @@ cd android
 ./gradlew assembleDebug
 # APK resultante en android/app/build/outputs/apk/debug/app-debug.apk
 ```
+
+### Descarga automática (CI)
+
+En cada push a `main` que modifique la app, el workflow
+[`android-release.yml`](.github/workflows/android-release.yml) compila el APK
+de depuración en GitHub Actions y lo publica (o actualiza) en la release fija
+`android-latest`, disponible siempre en el mismo enlace — ver
+[Descargar el APK](#-descargar-el-apk) más arriba. También se puede lanzar a
+mano desde **Actions → Compilar y publicar APK de Android → Run workflow**.
 
 ### Notas
 

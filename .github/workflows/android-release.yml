@@ -1,0 +1,81 @@
+name: Compilar y publicar APK de Android
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "src/**"
+      - "public/**"
+      - "android/**"
+      - "resources/**"
+      - "package.json"
+      - "package-lock.json"
+      - "vite.config.ts"
+      - "capacitor.config.json"
+      - ".github/workflows/android-release.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+# Evita que dos publicaciones de la misma release se pisen entre sí.
+concurrency:
+  group: android-release
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configurar Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Instalar dependencias
+        run: npm ci
+
+      - name: Configurar JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Configurar Android SDK
+        uses: android-actions/setup-android@v4
+        with:
+          packages: "platform-tools"
+
+      - name: Instalar paquetes del SDK necesarios
+        run: sdkmanager "platforms;android-36" "build-tools;36.0.0"
+
+      - name: Compilar la web para Android
+        run: npm run build:android
+
+      - name: Sincronizar el proyecto Android
+        run: npx cap sync android
+
+      - name: Compilar APK de depuración
+        working-directory: android
+        run: ./gradlew assembleDebug --no-daemon
+
+      - name: Preparar el APK para publicar
+        run: cp android/app/build/outputs/apk/debug/app-debug.apk control-financiero.apk
+
+      - name: Publicar (o actualizar) la release con el APK
+        uses: softprops/action-gh-release@v3
+        with:
+          tag_name: android-latest
+          name: Control Financiero (Android)
+          body: >
+            APK de depuración generado automáticamente desde la rama `main`
+            en cada cambio relevante. Instálalo activando "Instalar apps
+            desconocidas" en Android. No está firmado para producción ni
+            publicado en Google Play.
+          prerelease: false
+          make_latest: true
+          files: control-financiero.apk
