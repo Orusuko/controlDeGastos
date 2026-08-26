@@ -1,4 +1,5 @@
-import type { ReactNode } from "react";
+import { useEffect, type ReactNode } from "react";
+import { pushModalCloser } from "../lib/native";
 
 interface ModalProps {
   title: string;
@@ -7,6 +8,8 @@ interface ModalProps {
 }
 
 export function Modal({ title, onClose, children }: ModalProps) {
+  useEffect(() => pushModalCloser(onClose), [onClose]);
+
   return (
     <div
       className="modal-backdrop"

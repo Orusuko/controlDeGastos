@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useFinanceStore } from "../store/useFinanceStore";
 import { formatCurrency } from "../lib/format";
+import { isNativeApp } from "../lib/native";
 
 const CURRENCIES: { code: string; label: string; locale: string }[] = [
   { code: "MXN", label: "Peso mexicano (MXN)", locale: "es-MX" },
@@ -78,8 +79,8 @@ export function SettingsPage() {
       <div className="card">
         <h2>Datos</h2>
         <p className="muted" style={{ marginTop: 0 }}>
-          Toda tu información se guarda localmente en este dispositivo
-          (almacenamiento del navegador). Está preparada para migrarse a una base
+          Toda tu información se guarda localmente en este dispositivo.
+          Nunca sale del teléfono. Está preparada para migrarse a una base
           de datos en la nube más adelante.
         </p>
         <button
@@ -100,7 +101,8 @@ export function SettingsPage() {
       </div>
 
       <p className="muted" style={{ textAlign: "center" }}>
-        Control Financiero · datos locales en tu teléfono
+        Control Financiero ·{" "}
+        {isNativeApp() ? "app Android · " : ""}datos locales en tu teléfono
       </p>
     </>
   );

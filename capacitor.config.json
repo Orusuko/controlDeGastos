@@ -1,0 +1,28 @@
+{
+  "appId": "com.orusuko.controlfinanciero",
+  "appName": "Control Financiero",
+  "webDir": "dist",
+  "backgroundColor": "#4f46e5",
+  "android": {
+    "allowMixedContent": false,
+    "backgroundColor": "#4f46e5",
+    "captureInput": true
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 800,
+      "launchAutoHide": true,
+      "backgroundColor": "#4f46e5",
+      "showSpinner": false,
+      "androidSplashResourceName": "splash",
+      "androidScaleType": "CENTER_CROP"
+    },
+    "StatusBar": {
+      "style": "DARK",
+      "backgroundColor": "#4f46e5"
+    },
+    "Keyboard": {
+      "resizeOnFullScreen": true
+    }
+  }
+}

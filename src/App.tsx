@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { BottomNav, type View } from "./components/BottomNav";
 import { Dashboard } from "./pages/Dashboard";
 import { CardsPage } from "./pages/CardsPage";
@@ -6,6 +6,7 @@ import { FixedExpensesPage } from "./pages/FixedExpensesPage";
 import { InstallmentsPage } from "./pages/InstallmentsPage";
 import { SettingsPage } from "./pages/SettingsPage";
 import { formatMonth, currentMonth } from "./lib/format";
+import { syncNativeView } from "./lib/native";
 
 const SUBTITLES: Record<View, string> = {
   dashboard: "Tu mes en un vistazo",
@@ -17,6 +18,10 @@ const SUBTITLES: Record<View, string> = {
 
 export default function App() {
   const [view, setView] = useState<View>("dashboard");
+
+  useEffect(() => {
+    syncNativeView(view, setView);
+  }, [view]);
 
   return (
     <div className="app">
