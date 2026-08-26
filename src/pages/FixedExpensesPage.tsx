@@ -3,6 +3,7 @@ import { useFinanceStore } from "../store/useFinanceStore";
 import { Modal } from "../components/Modal";
 import { formatCurrency } from "../lib/format";
 import { FIXED_CATEGORIES, type FixedCategory } from "../types";
+import { formNumber, formString } from "../lib/form";
 
 const CATEGORY_COLORS: Record<string, string> = {
   Streaming: "#ec4899",
@@ -32,14 +33,25 @@ export function FixedExpensesPage() {
     setOpen(true);
   }
 
-  function submit(e: React.FormEvent) {
+  function submit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    const amt = Number(amount);
-    if (!name.trim()) return setError("Escribe el nombre del gasto.");
+    const form = e.currentTarget;
+    const itemName = formString(form, "name");
+    const amt = formNumber(form, "amount");
+    const selectedCategory = (formString(form, "category") ||
+      category) as FixedCategory;
+    const selectedCard = formString(form, "cardId") || cardId;
+
+    if (!itemName) return setError("Escribe el nombre del gasto.");
     if (!Number.isFinite(amt) || amt <= 0)
       return setError("Indica un importe mayor que cero.");
-    if (!cardId) return setError("Selecciona una tarjeta.");
-    addFixed({ name: name.trim(), amount: amt, category, cardId });
+    if (!selectedCard) return setError("Selecciona una tarjeta.");
+    addFixed({
+      name: itemName,
+      amount: amt,
+      category: selectedCategory,
+      cardId: selectedCard,
+    });
     setError(null);
     setOpen(false);
   }
@@ -120,6 +132,7 @@ export function FixedExpensesPage() {
             <div className="field">
               <label>Nombre</label>
               <input
+                name="name"
                 type="text"
                 value={name}
                 autoFocus
@@ -131,19 +144,18 @@ export function FixedExpensesPage() {
               <div className="field">
                 <label>Importe mensual</label>
                 <input
-                  type="number"
+                  name="amount"
+                  type="text"
                   inputMode="decimal"
-                  min="0.01"
-                  step="0.01"
                   value={amount}
                   placeholder="0.00"
-                  onWheel={(e) => e.currentTarget.blur()}
                   onChange={(e) => setAmount(e.target.value)}
                 />
               </div>
               <div className="field">
                 <label>Categoría</label>
                 <select
+                  name="category"
                   value={category}
                   onChange={(e) =>
                     setCategory(e.target.value as FixedCategory)
@@ -160,6 +172,7 @@ export function FixedExpensesPage() {
             <div className="field">
               <label>Tarjeta</label>
               <select
+                name="cardId"
                 value={cardId}
                 onChange={(e) => setCardId(e.target.value)}
               >

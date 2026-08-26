@@ -3,6 +3,7 @@ import { useFinanceStore } from "../store/useFinanceStore";
 import { Modal } from "../components/Modal";
 import { formatCurrency } from "../lib/format";
 import { monthlyTotalForCard } from "../lib/finance";
+import { formString } from "../lib/form";
 
 export function CardsPage() {
   const { cards, fixed, installments, settings, addCard, removeCard } =
@@ -10,10 +11,11 @@ export function CardsPage() {
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
 
-  function submit(e: React.FormEvent) {
+  function submit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    if (!name.trim()) return;
-    addCard(name);
+    const cardName = formString(e.currentTarget, "name") || name;
+    if (!cardName) return;
+    addCard(cardName);
     setName("");
     setOpen(false);
   }
@@ -94,6 +96,7 @@ export function CardsPage() {
               <label htmlFor="card-name">Nombre de la tarjeta</label>
               <input
                 id="card-name"
+                name="name"
                 type="text"
                 value={name}
                 autoFocus

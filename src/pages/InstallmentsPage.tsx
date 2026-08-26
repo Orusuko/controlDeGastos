@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useFinanceStore } from "../store/useFinanceStore";
 import { Modal } from "../components/Modal";
 import { currentMonth, formatCurrency, formatMonth } from "../lib/format";
+import { formInt, formNumber, formString } from "../lib/form";
 import {
   monthlyAmount,
   paidCount,
@@ -42,24 +43,28 @@ export function InstallmentsPage() {
     setOpen(true);
   }
 
-  function submit(e: React.FormEvent) {
+  function submit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    const totalAmount = Number(total);
-    const m = Number(months);
+    const form = e.currentTarget;
+    const itemName = formString(form, "name");
+    const totalAmount = formNumber(form, "total");
+    const m = formInt(form, "months");
+    const selectedCard = formString(form, "cardId") || cardId;
+    const start = formString(form, "startMonth") || startMonth;
 
-    if (!name.trim()) return setError("Escribe qué compraste.");
+    if (!itemName) return setError("Escribe qué compraste.");
     if (!Number.isFinite(totalAmount) || totalAmount <= 0)
       return setError("Indica un total pendiente mayor que cero.");
-    if (!Number.isInteger(m) || m <= 0)
+    if (!Number.isFinite(m) || m <= 0)
       return setError("Indica un número de meses válido (entero mayor que 0).");
-    if (!cardId) return setError("Selecciona una tarjeta.");
+    if (!selectedCard) return setError("Selecciona una tarjeta.");
 
     addInstallment({
-      name: name.trim(),
+      name: itemName,
       totalAmount,
       months: m,
-      cardId,
-      startMonth,
+      cardId: selectedCard,
+      startMonth: start,
     });
     setError(null);
     setOpen(false);
@@ -187,6 +192,7 @@ export function InstallmentsPage() {
             <div className="field">
               <label>¿Qué compraste?</label>
               <input
+                name="name"
                 type="text"
                 value={name}
                 autoFocus
@@ -198,35 +204,36 @@ export function InstallmentsPage() {
               <div className="field">
                 <label>Total pendiente</label>
                 <input
-                  type="number"
+                  name="total"
+                  type="text"
                   inputMode="decimal"
-                  min="0.01"
-                  step="0.01"
                   value={total}
                   placeholder="0.00"
-                  onWheel={(e) => e.currentTarget.blur()}
                   onChange={(e) => setTotal(e.target.value)}
                 />
               </div>
               <div className="field">
                 <label>Nº de meses</label>
                 <input
-                  type="number"
+                  name="months"
+                  type="text"
                   inputMode="numeric"
-                  min="1"
-                  step="1"
                   value={months}
                   placeholder="12"
-                  onWheel={(e) => e.currentTarget.blur()}
                   onChange={(e) => setMonths(e.target.value)}
                 />
               </div>
             </div>
-            {Number(total) > 0 && Number(months) > 0 && (
+            {Number(total.replace(",", ".")) > 0 &&
+              Number(months.replace(",", ".")) > 0 && (
               <p className="muted" style={{ marginTop: -6, marginBottom: 12 }}>
                 Pago mensual estimado:{" "}
                 <strong>
-                  {formatCurrency(Number(total) / Number(months), settings)}
+                  {formatCurrency(
+                    Number(total.replace(",", ".")) /
+                      Number(months.replace(",", ".")),
+                    settings
+                  )}
                 </strong>
               </p>
             )}
@@ -234,6 +241,7 @@ export function InstallmentsPage() {
               <div className="field">
                 <label>Tarjeta</label>
                 <select
+                  name="cardId"
                   value={cardId}
                   onChange={(e) => setCardId(e.target.value)}
                 >
@@ -247,6 +255,7 @@ export function InstallmentsPage() {
               <div className="field">
                 <label>Mes de inicio</label>
                 <input
+                  name="startMonth"
                   type="month"
                   value={startMonth}
                   onChange={(e) => setStartMonth(e.target.value)}

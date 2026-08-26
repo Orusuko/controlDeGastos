@@ -20,7 +20,7 @@ export function SettingsPage() {
 
   function saveSalary(value: string) {
     setSalary(value);
-    const n = Number(value);
+    const n = Number(value.replace(",", "."));
     updateSettings({ monthlySalary: Number.isFinite(n) && n > 0 ? n : 0 });
   }
 
@@ -36,13 +36,10 @@ export function SettingsPage() {
         <div className="field">
           <label>¿Cuánto ganas al mes (aprox.)?</label>
           <input
-            type="number"
+            type="text"
             inputMode="decimal"
-            min="0"
-            step="0.01"
             value={salary}
             placeholder="0.00"
-            onWheel={(e) => e.currentTarget.blur()}
             onChange={(e) => saveSalary(e.target.value)}
           />
           <span className="muted">
