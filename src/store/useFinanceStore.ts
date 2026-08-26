@@ -8,6 +8,14 @@ import type {
   Settings,
 } from "../types";
 import { currentMonth } from "../lib/format";
+import { CARD_COLORS } from "../lib/colors";
+import {
+  DEFAULT_SETTINGS,
+  PERSIST_NAME,
+  PERSIST_VERSION,
+  mergePersistedState,
+  migratePersistedState,
+} from "./persist";
 
 function uid(): string {
   return (
@@ -15,30 +23,13 @@ function uid(): string {
   );
 }
 
-const DEFAULT_SETTINGS: Settings = {
-  monthlySalary: 0,
-  currency: "MXN",
-  locale: "es-MX",
-};
-
-const CARD_COLORS = [
-  "#6366f1",
-  "#0ea5e9",
-  "#10b981",
-  "#f59e0b",
-  "#ef4444",
-  "#ec4899",
-  "#8b5cf6",
-  "#14b8a6",
-];
-
 interface FinanceState {
   cards: Card[];
   fixed: FixedExpense[];
   installments: Installment[];
   settings: Settings;
 
-  addCard: (name: string) => void;
+  addCard: (name: string, color?: string) => void;
   updateCard: (id: string, patch: Partial<Omit<Card, "id">>) => void;
   removeCard: (id: string) => void;
 
@@ -69,14 +60,15 @@ export const useFinanceStore = create<FinanceState>()(
       installments: [],
       settings: DEFAULT_SETTINGS,
 
-      addCard: (name) =>
+      addCard: (name, color) =>
         set((state) => ({
           cards: [
             ...state.cards,
             {
               id: uid(),
               name: name.trim(),
-              color: CARD_COLORS[state.cards.length % CARD_COLORS.length],
+              color:
+                color ?? CARD_COLORS[state.cards.length % CARD_COLORS.length],
             },
           ],
         })),
@@ -149,10 +141,20 @@ export const useFinanceStore = create<FinanceState>()(
         }),
     }),
     {
-      name: "control-financiero:v1",
-      version: 1,
+      name: PERSIST_NAME,
+      version: PERSIST_VERSION,
+      migrate: (persisted, fromVersion) =>
+        migratePersistedState(persisted, fromVersion),
+      merge: (persistedState, currentState) =>
+        mergePersistedState(persistedState, currentState),
+      partialize: (state) => ({
+        cards: state.cards,
+        fixed: state.fixed,
+        installments: state.installments,
+        settings: state.settings,
+      }),
     }
   )
 );
 
-export { uid, currentMonth };
+export { uid, currentMonth, PERSIST_NAME, PERSIST_VERSION, DEFAULT_SETTINGS };
