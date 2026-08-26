@@ -93,7 +93,7 @@ export function InstallmentsPage() {
   const thisMonth = currentMonth();
 
   useEffect(() => {
-    const lastInstallment = installments.at(-1);
+    const lastInstallment = installments[installments.length - 1];
     // #region agent log
     agentDebugLog("G", "InstallmentsPage.tsx:render-state", "Installment view state committed", {
       open,
@@ -194,8 +194,10 @@ export function InstallmentsPage() {
     agentDebugLog("F,H", "InstallmentsPage.tsx:add-after", "addInstallment returned", {
       storeInstallmentCount: committedState.installments.length,
       persistedInstallmentCount,
-      lastTotal: committedState.installments.at(-1)?.totalAmount ?? null,
-      lastMonths: committedState.installments.at(-1)?.months ?? null,
+      lastTotal:
+        committedState.installments[committedState.installments.length - 1]?.totalAmount ?? null,
+      lastMonths:
+        committedState.installments[committedState.installments.length - 1]?.months ?? null,
     });
     // #endregion
     setError(null);
