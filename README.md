@@ -146,9 +146,10 @@ cd android
 En cada push a `main` que modifique la app, el workflow
 [`android-release.yml`](.github/workflows/android-release.yml) compila el APK
 de depuración en GitHub Actions y lo publica (o actualiza) en la release fija
-`android-latest`, disponible siempre en el mismo enlace — ver
-[Descargar el APK](#-descargar-el-apk) más arriba. También se puede lanzar a
-mano desde **Actions → Compilar y publicar APK de Android → Run workflow**.
+`android-latest`, disponible siempre en el mismo enlace de descarga que
+aparece al principio de este README, en la sección "Descargar el APK".
+También se puede lanzar a mano desde **Actions → Compilar y publicar APK de
+Android → Run workflow**.
 
 ### Notas
 
@@ -177,7 +178,7 @@ src/
   components/              # Modal, navegación inferior
   pages/                   # Dashboard, Tarjetas, Gastos fijos, Mensualidades, Ajustes
 android/                   # Proyecto nativo de Android generado por Capacitor
-resources/                 # SVG fuente para generar íconos/splash de Android
+resources/                 # Logo fuente para generar íconos/splash de Android
 ```
 
 ## Entorno de Cloud Agent
