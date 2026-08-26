@@ -11,6 +11,66 @@ import {
   isPaidForMonth,
 } from "../lib/finance";
 
+const DEBUG_PREFIX = "AGENT_DEBUG ";
+
+function agentDebugLog(
+  hypothesisId: string,
+  location: string,
+  message: string,
+  data: Record<string, unknown>,
+) {
+  console.info(
+    DEBUG_PREFIX +
+      JSON.stringify({ hypothesisId, location, message, data, timestamp: Date.now() }),
+  );
+}
+
+function traceNumericFocus(field: "total" | "months", input: HTMLInputElement) {
+  // #region agent log
+  agentDebugLog("B", "InstallmentsPage.tsx:numeric-focus", "Numeric input focused", {
+    field,
+    value: input.value,
+    selectionStart: input.selectionStart,
+    selectionEnd: input.selectionEnd,
+  });
+  // #endregion
+}
+
+function traceNumericBeforeInput(
+  field: "total" | "months",
+  input: HTMLInputElement,
+  event: InputEvent,
+) {
+  // #region agent log
+  agentDebugLog(
+    "A,C",
+    "InstallmentsPage.tsx:numeric-beforeinput",
+    "Numeric input beforeinput",
+    {
+      field,
+      inputType: event.inputType,
+      data: event.data,
+      isComposing: event.isComposing,
+      valueBefore: input.value,
+      selectionStart: input.selectionStart,
+      selectionEnd: input.selectionEnd,
+    },
+  );
+  // #endregion
+}
+
+function traceNumericChange(field: "total" | "months", input: HTMLInputElement) {
+  // #region agent log
+  agentDebugLog("A,C,D", "InstallmentsPage.tsx:numeric-change", "React change received", {
+    field,
+    rawValue: input.value,
+    valueAsNumber: Number.isNaN(input.valueAsNumber) ? "NaN" : input.valueAsNumber,
+    badInput: input.validity.badInput,
+    stepMismatch: input.validity.stepMismatch,
+  });
+  // #endregion
+}
+
 export function InstallmentsPage() {
   const {
     cards,
@@ -46,6 +106,26 @@ export function InstallmentsPage() {
     e.preventDefault();
     const totalAmount = Number(total);
     const m = Number(months);
+    const numericInputs = e.currentTarget.querySelectorAll<HTMLInputElement>(
+      'input[type="number"]',
+    );
+
+    // #region agent log
+    agentDebugLog("B,D", "InstallmentsPage.tsx:submit", "Installment form submitted", {
+      stateTotal: total,
+      stateMonths: months,
+      parsedTotal: Number.isNaN(totalAmount) ? "NaN" : totalAmount,
+      parsedMonths: Number.isNaN(m) ? "NaN" : m,
+      domTotal: numericInputs[0]?.value ?? null,
+      domMonths: numericInputs[1]?.value ?? null,
+      activeElement:
+        document.activeElement === numericInputs[0]
+          ? "total"
+          : document.activeElement === numericInputs[1]
+            ? "months"
+            : document.activeElement?.tagName ?? null,
+    });
+    // #endregion
 
     if (!name.trim()) return setError("Escribe qué compraste.");
     if (!Number.isFinite(totalAmount) || totalAmount <= 0)
@@ -205,7 +285,18 @@ export function InstallmentsPage() {
                   value={total}
                   placeholder="0.00"
                   onWheel={(e) => e.currentTarget.blur()}
-                  onChange={(e) => setTotal(e.target.value)}
+                  onFocus={(e) => traceNumericFocus("total", e.currentTarget)}
+                  onBeforeInput={(e) =>
+                    traceNumericBeforeInput(
+                      "total",
+                      e.currentTarget,
+                      e.nativeEvent as InputEvent,
+                    )
+                  }
+                  onChange={(e) => {
+                    traceNumericChange("total", e.currentTarget);
+                    setTotal(e.target.value);
+                  }}
                 />
               </div>
               <div className="field">
@@ -218,7 +309,18 @@ export function InstallmentsPage() {
                   value={months}
                   placeholder="12"
                   onWheel={(e) => e.currentTarget.blur()}
-                  onChange={(e) => setMonths(e.target.value)}
+                  onFocus={(e) => traceNumericFocus("months", e.currentTarget)}
+                  onBeforeInput={(e) =>
+                    traceNumericBeforeInput(
+                      "months",
+                      e.currentTarget,
+                      e.nativeEvent as InputEvent,
+                    )
+                  }
+                  onChange={(e) => {
+                    traceNumericChange("months", e.currentTarget);
+                    setMonths(e.target.value);
+                  }}
                 />
               </div>
             </div>
