@@ -6,6 +6,7 @@ on:
     paths:
       - "src/**"
       - "public/**"
+      - "index.html"
       - "android/**"
       - "resources/**"
       - "package.json"
@@ -56,6 +57,25 @@ jobs:
       - name: Compilar la web para Android
         run: npm run build:android
 
+      - name: Verificar que el bundle incluye las features
+        run: |
+          set -euo pipefail
+          js=$(ls dist-android/assets/*.js | head -n 1)
+          echo "Bundle: $js"
+          missing=0
+          for needle in "Apariencia" "Oscuro" "Editar gasto fijo" "Ordenar por" "control-financiero:v1" "Vista de cuadrícula"; do
+            if grep -qF "$needle" "$js"; then
+              echo "OK  $needle"
+            else
+              echo "FALTA  $needle"
+              missing=1
+            fi
+          done
+          if [ "$missing" -ne 0 ]; then
+            echo "El JS embebido no contiene las features; no se publica el APK."
+            exit 1
+          fi
+
       - name: Sincronizar el proyecto Android
         run: npx cap sync android
 
@@ -63,19 +83,42 @@ jobs:
         working-directory: android
         run: ./gradlew assembleDebug --no-daemon
 
-      - name: Preparar el APK para publicar
-        run: cp android/app/build/outputs/apk/debug/app-debug.apk control-financiero.apk
+      - name: Preparar el APK y las notas de la release
+        id: meta
+        run: |
+          set -euo pipefail
+          VERSION_NAME=$(sed -n 's/.*versionName "\(.*\)"/\1/p' android/app/build.gradle | head -n 1)
+          VERSION_CODE=$(sed -n 's/.*versionCode \([0-9]*\).*/\1/p' android/app/build.gradle | head -n 1)
+          SHA=$(git rev-parse --short HEAD)
+          STAMP=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+          cp android/app/build/outputs/apk/debug/app-debug.apk control-financiero.apk
+          cp control-financiero.apk "control-financiero-${VERSION_NAME}.apk"
+          cat > release-body.md <<EOF
+          APK de depuración generado automáticamente desde \`main\`.
+
+          - **Versión:** ${VERSION_NAME} (versionCode ${VERSION_CODE})
+          - **Commit:** \`${SHA}\`
+          - **Compilado:** ${STAMP} UTC
+
+          Incluye modo oscuro, detalle por tarjeta, edición de gastos, vista lista/cuadrícula y ordenamiento.
+
+          Instálalo **encima** de la app (no desinstales: conservarías los datos). Si el navegador te da un APK cacheado, borra \`control-financiero.apk\` de Descargas y vuelve a bajarlo, o usa el archivo versionado \`control-financiero-${VERSION_NAME}.apk\`.
+
+          Comprueba en **Ajustes** que aparezca **v${VERSION_NAME} (${VERSION_CODE})**. Si ves una versión anterior, es el APK viejo.
+
+          No está firmado para producción ni publicado en Google Play.
+          EOF
+          echo "version_name=${VERSION_NAME}" >> "$GITHUB_OUTPUT"
+          echo "version_code=${VERSION_CODE}" >> "$GITHUB_OUTPUT"
 
       - name: Publicar (o actualizar) la release con el APK
         uses: softprops/action-gh-release@v3
         with:
           tag_name: android-latest
           name: Control Financiero (Android)
-          body: >
-            APK de depuración generado automáticamente desde la rama `main`
-            en cada cambio relevante. Instálalo activando "Instalar apps
-            desconocidas" en Android. No está firmado para producción ni
-            publicado en Google Play.
+          body_path: release-body.md
           prerelease: false
           make_latest: true
-          files: control-financiero.apk
+          files: |
+            control-financiero.apk
+            control-financiero-${{ steps.meta.outputs.version_name }}.apk
