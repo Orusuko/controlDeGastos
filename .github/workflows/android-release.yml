@@ -63,7 +63,7 @@ jobs:
           js=$(ls dist-android/assets/index-*.js | head -n 1)
           echo "Bundle: $js"
           missing=0
-          for needle in "Apariencia" "Oscuro" "Editar gasto fijo" "Ordenar por" "control-financiero:v1" "Vista de cuadrícula" "Exportar respaldo" "Importar respaldo"; do
+          for needle in "Apariencia" "Oscuro" "Editar gasto fijo" "Ordenar por" "control-financiero:v1" "Vista de cuadrícula" "Exportar respaldo" "Importar respaldo" "Copiar JSON" "Archivo listo"; do
             if grep -qF "$needle" "$js"; then
               echo "OK  $needle"
             else
@@ -100,9 +100,9 @@ jobs:
           - **Commit:** \`${SHA}\`
           - **Compilado:** ${STAMP} UTC
 
-          Incluye respaldo JSON (exportar/importar en Ajustes), modo oscuro, detalle por tarjeta, edición de gastos, vista lista/cuadrícula y ordenamiento.
+          Incluye respaldo JSON (botón **Respaldo** en el encabezado, **Exportar respaldo** arriba de Ajustes y en Resumen), modo oscuro, detalle por tarjeta, edición de gastos, vista lista/cuadrícula y ordenamiento.
 
-          **Antes de desinstalar:** Ajustes → Exportar respaldo. Guarda el JSON.
+          **Antes de desinstalar:** toca **Respaldo** arriba a la derecha → **Exportar respaldo**. Guarda el JSON.
 
           Instálalo **encima** de la app (no desinstales: perderías los datos). Si Android bloquea la instalación por conflicto de firma: exportar → desinstalar → instalar → Importar respaldo.
 

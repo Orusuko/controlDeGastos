@@ -1,16 +1,8 @@
-import { useId, useRef, useState, type ChangeEvent } from "react";
+import { useId, useState } from "react";
 import { useFinanceStore } from "../store/useFinanceStore";
 import { formatCurrency } from "../lib/format";
 import { APP_VERSION_CODE, APP_VERSION_NAME } from "../lib/appVersion";
-import { saveBackupFile } from "../lib/shareBackup";
-import {
-  backupFilename,
-  backupSummary,
-  parseBackupJson,
-  serializeBackup,
-  type ParseBackupResult,
-} from "../store/backup";
-import type { PersistedSlice } from "../store/persist";
+import { BackupPanel } from "../components/BackupPanel";
 import { ConfirmDialog } from "../components/ConfirmDialog";
 import type { ThemePreference } from "../types";
 
@@ -30,37 +22,19 @@ const THEMES: { value: ThemePreference; label: string; hint: string }[] = [
   { value: "dark", label: "Oscuro", hint: "Fondo oscuro" },
 ];
 
-type Status = { kind: "ok" | "err"; text: string } | null;
-
-function countLabel(n: number, one: string, many: string): string {
-  return `${n} ${n === 1 ? one : many}`;
-}
-
-function summarizeBackup(slice: PersistedSlice): string {
-  const s = backupSummary(slice);
-  return `${countLabel(s.cards, "tarjeta", "tarjetas")}, ${countLabel(s.fixed, "fijo", "fijos")}, ${countLabel(s.installments, "mensualidad", "mensualidades")}`;
-}
-
 export function SettingsPage({
   onNavigate,
 }: {
   onNavigate?: (view: "strategies") => void;
 }) {
-  const { settings, updateSettings, resetAll, importBackup } = useFinanceStore();
+  const { settings, updateSettings, resetAll } = useFinanceStore();
   const [salary, setSalary] = useState(
     settings.monthlySalary ? String(settings.monthlySalary) : ""
   );
   const [confirmReset, setConfirmReset] = useState(false);
-  const [pendingImport, setPendingImport] = useState<PersistedSlice | null>(
-    null
-  );
-  const [status, setStatus] = useState<Status>(null);
-  const [exporting, setExporting] = useState(false);
-  const fileRef = useRef<HTMLInputElement>(null);
   const theme: ThemePreference = settings.theme ?? "system";
   const salaryId = useId();
   const currencyId = useId();
-  const backupFileId = useId();
 
   function saveSalary(value: string) {
     setSalary(value);
@@ -73,78 +47,18 @@ export function SettingsPage({
     updateSettings({ currency: c.code, locale: c.locale });
   }
 
-  async function onExport() {
-    setExporting(true);
-    setStatus(null);
-    try {
-      const state = useFinanceStore.getState();
-      const json = serializeBackup({
-        cards: state.cards,
-        fixed: state.fixed,
-        installments: state.installments,
-        settings: state.settings,
-      });
-      const mode = await saveBackupFile(json, backupFilename());
-      setStatus({
-        kind: "ok",
-        text:
-          mode === "shared"
-            ? "Elige dónde guardar o enviar el archivo JSON."
-            : "Respaldo descargado. Guárdalo fuera del teléfono si vas a desinstalar.",
-      });
-    } catch {
-      setStatus({
-        kind: "err",
-        text: "No se pudo exportar el respaldo. Inténtalo de nuevo.",
-      });
-    } finally {
-      setExporting(false);
-    }
-  }
-
-  function onPickBackup() {
-    fileRef.current?.click();
-  }
-
-  async function onBackupFile(event: ChangeEvent<HTMLInputElement>) {
-    const file = event.target.files?.[0];
-    event.target.value = "";
-    if (!file) return;
-    setStatus(null);
-    let parsed: ParseBackupResult;
-    try {
-      parsed = parseBackupJson(await file.text());
-    } catch {
-      setStatus({
-        kind: "err",
-        text: "No se pudo leer el archivo. No se modificaron tus datos.",
-      });
-      return;
-    }
-    if (!parsed.ok) {
-      setStatus({ kind: "err", text: parsed.error });
-      return;
-    }
-    setPendingImport(parsed.data);
-  }
-
-  function confirmImport() {
-    if (!pendingImport) return;
-    importBackup(pendingImport);
-    setSalary(
-      pendingImport.settings.monthlySalary
-        ? String(pendingImport.settings.monthlySalary)
-        : ""
-    );
-    setPendingImport(null);
-    setStatus({
-      kind: "ok",
-      text: `Respaldo restaurado: ${summarizeBackup(pendingImport)}.`,
-    });
-  }
-
   return (
     <>
+      <BackupPanel
+        onImported={(slice) =>
+          setSalary(
+            slice.settings.monthlySalary
+              ? String(slice.settings.monthlySalary)
+              : ""
+          )
+        }
+      />
+
       <div className="card">
         <h2>Apariencia</h2>
         <div className="theme-card__preview" aria-hidden />
@@ -231,53 +145,6 @@ export function SettingsPage({
       </div>
 
       <div className="card">
-        <h2>Respaldo</h2>
-        <p className="muted" style={{ marginTop: 0 }}>
-          Exporta un JSON con tarjetas, gastos fijos, mensualidades y ajustes.
-          Hazlo <strong>antes de desinstalar</strong>. Actualizar encima no
-          borra datos; desinstalar sí. Si Android bloquea la instalación por
-          otra firma, exporta → desinstala → instala → importa.
-        </p>
-        <div className="settings-actions">
-          <button
-            type="button"
-            className="btn"
-            onClick={() => void onExport()}
-            disabled={exporting}
-          >
-            {exporting ? "Preparando respaldo…" : "Exportar respaldo"}
-          </button>
-          <button
-            type="button"
-            className="btn btn--ghost"
-            onClick={onPickBackup}
-          >
-            Importar respaldo
-          </button>
-          <input
-            id={backupFileId}
-            ref={fileRef}
-            className="visually-hidden"
-            type="file"
-            accept="application/json,.json"
-            onChange={(e) => void onBackupFile(e)}
-          />
-        </div>
-        {status && (
-          <p
-            className={
-              status.kind === "ok"
-                ? "settings-status settings-status--ok"
-                : "settings-status settings-status--err"
-            }
-            role="status"
-          >
-            {status.text}
-          </p>
-        )}
-      </div>
-
-      <div className="card">
         <h2>Datos</h2>
         <p className="muted" style={{ marginTop: 0 }}>
           Toda tu información se guarda en este dispositivo. Actualizar la app
@@ -309,16 +176,6 @@ export function SettingsPage({
             setSalary("");
             setConfirmReset(false);
           }}
-        />
-      )}
-
-      {pendingImport && (
-        <ConfirmDialog
-          title="Reemplazar todos los datos"
-          message={`Se sustituirán tarjetas, gastos y mensualidades actuales por este respaldo: ${summarizeBackup(pendingImport)}. Esta acción no se puede deshacer.`}
-          confirmLabel="Reemplazar todo"
-          onCancel={() => setPendingImport(null)}
-          onConfirm={confirmImport}
         />
       )}
     </>

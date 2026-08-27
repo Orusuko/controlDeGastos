@@ -30,15 +30,16 @@ Enlace directo y estable: siempre apunta a la última compilación generada
 automáticamente desde `main` (workflow
 [`android-release.yml`](.github/workflows/android-release.yml)). Es un APK de
 **sideload** (no está en Google Play). El `versionCode` actual es
-**20260830** (`versionName` **1.5.0**).
+**20260831** (`versionName` **1.6.0**).
 
 ### Antes de desinstalar: exporta el JSON
 
 Tus tarjetas, gastos fijos y mensualidades viven **solo en el teléfono**.
-Desinstalar borra ese almacenamiento. En **Ajustes → Respaldo**:
+Desinstalar borra ese almacenamiento. Toca **Respaldo** arriba a la derecha
+o entra en **Ajustes** (el bloque Respaldo está **arriba**):
 
 1. **Exportar respaldo** — guarda o comparte un `.json` (Descargas, Drive,
-   WhatsApp, correo…). Hazlo **antes** de desinstalar.
+   WhatsApp, correo…). Hazlo **antes** de desinstalar. Si falla, **Copiar JSON**.
 2. **Importar respaldo** — elige ese JSON. La app valida la forma y pide
    confirmación para **reemplazar todo**. Si el archivo no es válido, no
    se tocan los datos.
@@ -48,11 +49,11 @@ Desinstalar borra ese almacenamiento. En **Ajustes → Respaldo**:
 1. Exporta el respaldo (por si acaso). Si ya tenías `control-financiero.apk`
    en Descargas, bórralo: el enlace no cambia de nombre y el navegador
    puede servirte la copia vieja. Prefiere
-   `control-financiero-1.5.0.apk` de la misma release si duda.
+   `control-financiero-1.6.0.apk` de la misma release si duda.
 2. Activa **"Instalar apps desconocidas"** si Android lo pide.
 3. Instala **encima** de la app. **No desinstales** si Android ofrece
    actualizar: los datos se conservan.
-4. Abre **Ajustes** y comprueba **v1.5.0 (20260830)**.
+4. Abre la app y comprueba **v1.6.0 (20260831)** al final de Ajustes.
 
 Si Android dice que ya está instalada o **bloquea** la instalación
 (conflicto de firma: el APK viejo se firmó con otro debug de CI/agente):
@@ -185,8 +186,8 @@ almacenamiento local del WebView (`https://localhost`, clave Zustand
 `control-financiero:v1`). Ese origen y el `appId` no cambian.
 
 **Desinstalar sí borra todo.** No hay copia en la nube. Por eso existe
-**Ajustes → Exportar / Importar respaldo** (JSON portable con el 100 %
-del store).
+**Respaldo** (encabezado, Resumen y arriba de Ajustes): Exportar / Importar
+JSON portable con el 100 % del store.
 
 Si Android no ofrece actualizar: o el `versionCode` no es mayor, o hay
 **conflicto de firmas**. Los APK antiguos de CI se firmaban con el

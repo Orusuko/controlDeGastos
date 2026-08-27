@@ -66,12 +66,21 @@ export default function App() {
   return (
     <div className="app">
       <header className="app__header">
-        <h1>
-          <span className="app__mark" aria-hidden>
-            <IconLedger />
-          </span>
-          Control Financiero
-        </h1>
+        <div className="app__header-row">
+          <h1>
+            <span className="app__mark" aria-hidden>
+              <IconLedger />
+            </span>
+            Control Financiero
+          </h1>
+          <button
+            type="button"
+            className="app__header-backup"
+            onClick={() => setView("settings")}
+          >
+            Respaldo
+          </button>
+        </div>
         <p className="app__header-sub">
           {SUBTITLES[view]} · {formatMonth(currentMonth())}
         </p>

@@ -79,6 +79,21 @@ export function Dashboard({ onNavigate }: { onNavigate: (v: View) => void }) {
 
   return (
     <>
+      <div className="card card--backup">
+        <h2>Respaldo</h2>
+        <p className="muted" style={{ marginTop: 0 }}>
+          Exporta un JSON con tus datos. Hazlo antes de desinstalar o si vas a
+          instalar un APK nuevo.
+        </p>
+        <button
+          type="button"
+          className="btn btn--backup"
+          onClick={() => onNavigate("settings")}
+        >
+          Exportar respaldo
+        </button>
+      </div>
+
       <div className="hero-stat">
         <div className="hero-stat__label">Pagos de este mes</div>
         <div className="hero-stat__value">
