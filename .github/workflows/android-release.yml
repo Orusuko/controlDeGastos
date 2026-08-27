@@ -60,7 +60,7 @@ jobs:
       - name: Verificar que el bundle incluye las features
         run: |
           set -euo pipefail
-          js=$(ls dist-android/assets/*.js | head -n 1)
+          js=$(ls dist-android/assets/index-*.js | head -n 1)
           echo "Bundle: $js"
           missing=0
           for needle in "Apariencia" "Oscuro" "Editar gasto fijo" "Ordenar por" "control-financiero:v1" "Vista de cuadrícula" "Exportar respaldo" "Importar respaldo"; do
