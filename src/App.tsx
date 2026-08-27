@@ -57,6 +57,9 @@ export default function App() {
   useApplyTheme();
 
   useEffect(() => {
+    window.scrollTo(0, 0);
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
     contentRef.current?.scrollTo({ top: 0, left: 0 });
   }, [view]);
 

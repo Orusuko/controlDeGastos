@@ -86,34 +86,44 @@
 }
 
 /*
-  Shell de app (Capacitor / WebView Android):
-  overflow-x: hidden en html/body computa overflow-y: auto y deja el
-  scroll atrapado entre html y body. El WebView no desplaza con el dedo.
-  El documento NO scrollea; solo .app__content con overflow-y: auto.
+  Shell Capacitor / WebView Android:
+  El scroll anidado (.app__content overflow-y:auto + html/body overflow:hidden
+  + overflow-x:hidden) NO desplaza con el dedo en el WebView real.
+  El scroller es el DOCUMENTO: html overflow-y:scroll, sin height:100dvh,
+  sin overflow:hidden en html/body/#root/.app. La nav queda position:fixed.
 */
-html,
-body,
-#root {
+html {
   margin: 0;
   padding: 0;
-  height: 100%;
-  height: 100dvh;
-  max-height: 100dvh;
-  overflow: hidden;
-  overscroll-behavior: none;
+  height: auto;
+  min-height: 100%;
+  overflow-x: visible;
+  overflow-y: scroll;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
+  overscroll-behavior-x: none;
   background: var(--canvas);
 }
 
 body {
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
+  height: auto;
+  overflow: visible;
+  touch-action: pan-y;
   font-family: var(--font-body);
   font-optical-sizing: auto;
   color: var(--text);
   line-height: 1.45;
+  background: var(--canvas);
 }
 
 #root {
-  display: flex;
-  flex-direction: column;
+  min-height: 100%;
+  height: auto;
+  overflow: visible;
+  display: block;
 }
 
 button {
@@ -138,19 +148,20 @@ select:focus:not(:focus-visible) {
   max-width: 480px;
   margin: 0 auto;
   width: 100%;
-  height: 100%;
-  max-height: 100dvh;
-  min-height: 0;
+  min-height: 100%;
+  height: auto;
+  max-height: none;
   background: var(--canvas);
   display: flex;
   flex-direction: column;
   position: relative;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .app__header {
   flex-shrink: 0;
-  position: relative;
+  position: sticky;
+  top: 0;
   z-index: 20;
   background: var(--header-bg);
   color: #fff;
@@ -197,28 +208,27 @@ select:focus:not(:focus-visible) {
 }
 
 .app__content {
-  flex: 1 1 0;
+  flex: 0 0 auto;
   min-height: 0;
   min-width: 0;
-  overflow-x: hidden;
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
+  height: auto;
+  overflow: visible;
   touch-action: pan-y;
-  overscroll-behavior-y: contain;
   padding: 14px 16px
-    calc(var(--nav-h) + env(safe-area-inset-bottom, 0px) + 24px);
+    calc(var(--nav-h) + env(safe-area-inset-bottom, 0px) + 40px);
   display: flex;
   flex-direction: column;
   gap: 12px;
 }
 
-/* Evita que flex encoja las cards y quite el overflow scrolleable. */
 .app__content > * {
   flex-shrink: 0;
 }
 
-html[data-modal-open] .app__content {
+html[data-modal-open],
+html[data-modal-open] body {
   overflow: hidden;
+  height: 100%;
   touch-action: none;
 }
 
@@ -996,6 +1006,13 @@ html[data-modal-open] .app__content {
   height: 200px;
   overflow: hidden;
   min-width: 0;
+  touch-action: pan-y;
+}
+
+.chart-box .recharts-wrapper,
+.chart-box .recharts-surface,
+.chart-box svg {
+  touch-action: pan-y !important;
 }
 
 .chart-box--donut {
