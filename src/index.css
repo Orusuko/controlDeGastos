@@ -606,6 +606,43 @@ select:focus:not(:focus-visible) {
   min-height: var(--tap);
 }
 
+.settings-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.settings-status {
+  margin: 12px 0 0;
+  font-size: 0.92rem;
+  font-weight: 650;
+}
+
+.settings-status--ok {
+  color: var(--good);
+}
+
+.settings-status--err {
+  color: var(--danger);
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.btn:disabled {
+  opacity: 0.65;
+  pointer-events: none;
+}
+
 .fab-add {
   width: auto;
   min-height: var(--tap);
