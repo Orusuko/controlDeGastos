@@ -33,8 +33,10 @@
     ),
     linear-gradient(165deg, #241c6a 0%, #3a2bb0 58%, #5a36c4 100%);
   --nav-bg: rgba(255, 251, 255, 0.92);
-  --font-display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
-  --font-body: "Source Sans 3", "Segoe UI", system-ui, sans-serif;
+  --font-display: "Bricolage Grotesque Variable", "Bricolage Grotesque",
+    "Segoe UI", system-ui, sans-serif;
+  --font-body: "Source Sans 3 Variable", "Source Sans 3", "Segoe UI", system-ui,
+    sans-serif;
   --radius: 18px;
   --nav-h: 74px;
   --tap: 44px;
