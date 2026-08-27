@@ -7,6 +7,7 @@ import { FixedExpenseItem } from "../components/FixedExpenseItem";
 import { InstallmentItem } from "../components/InstallmentItem";
 import { ItemActions } from "../components/ItemActions";
 import { EmptyState } from "../components/EmptyState";
+import { IconBack, IconCard, IconChevron, IconPlus } from "../components/icons";
 import { currentMonth, formatCurrency } from "../lib/format";
 import {
   monthlyAmount,
@@ -101,13 +102,13 @@ export function CardsPage() {
           className="fab-add"
           onClick={() => setCardModal("new")}
         >
-          + Añadir
+          <IconPlus /> Añadir
         </button>
       </div>
 
       {cards.length === 0 ? (
         <EmptyState
-          emoji="💳"
+          icon={<IconCard />}
           action={
             <button
               type="button"
@@ -164,7 +165,7 @@ export function CardsPage() {
                   <div className="row__sub row__sub--end">al mes</div>
                 </div>
                 <span className="row__chevron" aria-hidden>
-                  ›
+                  <IconChevron />
                 </span>
               </div>
             );
@@ -253,7 +254,7 @@ function CardDetail({
   return (
     <>
       <button type="button" className="back-link" onClick={onBack}>
-        ← Todas las tarjetas
+        <IconBack /> Todas las tarjetas
       </button>
 
       <div className="card-hero" style={{ ["--card-accent" as string]: card.color }}>
@@ -299,7 +300,7 @@ function CardDetail({
       <div className="section-title">
         <h2>Gastos fijos</h2>
         <button type="button" className="fab-add" onClick={onAddFixed}>
-          + Añadir
+          <IconPlus /> Añadir
         </button>
       </div>
       {fixed.length === 0 ? (
@@ -330,7 +331,7 @@ function CardDetail({
       <div className="section-title">
         <h2>Compras a meses</h2>
         <button type="button" className="fab-add" onClick={onAddInst}>
-          + Añadir
+          <IconPlus /> Añadir
         </button>
       </div>
       {installments.length === 0 ? (

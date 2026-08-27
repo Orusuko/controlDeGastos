@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { ConfirmDialog } from "./ConfirmDialog";
+import { IconEdit, IconTrash } from "./icons";
 
 export function ItemActions({
   name,
@@ -22,7 +23,7 @@ export function ItemActions({
         aria-label={`Editar ${name}`}
         onClick={onEdit}
       >
-        ✎
+        <IconEdit />
       </button>
       <button
         type="button"
@@ -30,7 +31,7 @@ export function ItemActions({
         aria-label={`Eliminar ${name}`}
         onClick={() => setConfirming(true)}
       >
-        🗑
+        <IconTrash />
       </button>
       {confirming && (
         <ConfirmDialog

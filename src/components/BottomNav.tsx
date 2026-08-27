@@ -1,3 +1,12 @@
+import type { ComponentType, SVGProps } from "react";
+import {
+  IconCalendar,
+  IconCard,
+  IconChart,
+  IconRepeat,
+  IconSettings,
+} from "./icons";
+
 export type View =
   | "dashboard"
   | "cards"
@@ -5,12 +14,16 @@ export type View =
   | "installments"
   | "settings";
 
-const ITEMS: { view: View; label: string; icon: string }[] = [
-  { view: "dashboard", label: "Resumen", icon: "📊" },
-  { view: "cards", label: "Tarjetas", icon: "💳" },
-  { view: "fixed", label: "Fijos", icon: "🔁" },
-  { view: "installments", label: "Meses", icon: "🗓️" },
-  { view: "settings", label: "Ajustes", icon: "⚙️" },
+const ITEMS: {
+  view: View;
+  label: string;
+  Icon: ComponentType<SVGProps<SVGSVGElement>>;
+}[] = [
+  { view: "dashboard", label: "Resumen", Icon: IconChart },
+  { view: "cards", label: "Tarjetas", Icon: IconCard },
+  { view: "fixed", label: "Fijos", Icon: IconRepeat },
+  { view: "installments", label: "Meses", Icon: IconCalendar },
+  { view: "settings", label: "Ajustes", Icon: IconSettings },
 ];
 
 interface BottomNavProps {
@@ -32,8 +45,8 @@ export function BottomNav({ view, onChange }: BottomNavProps) {
             aria-current={active ? "page" : undefined}
             aria-label={item.label}
           >
-            <span className="nav__icon" aria-hidden>
-              {item.icon}
+            <span className="nav__icon">
+              <item.Icon />
             </span>
             {item.label}
           </button>

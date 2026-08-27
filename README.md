@@ -40,13 +40,23 @@ para instalar y probar la app directamente en tu teléfono:
    navegador/gestor de archivos que usaste para descargarlo.
 3. Abre el archivo descargado y confirma la instalación **encima** de la
    app que ya tienes. **No la desinstales** (perderías los datos). El
-   `versionCode` sube en cada publicación para que Android reconozca la
-   actualización.
+   `versionCode` actual es **20260828** (`versionName` **1.3.0**),
+   claramente distinto de las compilaciones anteriores (`1` / `1.0`,
+   `2` / `1.1`, `3` / `1.1.1` y `20260827` / `1.2.0`). Android solo ofrece actualizar si el
+   `versionCode` nuevo es mayor.
+4. Abre **Ajustes** y comprueba que ponga **v1.3.0 (20260828)**. Si no
+   aparece esa versión (o Android dice que ya está instalada), es un APK
+   viejo o cacheado: borra `control-financiero.apk` de Descargas y
+   vuelve a bajarlo. El enlace `android-latest` no cambia de nombre;
+   GitHub puede seguir mostrando la fecha original de la release aunque
+   el APK sí se haya regenerado. Prefiere el archivo versionado
+   `control-financiero-1.3.0.apk` de la misma release si el navegador
+   reutiliza la copia vieja.
 
-> El enlace empieza a funcionar en cuanto el workflow `android-release.yml` se
-> ejecuta por primera vez en `main` (o se lanza manualmente desde la pestaña
-> **Actions** del repositorio). Cada nuevo push a `main` que toque la app
-> regenera automáticamente este mismo APK.
+> El APK de `android-latest` **solo se regenera al fusionar a `main`**
+> (workflow `android-release.yml`, ~2 min). Hasta entonces el enlace
+> sigue sirviendo el binario anterior. Cada nuevo push a `main` que
+> toque la app actualiza ese mismo APK.
 
 ## Stack
 
@@ -172,8 +182,9 @@ cambian entre actualizaciones, así que `localStorage` (clave
 **Desinstalar** la app sí borra todos los datos locales. No hay copia en la
 nube. Si Android dice que el APK ya está instalado o no ofrece
 "Actualizar", borra el archivo descargado, vuelve a bajar el de
-`android-latest` y comprueba que el `versionCode` del APK nuevo sea mayor
-que el instalado (ahora `2` / `1.1`).
+`android-latest` (o el APK versionado `control-financiero-1.3.0.apk` de
+la misma release) y comprueba que el `versionCode` del APK nuevo sea
+**20260828** (`1.3.0`). En Ajustes debe leerse **v1.3.0 (20260828)**.
 
 ### Notas
 

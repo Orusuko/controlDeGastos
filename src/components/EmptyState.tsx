@@ -1,19 +1,19 @@
 import type { ReactNode } from "react";
 
 export function EmptyState({
-  emoji,
+  icon,
   children,
   action,
 }: {
-  emoji?: string;
+  icon?: ReactNode;
   children: ReactNode;
   action?: ReactNode;
 }) {
   return (
     <div className="card empty">
-      {emoji ? (
-        <span className="empty__emoji" aria-hidden>
-          {emoji}
+      {icon ? (
+        <span className="empty__mark" aria-hidden>
+          {icon}
         </span>
       ) : null}
       <p className="empty__text">{children}</p>

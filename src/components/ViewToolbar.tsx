@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import type { ListLayout } from "../types";
+import { IconGrid, IconList, IconSort } from "./icons";
 
 export interface SortOption<T extends string> {
   value: T;
@@ -48,7 +49,7 @@ export function ViewToolbar<T extends string>({
           aria-label="Vista de lista"
           onClick={() => onLayout("list")}
         >
-          ≡ Lista
+          <IconList /> Lista
         </button>
         <button
           type="button"
@@ -56,7 +57,7 @@ export function ViewToolbar<T extends string>({
           aria-label="Vista de cuadrícula"
           onClick={() => onLayout("grid")}
         >
-          ▦ Cuad.
+          <IconGrid /> Cuad.
         </button>
       </div>
       <div className="sort-menu" ref={menuRef}>
@@ -67,7 +68,7 @@ export function ViewToolbar<T extends string>({
           aria-haspopup="listbox"
           onClick={() => setOpen((v) => !v)}
         >
-          ↕ <span>Orden: {current}</span>
+          <IconSort /> <span>Orden: {current}</span>
         </button>
         {open && (
           <div className="sort-menu__list" role="listbox" aria-label="Ordenar por">

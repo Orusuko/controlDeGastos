@@ -19,16 +19,8 @@ import {
 import { generateAdvice, type AdviceLevel } from "../lib/advice";
 import type { View } from "../components/BottomNav";
 import { EmptyState } from "../components/EmptyState";
-
-const CATEGORY_COLORS: Record<string, string> = {
-  Streaming: "#ec4899",
-  Servicios: "#0ea5e9",
-  Software: "#8b5cf6",
-  Membresías: "#f59e0b",
-  Telefonía: "#14b8a6",
-  Otros: "#64748b",
-  Mensualidades: "#4f46e5",
-};
+import { IconCard } from "../components/icons";
+import { CATEGORY_COLORS, CATEGORY_FALLBACK } from "../lib/colors";
 
 const ADVICE_ICON: Record<AdviceLevel, string> = {
   good: "✓",
@@ -52,7 +44,7 @@ export function Dashboard({ onNavigate }: { onNavigate: (v: View) => void }) {
   if (cards.length === 0 && !hasData) {
     return (
       <EmptyState
-        emoji="👋"
+        icon={<IconCard />}
         action={
           <button
             type="button"
@@ -141,7 +133,7 @@ export function Dashboard({ onNavigate }: { onNavigate: (v: View) => void }) {
           <span>Deuda a meses pendiente</span>
           <strong>{formatCurrency(totals.remainingDebt, settings)}</strong>
         </div>
-        <div className="mini-stat">
+        <div className="mini-stat mini-stat--good">
           <span>Disponible tras pagos</span>
           <strong
             style={{
@@ -171,7 +163,7 @@ export function Dashboard({ onNavigate }: { onNavigate: (v: View) => void }) {
                   {pieData.map((entry) => (
                     <Cell
                       key={entry.name}
-                      fill={CATEGORY_COLORS[entry.name] ?? "#94a3b8"}
+                      fill={CATEGORY_COLORS[entry.name] ?? CATEGORY_FALLBACK}
                     />
                   ))}
                 </Pie>
@@ -196,7 +188,7 @@ export function Dashboard({ onNavigate }: { onNavigate: (v: View) => void }) {
               <div className="legend__item" key={d.name}>
                 <span
                   className="dot"
-                  style={{ background: CATEGORY_COLORS[d.name] ?? "#94a3b8" }}
+                  style={{ background: CATEGORY_COLORS[d.name] ?? CATEGORY_FALLBACK }}
                 />
                 <span className="legend__name">{d.name}</span>
                 <span className="legend__value">
@@ -232,7 +224,7 @@ export function Dashboard({ onNavigate }: { onNavigate: (v: View) => void }) {
                 <YAxis hide />
                 <Tooltip
                   formatter={(value) => formatCurrency(Number(value), settings)}
-                  cursor={{ fill: "rgba(99,102,241,0.08)" }}
+                  cursor={{ fill: "color-mix(in srgb, var(--primary) 10%, transparent)" }}
                   contentStyle={{
                     background: "var(--surface)",
                     border: "1px solid var(--border)",

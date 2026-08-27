@@ -1,6 +1,7 @@
 import { useId, useState } from "react";
 import { useFinanceStore } from "../store/useFinanceStore";
 import { formatCurrency } from "../lib/format";
+import { APP_VERSION_CODE, APP_VERSION_NAME } from "../lib/appVersion";
 import { ConfirmDialog } from "../components/ConfirmDialog";
 import type { ThemePreference } from "../types";
 
@@ -129,7 +130,9 @@ export function SettingsPage() {
       </div>
 
       <p className="muted" style={{ textAlign: "center" }}>
-        Control Financiero · datos locales en tu teléfono
+        Control Financiero · v{APP_VERSION_NAME} ({APP_VERSION_CODE})
+        <br />
+        Datos locales en tu teléfono
       </p>
 
       {confirmReset && (
