@@ -148,6 +148,7 @@ export function Dashboard({ onNavigate }: { onNavigate: (v: View) => void }) {
                   innerRadius={55}
                   outerRadius={90}
                   paddingAngle={2}
+                  stroke="var(--surface)"
                 >
                   {pieData.map((entry) => (
                     <Cell

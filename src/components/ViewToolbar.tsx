@@ -38,6 +38,7 @@ export function ViewToolbar<T extends string>({
         <button
           type="button"
           aria-pressed={layout === "list"}
+          aria-label="Vista de lista"
           onClick={() => onLayout("list")}
         >
           ≡ Lista
@@ -45,9 +46,10 @@ export function ViewToolbar<T extends string>({
         <button
           type="button"
           aria-pressed={layout === "grid"}
+          aria-label="Vista de cuadrícula"
           onClick={() => onLayout("grid")}
         >
-          ▦ Cuadrícula
+          ▦ Grid
         </button>
       </div>
       <div className="sort-menu" ref={menuRef}>

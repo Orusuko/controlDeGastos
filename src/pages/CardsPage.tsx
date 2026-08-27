@@ -151,9 +151,6 @@ export function CardsPage() {
                     al mes
                   </div>
                 </div>
-                <span className="row__chevron" aria-hidden>
-                  ›
-                </span>
                 <ItemActions
                   name={card.name}
                   onEdit={() => setCardModal(card)}

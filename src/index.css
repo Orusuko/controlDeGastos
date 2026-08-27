@@ -706,9 +706,24 @@ button {
   margin-top: -4px;
 }
 
+.list--grid .inst-card {
+  position: relative;
+  padding-top: 14px;
+}
+
 .list--grid .inst-card .row {
-  flex-direction: row;
-  align-items: flex-start;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 6px;
+}
+
+.list--grid .inst-card .row__amount {
+  text-align: left;
+}
+
+.list--grid .inst-card .row__title {
+  padding-right: 68px;
+  white-space: normal;
 }
 
 .list--grid .inst-card .btn {
@@ -754,6 +769,11 @@ button {
   color: #fff;
 }
 
+[data-theme="dark"] .seg button[aria-pressed="true"] {
+  background: #4f46e5;
+  color: #fff;
+}
+
 .seg--grow {
   width: 100%;
 }
@@ -774,7 +794,10 @@ button {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  max-width: 58%;
+  min-width: 0;
+  flex: 1 1 auto;
+  max-width: none;
+  justify-content: center;
 }
 
 .sort-btn span {
