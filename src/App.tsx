@@ -53,6 +53,10 @@ export default function App() {
   const [view, setView] = useState<View>("dashboard");
   useApplyTheme();
 
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [view]);
+
   return (
     <div className="app">
       <header className="app__header">
