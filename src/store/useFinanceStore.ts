@@ -15,6 +15,7 @@ import {
   PERSIST_VERSION,
   mergePersistedState,
   migratePersistedState,
+  type PersistedSlice,
 } from "./persist";
 
 function uid(): string {
@@ -49,6 +50,7 @@ interface FinanceState {
   removePayment: (id: string, month: string) => void;
 
   updateSettings: (patch: Partial<Settings>) => void;
+  importBackup: (slice: PersistedSlice) => void;
   resetAll: () => void;
 }
 
@@ -132,6 +134,13 @@ export const useFinanceStore = create<FinanceState>()(
 
       updateSettings: (patch) =>
         set((state) => ({ settings: { ...state.settings, ...patch } })),
+      importBackup: (slice) =>
+        set({
+          cards: slice.cards,
+          fixed: slice.fixed,
+          installments: slice.installments,
+          settings: slice.settings,
+        }),
       resetAll: () =>
         set({
           cards: [],
