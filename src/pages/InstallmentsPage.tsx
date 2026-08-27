@@ -9,13 +9,19 @@ import { currentMonth } from "../lib/format";
 import { monthlyAmount } from "../lib/finance";
 import { sortInstallments } from "../lib/sort";
 import type { View } from "../components/BottomNav";
-import type { Installment, InstallmentSort, ListLayout } from "../types";
+import type { Installment, InstallmentSort, ListLayout, SortDir } from "../types";
 
 const SORT_OPTIONS: { value: InstallmentSort; label: string }[] = [
   { value: "remaining", label: "Meses restantes" },
   { value: "amount", label: "Pendiente" },
   { value: "name", label: "Nombre" },
 ];
+
+const DIR_LABELS: Record<InstallmentSort, { asc: string; desc: string }> = {
+  remaining: { asc: "Casi acaban", desc: "Más tiempo" },
+  amount: { asc: "Más baratas", desc: "Más caras" },
+  name: { asc: "A → Z", desc: "Z → A" },
+};
 
 export function InstallmentsPage({
   onNavigate,
@@ -37,7 +43,8 @@ export function InstallmentsPage({
   const [modal, setModal] = useState<Installment | null | "new">(null);
   const layout: ListLayout = settings.installmentLayout ?? "list";
   const sort: InstallmentSort = settings.installmentSort ?? "remaining";
-  const items = sortInstallments(installments, sort);
+  const sortDir: SortDir = settings.installmentSortDir ?? "desc";
+  const items = sortInstallments(installments, sort, sortDir);
   const cardName = (id: string) => cards.find((c) => c.id === id)?.name ?? "—";
   const thisMonth = currentMonth();
 
@@ -89,6 +96,11 @@ export function InstallmentsPage({
             sort={sort}
             sortOptions={SORT_OPTIONS}
             onSort={(installmentSort) => updateSettings({ installmentSort })}
+            sortDir={sortDir}
+            onSortDir={(installmentSortDir) =>
+              updateSettings({ installmentSortDir })
+            }
+            dirLabels={DIR_LABELS[sort]}
           />
           <div className={`list${layout === "grid" ? " list--grid" : ""}`}>
             {items.map((inst) => (

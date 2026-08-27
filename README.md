@@ -12,10 +12,10 @@ Permite:
   ir marcando el pago de cada mes para ver el saldo pendiente y los meses que
   faltan.
 - Un **dashboard** con el total a pagar del mes, uso del sueldo, gráficas
-  (distribución por categoría y gasto por tarjeta) y **consejos financieros**
-  según tu sueldo mensual.
+  (distribución por categoría y gasto por tarjeta) y **estrategias de
+  ahorro** según sueldo, fijos y mensualidades.
 - **Modo oscuro** (ledger nocturno), **detalle por tarjeta**, edición de
-  gastos y un interruptor lista/cuadrícula con ordenamiento.
+  gastos, lista/cuadrícula y orden **ascendente o descendente**.
 
 Los datos se guardan **localmente en el dispositivo** (almacenamiento del
 navegador vía Zustand `persist`). La capa de datos está aislada en
@@ -30,7 +30,7 @@ Enlace directo y estable: siempre apunta a la última compilación generada
 automáticamente desde `main` (workflow
 [`android-release.yml`](.github/workflows/android-release.yml)). Es un APK de
 **sideload** (no está en Google Play). El `versionCode` actual es
-**20260829** (`versionName` **1.4.0**).
+**20260830** (`versionName` **1.5.0**).
 
 ### Antes de desinstalar: exporta el JSON
 
@@ -48,11 +48,11 @@ Desinstalar borra ese almacenamiento. En **Ajustes → Respaldo**:
 1. Exporta el respaldo (por si acaso). Si ya tenías `control-financiero.apk`
    en Descargas, bórralo: el enlace no cambia de nombre y el navegador
    puede servirte la copia vieja. Prefiere
-   `control-financiero-1.4.0.apk` de la misma release si duda.
+   `control-financiero-1.5.0.apk` de la misma release si duda.
 2. Activa **"Instalar apps desconocidas"** si Android lo pide.
 3. Instala **encima** de la app. **No desinstales** si Android ofrece
    actualizar: los datos se conservan.
-4. Abre **Ajustes** y comprueba **v1.4.0 (20260829)**.
+4. Abre **Ajustes** y comprueba **v1.5.0 (20260830)**.
 
 Si Android dice que ya está instalada o **bloquea** la instalación
 (conflicto de firma: el APK viejo se firmó con otro debug de CI/agente):

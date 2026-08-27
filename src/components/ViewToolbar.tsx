@@ -1,10 +1,15 @@
 import { useEffect, useRef, useState } from "react";
-import type { ListLayout } from "../types";
+import type { ListLayout, SortDir } from "../types";
 import { IconGrid, IconList, IconSort } from "./icons";
 
 export interface SortOption<T extends string> {
   value: T;
   label: string;
+}
+
+export interface SortDirLabels {
+  asc: string;
+  desc: string;
 }
 
 export function ViewToolbar<T extends string>({
@@ -13,12 +18,18 @@ export function ViewToolbar<T extends string>({
   sort,
   sortOptions,
   onSort,
+  sortDir,
+  onSortDir,
+  dirLabels,
 }: {
   layout: ListLayout;
   onLayout: (layout: ListLayout) => void;
   sort: T;
   sortOptions: SortOption<T>[];
   onSort: (sort: T) => void;
+  sortDir: SortDir;
+  onSortDir: (dir: SortDir) => void;
+  dirLabels: SortDirLabels;
 }) {
   const [open, setOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -42,52 +53,76 @@ export function ViewToolbar<T extends string>({
 
   return (
     <div className="view-toolbar">
-      <div className="seg" role="group" aria-label="Vista">
-        <button
-          type="button"
-          aria-pressed={layout === "list"}
-          aria-label="Vista de lista"
-          onClick={() => onLayout("list")}
-        >
-          <IconList /> Lista
-        </button>
-        <button
-          type="button"
-          aria-pressed={layout === "grid"}
-          aria-label="Vista de cuadrícula"
-          onClick={() => onLayout("grid")}
-        >
-          <IconGrid /> Cuad.
-        </button>
+      <div className="view-toolbar__row">
+        <div className="seg" role="group" aria-label="Vista">
+          <button
+            type="button"
+            aria-pressed={layout === "list"}
+            aria-label="Vista de lista"
+            onClick={() => onLayout("list")}
+          >
+            <IconList /> Lista
+          </button>
+          <button
+            type="button"
+            aria-pressed={layout === "grid"}
+            aria-label="Vista de cuadrícula"
+            onClick={() => onLayout("grid")}
+          >
+            <IconGrid /> Cuad.
+          </button>
+        </div>
+        <div className="sort-menu" ref={menuRef}>
+          <button
+            type="button"
+            className="sort-btn"
+            aria-expanded={open}
+            aria-haspopup="listbox"
+            onClick={() => setOpen((v) => !v)}
+          >
+            <IconSort /> <span>Criterio: {current}</span>
+          </button>
+          {open && (
+            <div className="sort-menu__list" role="listbox" aria-label="Ordenar por">
+              {sortOptions.map((opt) => (
+                <button
+                  key={opt.value}
+                  type="button"
+                  role="option"
+                  aria-checked={sort === opt.value}
+                  onClick={() => {
+                    onSort(opt.value);
+                    setOpen(false);
+                  }}
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
-      <div className="sort-menu" ref={menuRef}>
+      <div
+        className="seg seg--grow"
+        role="group"
+        aria-label="Dirección del orden"
+      >
         <button
           type="button"
-          className="sort-btn"
-          aria-expanded={open}
-          aria-haspopup="listbox"
-          onClick={() => setOpen((v) => !v)}
+          aria-pressed={sortDir === "asc"}
+          aria-label={`Ascendente: ${dirLabels.asc}`}
+          onClick={() => onSortDir("asc")}
         >
-          <IconSort /> <span>Orden: {current}</span>
+          ↑ {dirLabels.asc}
         </button>
-        {open && (
-          <div className="sort-menu__list" role="listbox" aria-label="Ordenar por">
-            {sortOptions.map((opt) => (
-              <button
-                key={opt.value}
-                type="button"
-                role="option"
-                aria-checked={sort === opt.value}
-                onClick={() => {
-                  onSort(opt.value);
-                  setOpen(false);
-                }}
-              >
-                {opt.label}
-              </button>
-            ))}
-          </div>
-        )}
+        <button
+          type="button"
+          aria-pressed={sortDir === "desc"}
+          aria-label={`Descendente: ${dirLabels.desc}`}
+          onClick={() => onSortDir("desc")}
+        >
+          ↓ {dirLabels.desc}
+        </button>
       </div>
     </div>
   );

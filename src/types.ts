@@ -48,6 +48,7 @@ export type ThemePreference = "system" | "light" | "dark";
 export type ListLayout = "list" | "grid";
 export type FixedSort = "name" | "amount" | "category";
 export type InstallmentSort = "name" | "amount" | "remaining";
+export type SortDir = "asc" | "desc";
 
 export interface Settings {
   monthlySalary: number;
@@ -64,6 +65,13 @@ export interface Settings {
   installmentLayout?: ListLayout;
   /** Orden de gastos fijos. Ausente → "name". */
   fixedSort?: FixedSort;
+  /** Dirección del orden de fijos. Ausente → "asc" (A→Z / más baratas). */
+  fixedSortDir?: SortDir;
   /** Orden de mensualidades. Ausente → "remaining". */
   installmentSort?: InstallmentSort;
+  /**
+   * Dirección del orden de mensualidades. Ausente → "desc"
+   * (más meses restantes / más caras primero, el comportamiento previo).
+   */
+  installmentSortDir?: SortDir;
 }

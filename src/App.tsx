@@ -1,10 +1,11 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { BottomNav, type View } from "./components/BottomNav";
 import { Dashboard } from "./pages/Dashboard";
 import { CardsPage } from "./pages/CardsPage";
 import { FixedExpensesPage } from "./pages/FixedExpensesPage";
 import { InstallmentsPage } from "./pages/InstallmentsPage";
 import { SettingsPage } from "./pages/SettingsPage";
+import { StrategiesPage } from "./pages/StrategiesPage";
 import { IconLedger } from "./components/icons";
 import { formatMonth, currentMonth } from "./lib/format";
 import { applyResolvedTheme, resolveTheme } from "./lib/theme";
@@ -15,6 +16,7 @@ const SUBTITLES: Record<View, string> = {
   cards: "Tus tarjetas",
   fixed: "Gastos fijos y suscripciones",
   installments: "Compras a meses",
+  strategies: "Plan de ahorro",
   settings: "Ajustes",
 };
 
@@ -51,10 +53,11 @@ function useApplyTheme() {
 
 export default function App() {
   const [view, setView] = useState<View>("dashboard");
+  const contentRef = useRef<HTMLElement>(null);
   useApplyTheme();
 
   useEffect(() => {
-    window.scrollTo(0, 0);
+    contentRef.current?.scrollTo({ top: 0, left: 0 });
   }, [view]);
 
   return (
@@ -71,12 +74,13 @@ export default function App() {
         </p>
       </header>
 
-      <main className="app__content">
+      <main className="app__content" ref={contentRef}>
         {view === "dashboard" && <Dashboard onNavigate={setView} />}
         {view === "cards" && <CardsPage />}
         {view === "fixed" && <FixedExpensesPage onNavigate={setView} />}
         {view === "installments" && <InstallmentsPage onNavigate={setView} />}
-        {view === "settings" && <SettingsPage />}
+        {view === "strategies" && <StrategiesPage onNavigate={setView} />}
+        {view === "settings" && <SettingsPage onNavigate={setView} />}
       </main>
 
       <BottomNav view={view} onChange={setView} />

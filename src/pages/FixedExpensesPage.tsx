@@ -7,13 +7,19 @@ import { EmptyState } from "../components/EmptyState";
 import { IconCard, IconPlus, IconRepeat } from "../components/icons";
 import { sortFixed } from "../lib/sort";
 import type { View } from "../components/BottomNav";
-import type { FixedExpense, FixedSort, ListLayout } from "../types";
+import type { FixedExpense, FixedSort, ListLayout, SortDir } from "../types";
 
 const SORT_OPTIONS: { value: FixedSort; label: string }[] = [
   { value: "name", label: "Nombre" },
   { value: "amount", label: "Importe" },
   { value: "category", label: "Categoría" },
 ];
+
+const DIR_LABELS: Record<FixedSort, { asc: string; desc: string }> = {
+  name: { asc: "A → Z", desc: "Z → A" },
+  amount: { asc: "Más baratas", desc: "Más caras" },
+  category: { asc: "A → Z", desc: "Z → A" },
+};
 
 export function FixedExpensesPage({
   onNavigate,
@@ -26,7 +32,8 @@ export function FixedExpensesPage({
 
   const layout: ListLayout = settings.fixedLayout ?? "list";
   const sort: FixedSort = settings.fixedSort ?? "name";
-  const items = sortFixed(fixed, sort);
+  const sortDir: SortDir = settings.fixedSortDir ?? "asc";
+  const items = sortFixed(fixed, sort, sortDir);
   const cardName = (id: string) => cards.find((c) => c.id === id)?.name ?? "—";
 
   return (
@@ -75,6 +82,9 @@ export function FixedExpensesPage({
             sort={sort}
             sortOptions={SORT_OPTIONS}
             onSort={(fixedSort) => updateSettings({ fixedSort })}
+            sortDir={sortDir}
+            onSortDir={(fixedSortDir) => updateSettings({ fixedSortDir })}
+            dirLabels={DIR_LABELS[sort]}
           />
           <div className={`list${layout === "grid" ? " list--grid" : ""}`}>
             {items.map((f) => (

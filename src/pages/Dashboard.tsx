@@ -16,18 +16,12 @@ import {
   categoryBreakdown,
   computeTotals,
 } from "../lib/finance";
-import { generateAdvice, type AdviceLevel } from "../lib/advice";
+import { generateAdvice } from "../lib/advice";
 import type { View } from "../components/BottomNav";
 import { EmptyState } from "../components/EmptyState";
+import { AdviceList } from "../components/AdviceList";
 import { IconCard } from "../components/icons";
 import { CATEGORY_COLORS, CATEGORY_FALLBACK } from "../lib/colors";
-
-const ADVICE_ICON: Record<AdviceLevel, string> = {
-  good: "✓",
-  info: "i",
-  warn: "!",
-  danger: "⚠",
-};
 
 function truncateLabel(value: string, max = 8): string {
   return value.length > max ? `${value.slice(0, max)}…` : value;
@@ -36,7 +30,7 @@ function truncateLabel(value: string, max = 8): string {
 export function Dashboard({ onNavigate }: { onNavigate: (v: View) => void }) {
   const { cards, fixed, installments, settings } = useFinanceStore();
   const totals = computeTotals(fixed, installments);
-  const advice = generateAdvice(settings, totals, fixed);
+  const advice = generateAdvice(settings, totals, fixed, installments);
   const salary = settings.monthlySalary;
 
   const hasData = fixed.length > 0 || installments.length > 0;
@@ -244,21 +238,25 @@ export function Dashboard({ onNavigate }: { onNavigate: (v: View) => void }) {
       )}
 
       <div className="section-title">
-        <h2>Consejos financieros</h2>
+        <h2>Estrategias de ahorro</h2>
+        <button
+          type="button"
+          className="back-link"
+          onClick={() => onNavigate("strategies")}
+        >
+          Ver plan
+        </button>
       </div>
-      <div className="list">
-        {advice.map((a, i) => (
-          <div className={`advice advice--${a.level}`} key={i}>
-            <div className="advice__icon" aria-hidden>
-              {ADVICE_ICON[a.level]}
-            </div>
-            <div>
-              <div className="advice__title">{a.title}</div>
-              <div className="advice__text">{a.text}</div>
-            </div>
-          </div>
-        ))}
-      </div>
+      <AdviceList items={advice.slice(0, 3)} />
+      {advice.length > 3 && (
+        <button
+          type="button"
+          className="btn btn--ghost"
+          onClick={() => onNavigate("strategies")}
+        >
+          Ver las {advice.length} estrategias
+        </button>
+      )}
     </>
   );
 }
