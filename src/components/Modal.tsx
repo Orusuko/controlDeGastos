@@ -24,8 +24,10 @@ export function Modal({
     const panel = panelRef.current;
     const html = document.documentElement;
     const previousOverflow = document.body.style.overflow;
+    const previousModal = html.dataset.modalOpen;
 
     document.body.style.overflow = "hidden";
+    html.dataset.modalOpen = "true";
 
     const focusables = () =>
       Array.from(panel?.querySelectorAll<HTMLElement>(FOCUSABLE) ?? []).filter(
@@ -72,6 +74,8 @@ export function Modal({
       document.removeEventListener("keydown", onKey);
       window.visualViewport?.removeEventListener("resize", syncViewport);
       document.body.style.overflow = previousOverflow;
+      if (previousModal === undefined) delete html.dataset.modalOpen;
+      else html.dataset.modalOpen = previousModal;
       html.style.removeProperty("--vvh");
       previous?.focus();
     };
