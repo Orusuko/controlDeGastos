@@ -771,11 +771,6 @@ select:focus:not(:focus-visible) {
   min-width: 0;
 }
 
-.chart-box .recharts-wrapper,
-.chart-box .recharts-surface {
-  max-width: 100% !important;
-}
-
 .chart-box--donut {
   position: relative;
   height: 190px;

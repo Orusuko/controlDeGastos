@@ -163,8 +163,8 @@ export function Dashboard({ onNavigate }: { onNavigate: (v: View) => void }) {
                   data={pieData}
                   dataKey="value"
                   nameKey="name"
-                  innerRadius={58}
-                  outerRadius={78}
+                  innerRadius={52}
+                  outerRadius={80}
                   paddingAngle={2}
                   stroke="var(--surface)"
                 >
