@@ -1,15 +1,7 @@
+import { CATEGORY_COLORS, CATEGORY_FALLBACK } from "../lib/colors";
 import { formatCurrency } from "../lib/format";
 import type { FixedExpense, Settings } from "../types";
 import { ItemActions } from "./ItemActions";
-
-const CATEGORY_COLORS: Record<string, string> = {
-  Streaming: "#ec4899",
-  Servicios: "#0ea5e9",
-  Software: "#8b5cf6",
-  Membresías: "#f59e0b",
-  Telefonía: "#14b8a6",
-  Otros: "#64748b",
-};
 
 export function FixedExpenseItem({
   expense,
@@ -24,7 +16,7 @@ export function FixedExpenseItem({
   onEdit: () => void;
   onDelete: () => void;
 }) {
-  const color = CATEGORY_COLORS[expense.category] ?? "#64748b";
+  const color = CATEGORY_COLORS[expense.category] ?? CATEGORY_FALLBACK;
   return (
     <div className="row">
       <div className="row__badge" style={{ background: color }} aria-hidden>

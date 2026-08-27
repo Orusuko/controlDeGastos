@@ -5,6 +5,7 @@ import { CardsPage } from "./pages/CardsPage";
 import { FixedExpensesPage } from "./pages/FixedExpensesPage";
 import { InstallmentsPage } from "./pages/InstallmentsPage";
 import { SettingsPage } from "./pages/SettingsPage";
+import { IconLedger } from "./components/icons";
 import { formatMonth, currentMonth } from "./lib/format";
 import { applyResolvedTheme, resolveTheme } from "./lib/theme";
 import { useFinanceStore } from "./store/useFinanceStore";
@@ -56,7 +57,10 @@ export default function App() {
     <div className="app">
       <header className="app__header">
         <h1>
-          <span aria-hidden>💰</span> Control Financiero
+          <span className="app__mark" aria-hidden>
+            <IconLedger />
+          </span>
+          Control Financiero
         </h1>
         <p className="app__header-sub">
           {SUBTITLES[view]} · {formatMonth(currentMonth())}

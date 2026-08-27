@@ -4,6 +4,7 @@ import { FixedExpenseModal } from "../components/FixedExpenseModal";
 import { FixedExpenseItem } from "../components/FixedExpenseItem";
 import { ViewToolbar } from "../components/ViewToolbar";
 import { EmptyState } from "../components/EmptyState";
+import { IconCard, IconPlus, IconRepeat } from "../components/icons";
 import { sortFixed } from "../lib/sort";
 import type { View } from "../components/BottomNav";
 import type { FixedExpense, FixedSort, ListLayout } from "../types";
@@ -34,14 +35,14 @@ export function FixedExpensesPage({
         <h2>Gastos fijos</h2>
         {cards.length > 0 && (
           <button type="button" className="fab-add" onClick={() => setModal("new")}>
-            + Añadir
+            <IconPlus /> Añadir
           </button>
         )}
       </div>
 
       {cards.length === 0 ? (
         <EmptyState
-          emoji="💳"
+          icon={<IconCard />}
           action={
             <button
               type="button"
@@ -56,7 +57,7 @@ export function FixedExpensesPage({
         </EmptyState>
       ) : fixed.length === 0 ? (
         <EmptyState
-          emoji="🔁"
+          icon={<IconRepeat />}
           action={
             <button type="button" className="btn" onClick={() => setModal("new")}>
               Registrar un gasto fijo

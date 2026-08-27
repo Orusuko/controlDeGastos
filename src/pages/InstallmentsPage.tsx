@@ -4,6 +4,7 @@ import { InstallmentModal } from "../components/InstallmentModal";
 import { InstallmentItem } from "../components/InstallmentItem";
 import { ViewToolbar } from "../components/ViewToolbar";
 import { EmptyState } from "../components/EmptyState";
+import { IconCalendar, IconCard, IconPlus } from "../components/icons";
 import { currentMonth } from "../lib/format";
 import { monthlyAmount } from "../lib/finance";
 import { sortInstallments } from "../lib/sort";
@@ -46,14 +47,14 @@ export function InstallmentsPage({
         <h2>Compras a meses</h2>
         {cards.length > 0 && (
           <button type="button" className="fab-add" onClick={() => setModal("new")}>
-            + Añadir
+            <IconPlus /> Añadir
           </button>
         )}
       </div>
 
       {cards.length === 0 ? (
         <EmptyState
-          emoji="💳"
+          icon={<IconCard />}
           action={
             <button
               type="button"
@@ -68,7 +69,7 @@ export function InstallmentsPage({
         </EmptyState>
       ) : installments.length === 0 ? (
         <EmptyState
-          emoji="🗓️"
+          icon={<IconCalendar />}
           action={
             <button type="button" className="btn" onClick={() => setModal("new")}>
               Registrar una compra
