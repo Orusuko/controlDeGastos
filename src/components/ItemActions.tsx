@@ -1,3 +1,6 @@
+import { useState } from "react";
+import { ConfirmDialog } from "./ConfirmDialog";
+
 export function ItemActions({
   name,
   onEdit,
@@ -9,6 +12,8 @@ export function ItemActions({
   onDelete: () => void;
   deleteMessage?: string;
 }) {
+  const [confirming, setConfirming] = useState(false);
+
   return (
     <div className="row-actions" onClick={(e) => e.stopPropagation()}>
       <button
@@ -23,16 +28,24 @@ export function ItemActions({
         type="button"
         className="icon-btn icon-btn--danger"
         aria-label={`Eliminar ${name}`}
-        onClick={() => {
-          if (
-            confirm(deleteMessage ?? `¿Eliminar "${name}"?`)
-          ) {
-            onDelete();
-          }
-        }}
+        onClick={() => setConfirming(true)}
       >
         🗑
       </button>
+      {confirming && (
+        <ConfirmDialog
+          title={`Eliminar ${name}`}
+          message={
+            deleteMessage ??
+            `¿Eliminar “${name}”? Esta acción no se puede deshacer.`
+          }
+          onCancel={() => setConfirming(false)}
+          onConfirm={() => {
+            setConfirming(false);
+            onDelete();
+          }}
+        />
+      )}
     </div>
   );
 }

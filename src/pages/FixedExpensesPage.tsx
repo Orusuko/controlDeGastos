@@ -3,7 +3,9 @@ import { useFinanceStore } from "../store/useFinanceStore";
 import { FixedExpenseModal } from "../components/FixedExpenseModal";
 import { FixedExpenseItem } from "../components/FixedExpenseItem";
 import { ViewToolbar } from "../components/ViewToolbar";
+import { EmptyState } from "../components/EmptyState";
 import { sortFixed } from "../lib/sort";
+import type { View } from "../components/BottomNav";
 import type { FixedExpense, FixedSort, ListLayout } from "../types";
 
 const SORT_OPTIONS: { value: FixedSort; label: string }[] = [
@@ -12,7 +14,11 @@ const SORT_OPTIONS: { value: FixedSort; label: string }[] = [
   { value: "category", label: "Categoría" },
 ];
 
-export function FixedExpensesPage() {
+export function FixedExpensesPage({
+  onNavigate,
+}: {
+  onNavigate: (v: View) => void;
+}) {
   const { cards, fixed, settings, addFixed, updateFixed, removeFixed, updateSettings } =
     useFinanceStore();
   const [modal, setModal] = useState<FixedExpense | null | "new">(null);
@@ -25,30 +31,41 @@ export function FixedExpensesPage() {
   return (
     <>
       <div className="section-title">
-        <span>Gastos fijos</span>
+        <h2>Gastos fijos</h2>
         {cards.length > 0 && (
-          <button className="fab-add" onClick={() => setModal("new")}>
+          <button type="button" className="fab-add" onClick={() => setModal("new")}>
             + Añadir
           </button>
         )}
       </div>
 
       {cards.length === 0 ? (
-        <div className="card empty">
-          <span className="empty__emoji" aria-hidden>
-            💳
-          </span>
-          Primero añade una tarjeta en la pestaña “Tarjetas” para asignar tus
-          gastos fijos.
-        </div>
+        <EmptyState
+          emoji="💳"
+          action={
+            <button
+              type="button"
+              className="btn"
+              onClick={() => onNavigate("cards")}
+            >
+              Ir a Tarjetas
+            </button>
+          }
+        >
+          Primero añade una tarjeta para asignar tus gastos fijos.
+        </EmptyState>
       ) : fixed.length === 0 ? (
-        <div className="card empty">
-          <span className="empty__emoji" aria-hidden>
-            🔁
-          </span>
-          Registra tus suscripciones y pagos recurrentes (Netflix, Spotify,
-          gimnasio…) para saber cuánto se te va cada mes.
-        </div>
+        <EmptyState
+          emoji="🔁"
+          action={
+            <button type="button" className="btn" onClick={() => setModal("new")}>
+              Registrar un gasto fijo
+            </button>
+          }
+        >
+          Registra suscripciones y pagos recurrentes (Netflix, Spotify, gimnasio…)
+          para saber cuánto se te va cada mes.
+        </EmptyState>
       ) : (
         <>
           <ViewToolbar

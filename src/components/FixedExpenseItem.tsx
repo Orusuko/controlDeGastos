@@ -42,8 +42,11 @@ export function FixedExpenseItem({
           · {cardName}
         </div>
       </div>
-      <div className="row__amount">
-        {formatCurrency(expense.amount, settings)}
+      <div className="row__amount-block">
+        <div className="row__amount">
+          {formatCurrency(expense.amount, settings)}
+        </div>
+        <div className="row__sub row__sub--end">al mes</div>
       </div>
       <ItemActions
         name={expense.name}

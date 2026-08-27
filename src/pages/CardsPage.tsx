@@ -6,7 +6,8 @@ import { InstallmentModal } from "../components/InstallmentModal";
 import { FixedExpenseItem } from "../components/FixedExpenseItem";
 import { InstallmentItem } from "../components/InstallmentItem";
 import { ItemActions } from "../components/ItemActions";
-import { formatCurrency } from "../lib/format";
+import { EmptyState } from "../components/EmptyState";
+import { currentMonth, formatCurrency } from "../lib/format";
 import {
   monthlyAmount,
   monthlyTotalForCard,
@@ -94,20 +95,32 @@ export function CardsPage() {
   return (
     <>
       <div className="section-title">
-        <span>Mis tarjetas</span>
-        <button className="fab-add" onClick={() => setCardModal("new")}>
+        <h2>Mis tarjetas</h2>
+        <button
+          type="button"
+          className="fab-add"
+          onClick={() => setCardModal("new")}
+        >
           + Añadir
         </button>
       </div>
 
       {cards.length === 0 ? (
-        <div className="card empty">
-          <span className="empty__emoji" aria-hidden>
-            💳
-          </span>
-          Aún no tienes tarjetas. Añade una (solo el nombre) para empezar a
-          organizar tus gastos.
-        </div>
+        <EmptyState
+          emoji="💳"
+          action={
+            <button
+              type="button"
+              className="btn"
+              onClick={() => setCardModal("new")}
+            >
+              Añadir mi primera tarjeta
+            </button>
+          }
+        >
+          Aún no tienes tarjetas. Añade una (solo el nombre) para organizar tus
+          gastos.
+        </EmptyState>
       ) : (
         <div className="list">
           {cards.map((card) => {
@@ -120,8 +133,9 @@ export function CardsPage() {
               <div
                 className="row row--tap"
                 key={card.id}
-                role="button"
+                role="link"
                 tabIndex={0}
+                aria-label={`${card.name}, ${formatCurrency(total, settings)} al mes. Ver detalle`}
                 onClick={() => setSelectedId(card.id)}
                 onKeyDown={(e) => {
                   if (e.key === "Enter" || e.key === " ") {
@@ -143,20 +157,15 @@ export function CardsPage() {
                     {nFixed} fijos · {nInst} a meses
                   </div>
                 </div>
-                <div>
+                <div className="row__amount-block">
                   <div className="row__amount">
                     {formatCurrency(total, settings)}
                   </div>
-                  <div className="row__sub" style={{ textAlign: "right" }}>
-                    al mes
-                  </div>
+                  <div className="row__sub row__sub--end">al mes</div>
                 </div>
-                <ItemActions
-                  name={card.name}
-                  onEdit={() => setCardModal(card)}
-                  onDelete={() => removeCard(card.id)}
-                  deleteMessage={`¿Eliminar "${card.name}"? También se borrarán sus gastos y mensualidades.`}
-                />
+                <span className="row__chevron" aria-hidden>
+                  ›
+                </span>
               </div>
             );
           })}
@@ -264,7 +273,7 @@ function CardDetail({
             name={card.name}
             onEdit={onEditCard}
             onDelete={onDeleteCard}
-            deleteMessage={`¿Eliminar "${card.name}"? También se borrarán sus gastos y mensualidades.`}
+            deleteMessage={`¿Eliminar “${card.name}”? También se borrarán sus gastos y mensualidades.`}
           />
         </div>
         <div className="card-hero__meta">
@@ -288,15 +297,21 @@ function CardDetail({
       </div>
 
       <div className="section-title">
-        <span>Gastos fijos</span>
-        <button className="fab-add" onClick={onAddFixed}>
+        <h2>Gastos fijos</h2>
+        <button type="button" className="fab-add" onClick={onAddFixed}>
           + Añadir
         </button>
       </div>
       {fixed.length === 0 ? (
-        <div className="card empty">
+        <EmptyState
+          action={
+            <button type="button" className="btn btn--ghost" onClick={onAddFixed}>
+              Añadir un gasto fijo
+            </button>
+          }
+        >
           No hay gastos fijos en esta tarjeta.
-        </div>
+        </EmptyState>
       ) : (
         <div className="list">
           {fixed.map((f) => (
@@ -313,15 +328,21 @@ function CardDetail({
       )}
 
       <div className="section-title">
-        <span>Compras a meses</span>
-        <button className="fab-add" onClick={onAddInst}>
+        <h2>Compras a meses</h2>
+        <button type="button" className="fab-add" onClick={onAddInst}>
           + Añadir
         </button>
       </div>
       {installments.length === 0 ? (
-        <div className="card empty">
+        <EmptyState
+          action={
+            <button type="button" className="btn btn--ghost" onClick={onAddInst}>
+              Registrar una compra
+            </button>
+          }
+        >
           No hay compras a meses en esta tarjeta.
-        </div>
+        </EmptyState>
       ) : (
         <div className="list">
           {installments.map((inst) => (
@@ -334,14 +355,12 @@ function CardDetail({
               onDelete={() => onDeleteInst(inst.id)}
               onRegisterPayment={() =>
                 onRegisterPayment(inst.id, {
-                  month: new Date().toISOString().slice(0, 7),
+                  month: currentMonth(),
                   amount: monthlyAmount(inst),
                   paidAt: new Date().toISOString(),
                 })
               }
-              onUndoPayment={() =>
-                onUndoPayment(inst.id, new Date().toISOString().slice(0, 7))
-              }
+              onUndoPayment={() => onUndoPayment(inst.id, currentMonth())}
             />
           ))}
         </div>

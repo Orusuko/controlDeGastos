@@ -28,8 +28,15 @@ export function ViewToolbar<T extends string>({
     function onDoc(e: MouseEvent) {
       if (!menuRef.current?.contains(e.target as Node)) setOpen(false);
     }
+    function onKey(e: KeyboardEvent) {
+      if (e.key === "Escape") setOpen(false);
+    }
     document.addEventListener("mousedown", onDoc);
-    return () => document.removeEventListener("mousedown", onDoc);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("mousedown", onDoc);
+      document.removeEventListener("keydown", onKey);
+    };
   }, [open]);
 
   return (
@@ -49,7 +56,7 @@ export function ViewToolbar<T extends string>({
           aria-label="Vista de cuadrícula"
           onClick={() => onLayout("grid")}
         >
-          ▦ Grid
+          ▦ Cuad.
         </button>
       </div>
       <div className="sort-menu" ref={menuRef}>
@@ -60,7 +67,7 @@ export function ViewToolbar<T extends string>({
           aria-haspopup="listbox"
           onClick={() => setOpen((v) => !v)}
         >
-          ↕ <span>{current}</span>
+          ↕ <span>Orden: {current}</span>
         </button>
         {open && (
           <div className="sort-menu__list" role="listbox" aria-label="Ordenar por">

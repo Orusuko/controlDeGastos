@@ -3,9 +3,11 @@ import { useFinanceStore } from "../store/useFinanceStore";
 import { InstallmentModal } from "../components/InstallmentModal";
 import { InstallmentItem } from "../components/InstallmentItem";
 import { ViewToolbar } from "../components/ViewToolbar";
+import { EmptyState } from "../components/EmptyState";
 import { currentMonth } from "../lib/format";
 import { monthlyAmount } from "../lib/finance";
 import { sortInstallments } from "../lib/sort";
+import type { View } from "../components/BottomNav";
 import type { Installment, InstallmentSort, ListLayout } from "../types";
 
 const SORT_OPTIONS: { value: InstallmentSort; label: string }[] = [
@@ -14,7 +16,11 @@ const SORT_OPTIONS: { value: InstallmentSort; label: string }[] = [
   { value: "name", label: "Nombre" },
 ];
 
-export function InstallmentsPage() {
+export function InstallmentsPage({
+  onNavigate,
+}: {
+  onNavigate: (v: View) => void;
+}) {
   const {
     cards,
     installments,
@@ -37,29 +43,41 @@ export function InstallmentsPage() {
   return (
     <>
       <div className="section-title">
-        <span>Compras a meses</span>
+        <h2>Compras a meses</h2>
         {cards.length > 0 && (
-          <button className="fab-add" onClick={() => setModal("new")}>
+          <button type="button" className="fab-add" onClick={() => setModal("new")}>
             + Añadir
           </button>
         )}
       </div>
 
       {cards.length === 0 ? (
-        <div className="card empty">
-          <span className="empty__emoji" aria-hidden>
-            💳
-          </span>
+        <EmptyState
+          emoji="💳"
+          action={
+            <button
+              type="button"
+              className="btn"
+              onClick={() => onNavigate("cards")}
+            >
+              Ir a Tarjetas
+            </button>
+          }
+        >
           Añade una tarjeta primero para registrar tus compras a meses.
-        </div>
+        </EmptyState>
       ) : installments.length === 0 ? (
-        <div className="card empty">
-          <span className="empty__emoji" aria-hidden>
-            🗓️
-          </span>
-          Registra una compra a mensualidades: indica el total y a cuántos meses,
-          y ve marcando cada pago para saber cuánto te falta.
-        </div>
+        <EmptyState
+          emoji="🗓️"
+          action={
+            <button type="button" className="btn" onClick={() => setModal("new")}>
+              Registrar una compra
+            </button>
+          }
+        >
+          Indica el total y a cuántos meses, y ve marcando cada pago para saber
+          cuánto te falta.
+        </EmptyState>
       ) : (
         <>
           <ViewToolbar

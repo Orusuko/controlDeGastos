@@ -58,7 +58,7 @@ export default function App() {
         <h1>
           <span aria-hidden>💰</span> Control Financiero
         </h1>
-        <p>
+        <p className="app__header-sub">
           {SUBTITLES[view]} · {formatMonth(currentMonth())}
         </p>
       </header>
@@ -66,8 +66,8 @@ export default function App() {
       <main className="app__content">
         {view === "dashboard" && <Dashboard onNavigate={setView} />}
         {view === "cards" && <CardsPage />}
-        {view === "fixed" && <FixedExpensesPage />}
-        {view === "installments" && <InstallmentsPage />}
+        {view === "fixed" && <FixedExpensesPage onNavigate={setView} />}
+        {view === "installments" && <InstallmentsPage onNavigate={setView} />}
         {view === "settings" && <SettingsPage />}
       </main>
 

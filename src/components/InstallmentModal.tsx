@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useId, useState } from "react";
 import { Modal } from "./Modal";
 import { currentMonth, formatCurrency } from "../lib/format";
 import type { Card, Installment, Settings } from "../types";
@@ -18,6 +18,13 @@ export function InstallmentModal({
   onClose: () => void;
   onSave: (data: Omit<Installment, "id" | "payments">) => void;
 }) {
+  const ids = {
+    name: useId(),
+    total: useId(),
+    months: useId(),
+    card: useId(),
+    start: useId(),
+  };
   const [name, setName] = useState(initial?.name ?? "");
   const [total, setTotal] = useState(
     initial ? String(initial.totalAmount) : ""
@@ -61,8 +68,9 @@ export function InstallmentModal({
     >
       <form onSubmit={submit}>
         <div className="field">
-          <label>¿Qué compraste?</label>
+          <label htmlFor={ids.name}>¿Qué compraste?</label>
           <input
+            id={ids.name}
             type="text"
             value={name}
             autoFocus
@@ -72,8 +80,9 @@ export function InstallmentModal({
         </div>
         <div className="field-row">
           <div className="field">
-            <label>Total pendiente</label>
+            <label htmlFor={ids.total}>Total pendiente</label>
             <input
+              id={ids.total}
               type="number"
               inputMode="decimal"
               min="0.01"
@@ -85,8 +94,9 @@ export function InstallmentModal({
             />
           </div>
           <div className="field">
-            <label>Nº de meses</label>
+            <label htmlFor={ids.months}>Nº de meses</label>
             <input
+              id={ids.months}
               type="number"
               inputMode="numeric"
               min="1"
@@ -108,8 +118,9 @@ export function InstallmentModal({
         )}
         <div className="field-row">
           <div className="field">
-            <label>Tarjeta</label>
+            <label htmlFor={ids.card}>Tarjeta</label>
             <select
+              id={ids.card}
               value={cardId}
               onChange={(e) => setCardId(e.target.value)}
             >
@@ -121,15 +132,20 @@ export function InstallmentModal({
             </select>
           </div>
           <div className="field">
-            <label>Mes de inicio</label>
+            <label htmlFor={ids.start}>Mes de inicio</label>
             <input
+              id={ids.start}
               type="month"
               value={startMonth}
               onChange={(e) => setStartMonth(e.target.value)}
             />
           </div>
         </div>
-        {error && <p className="form-error">{error}</p>}
+        {error && (
+          <p className="form-error" role="alert">
+            {error}
+          </p>
+        )}
         <div className="modal__actions">
           <button type="button" className="btn btn--ghost" onClick={onClose}>
             Cancelar

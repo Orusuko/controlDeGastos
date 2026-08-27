@@ -20,20 +20,25 @@ interface BottomNavProps {
 
 export function BottomNav({ view, onChange }: BottomNavProps) {
   return (
-    <nav className="nav">
-      {ITEMS.map((item) => (
-        <button
-          key={item.view}
-          className={view === item.view ? "active" : ""}
-          onClick={() => onChange(item.view)}
-          aria-current={view === item.view}
-        >
-          <span className="nav__icon" aria-hidden>
-            {item.icon}
-          </span>
-          {item.label}
-        </button>
-      ))}
+    <nav className="nav" aria-label="Secciones de la app">
+      {ITEMS.map((item) => {
+        const active = view === item.view;
+        return (
+          <button
+            key={item.view}
+            type="button"
+            className={active ? "active" : undefined}
+            onClick={() => onChange(item.view)}
+            aria-current={active ? "page" : undefined}
+            aria-label={item.label}
+          >
+            <span className="nav__icon" aria-hidden>
+              {item.icon}
+            </span>
+            {item.label}
+          </button>
+        );
+      })}
     </nav>
   );
 }

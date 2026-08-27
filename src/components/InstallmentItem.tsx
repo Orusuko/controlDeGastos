@@ -34,31 +34,38 @@ export function InstallmentItem({
   const left = remainingMonths(inst);
   const done = left === 0;
   const paidThisMonth = isPaidForMonth(inst, thisMonth);
+  const monthly = formatCurrency(monthlyAmount(inst), settings);
 
   return (
-    <div className="card inst-card">
-      <div className="row" style={{ border: "none", padding: 0 }}>
-        <div className="row__body">
-          <div className="row__title">{inst.name}</div>
-          <div className="row__sub">
-            {cardName} · {formatCurrency(monthlyAmount(inst), settings)}/mes
+    <article className="card inst-card">
+      <div className="inst-card__head">
+        <div className="inst-card__identity">
+          <h3 className="inst-card__name">{inst.name}</h3>
+          <p className="inst-card__meta">
+            {cardName}
+            {compact ? ` · ${monthly}/mes` : null}
+          </p>
+        </div>
+        <div className="inst-card__figures">
+          <div className="inst-card__remain">
+            {formatCurrency(remainingAmount(inst), settings)}
+          </div>
+          <div className="inst-card__monthly">
+            {done ? "Liquidada" : compact ? "por pagar" : `${monthly} al mes`}
           </div>
         </div>
-        <div className="row__amount">
-          {formatCurrency(remainingAmount(inst), settings)}
-          <div className="row__sub" style={{ textAlign: "right" }}>
-            pendiente
-          </div>
-        </div>
-        <ItemActions
-          name={inst.name}
-          onEdit={onEdit}
-          onDelete={onDelete}
-        />
+        <ItemActions name={inst.name} onEdit={onEdit} onDelete={onDelete} />
       </div>
 
       <div className="progress">
-        <div className="progress__track">
+        <div
+          className="progress__track"
+          role="progressbar"
+          aria-valuemin={0}
+          aria-valuemax={inst.months}
+          aria-valuenow={paid}
+          aria-label={`${paid} de ${inst.months} pagos`}
+        >
           <div
             className="progress__fill"
             style={{
@@ -71,23 +78,28 @@ export function InstallmentItem({
           <span>
             {paid} de {inst.months} pagos
           </span>
-          <span>{done ? "¡Liquidada! 🎉" : `${left} meses restantes`}</span>
+          <span>{done ? "¡Liquidada!" : `${left} meses restantes`}</span>
         </div>
       </div>
 
       {!done && (
-        <div style={{ marginTop: 12 }}>
+        <div className="inst-card__action">
           {paidThisMonth ? (
             <button
+              type="button"
               className="btn btn--ghost btn--sm"
               onClick={onUndoPayment}
             >
               {compact
                 ? "Deshacer pago"
-                : `✓ Pagado en ${formatMonth(thisMonth, settings.locale)} · deshacer`}
+                : `Pagado en ${formatMonth(thisMonth, settings.locale)} · deshacer`}
             </button>
           ) : (
-            <button className="btn btn--sm" onClick={onRegisterPayment}>
+            <button
+              type="button"
+              className="btn btn--sm"
+              onClick={onRegisterPayment}
+            >
               {compact
                 ? "Registrar pago"
                 : `Registrar pago de ${formatMonth(thisMonth, settings.locale)}`}
@@ -95,6 +107,6 @@ export function InstallmentItem({
           )}
         </div>
       )}
-    </div>
+    </article>
   );
 }

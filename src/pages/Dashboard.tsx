@@ -18,6 +18,7 @@ import {
 } from "../lib/finance";
 import { generateAdvice, type AdviceLevel } from "../lib/advice";
 import type { View } from "../components/BottomNav";
+import { EmptyState } from "../components/EmptyState";
 
 const CATEGORY_COLORS: Record<string, string> = {
   Streaming: "#ec4899",
@@ -36,6 +37,10 @@ const ADVICE_ICON: Record<AdviceLevel, string> = {
   danger: "⚠",
 };
 
+function truncateLabel(value: string, max = 8): string {
+  return value.length > max ? `${value.slice(0, max)}…` : value;
+}
+
 export function Dashboard({ onNavigate }: { onNavigate: (v: View) => void }) {
   const { cards, fixed, installments, settings } = useFinanceStore();
   const totals = computeTotals(fixed, installments);
@@ -46,18 +51,21 @@ export function Dashboard({ onNavigate }: { onNavigate: (v: View) => void }) {
 
   if (cards.length === 0 && !hasData) {
     return (
-      <div className="card empty">
-        <span className="empty__emoji" aria-hidden>
-          👋
-        </span>
-        <p style={{ marginTop: 0 }}>
-          ¡Bienvenido! Empieza añadiendo una tarjeta y registrando tus gastos
-          fijos y compras a meses.
-        </p>
-        <button className="btn" onClick={() => onNavigate("cards")}>
-          Añadir mi primera tarjeta
-        </button>
-      </div>
+      <EmptyState
+        emoji="👋"
+        action={
+          <button
+            type="button"
+            className="btn"
+            onClick={() => onNavigate("cards")}
+          >
+            Añadir mi primera tarjeta
+          </button>
+        }
+      >
+        Empieza con una tarjeta y registra tus gastos fijos y compras a meses.
+        Todo se queda en este teléfono.
+      </EmptyState>
     );
   }
 
@@ -69,7 +77,6 @@ export function Dashboard({ onNavigate }: { onNavigate: (v: View) => void }) {
       ? "var(--warn)"
       : "var(--good)";
 
-  // Datos para la gráfica de dona (obligaciones del mes por categoría).
   const pieData = [
     ...categoryBreakdown(fixed).map((c) => ({
       name: c.category,
@@ -94,7 +101,14 @@ export function Dashboard({ onNavigate }: { onNavigate: (v: View) => void }) {
 
         {salary > 0 && (
           <div className="usage">
-            <div className="usage__track">
+            <div
+              className="usage__track"
+              role="progressbar"
+              aria-valuemin={0}
+              aria-valuemax={100}
+              aria-valuenow={Math.round(Math.min(100, usageRatio * 100))}
+              aria-label="Porcentaje del sueldo destinado a pagos"
+            >
               <div
                 className="usage__fill"
                 style={{
@@ -129,7 +143,11 @@ export function Dashboard({ onNavigate }: { onNavigate: (v: View) => void }) {
         </div>
         <div className="mini-stat">
           <span>Disponible tras pagos</span>
-          <strong style={{ color: salary - totals.total < 0 ? "var(--danger)" : undefined }}>
+          <strong
+            style={{
+              color: salary - totals.total < 0 ? "var(--danger)" : undefined,
+            }}
+          >
             {salary > 0 ? formatCurrency(salary - totals.total, settings) : "—"}
           </strong>
         </div>
@@ -138,15 +156,15 @@ export function Dashboard({ onNavigate }: { onNavigate: (v: View) => void }) {
       {pieData.length > 0 && (
         <div className="card">
           <h2>Distribución de gastos</h2>
-          <div className="chart-box">
+          <div className="chart-box chart-box--donut">
             <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
+              <PieChart margin={{ top: 4, right: 4, bottom: 4, left: 4 }}>
                 <Pie
                   data={pieData}
                   dataKey="value"
                   nameKey="name"
-                  innerRadius={55}
-                  outerRadius={90}
+                  innerRadius={58}
+                  outerRadius={78}
                   paddingAngle={2}
                   stroke="var(--surface)"
                 >
@@ -168,6 +186,10 @@ export function Dashboard({ onNavigate }: { onNavigate: (v: View) => void }) {
                 />
               </PieChart>
             </ResponsiveContainer>
+            <div className="chart-donut-center" aria-hidden>
+              <span>Total</span>
+              <strong>{formatCurrency(totals.total, settings)}</strong>
+            </div>
           </div>
           <div className="legend">
             {pieData.map((d) => (
@@ -176,7 +198,10 @@ export function Dashboard({ onNavigate }: { onNavigate: (v: View) => void }) {
                   className="dot"
                   style={{ background: CATEGORY_COLORS[d.name] ?? "#94a3b8" }}
                 />
-                {d.name}
+                <span className="legend__name">{d.name}</span>
+                <span className="legend__value">
+                  {formatCurrency(d.value, settings)}
+                </span>
               </div>
             ))}
           </div>
@@ -186,7 +211,7 @@ export function Dashboard({ onNavigate }: { onNavigate: (v: View) => void }) {
       {bars.length > 0 && (
         <div className="card">
           <h2>Gasto mensual por tarjeta</h2>
-          <div className="chart-box">
+          <div className="chart-box chart-box--bars">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart
                 data={bars.map((b) => ({
@@ -194,13 +219,15 @@ export function Dashboard({ onNavigate }: { onNavigate: (v: View) => void }) {
                   total: b.total,
                   color: b.card.color,
                 }))}
-                margin={{ top: 8, right: 8, left: 8, bottom: 0 }}
+                margin={{ top: 8, right: 4, left: 0, bottom: 4 }}
               >
                 <XAxis
                   dataKey="name"
-                  tick={{ fontSize: 12, fill: "var(--muted)" }}
+                  tick={{ fontSize: 11, fill: "var(--muted)" }}
+                  tickFormatter={(v) => truncateLabel(String(v))}
                   tickLine={false}
                   axisLine={false}
+                  interval={0}
                 />
                 <YAxis hide />
                 <Tooltip
@@ -213,7 +240,7 @@ export function Dashboard({ onNavigate }: { onNavigate: (v: View) => void }) {
                     color: "var(--text)",
                   }}
                 />
-                <Bar dataKey="total" radius={[8, 8, 0, 0]}>
+                <Bar dataKey="total" radius={[8, 8, 0, 0]} maxBarSize={48}>
                   {bars.map((b) => (
                     <Cell key={b.card.id} fill={b.card.color} />
                   ))}
@@ -224,8 +251,8 @@ export function Dashboard({ onNavigate }: { onNavigate: (v: View) => void }) {
         </div>
       )}
 
-      <div className="section-title" style={{ marginTop: 4 }}>
-        <span>Consejos financieros</span>
+      <div className="section-title">
+        <h2>Consejos financieros</h2>
       </div>
       <div className="list">
         {advice.map((a, i) => (

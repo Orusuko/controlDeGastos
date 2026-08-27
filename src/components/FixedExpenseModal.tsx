@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useId, useState } from "react";
 import { Modal } from "./Modal";
 import { FIXED_CATEGORIES, type Card, type FixedCategory, type FixedExpense } from "../types";
 
@@ -15,6 +15,12 @@ export function FixedExpenseModal({
   onClose: () => void;
   onSave: (data: Omit<FixedExpense, "id">) => void;
 }) {
+  const ids = {
+    name: useId(),
+    amount: useId(),
+    category: useId(),
+    card: useId(),
+  };
   const [name, setName] = useState(initial?.name ?? "");
   const [amount, setAmount] = useState(
     initial ? String(initial.amount) : ""
@@ -44,8 +50,9 @@ export function FixedExpenseModal({
     >
       <form onSubmit={submit}>
         <div className="field">
-          <label>Nombre</label>
+          <label htmlFor={ids.name}>Nombre</label>
           <input
+            id={ids.name}
             type="text"
             value={name}
             autoFocus
@@ -55,8 +62,9 @@ export function FixedExpenseModal({
         </div>
         <div className="field-row">
           <div className="field">
-            <label>Importe mensual</label>
+            <label htmlFor={ids.amount}>Importe mensual</label>
             <input
+              id={ids.amount}
               type="number"
               inputMode="decimal"
               min="0.01"
@@ -68,8 +76,9 @@ export function FixedExpenseModal({
             />
           </div>
           <div className="field">
-            <label>Categoría</label>
+            <label htmlFor={ids.category}>Categoría</label>
             <select
+              id={ids.category}
               value={category}
               onChange={(e) => setCategory(e.target.value as FixedCategory)}
             >
@@ -82,8 +91,9 @@ export function FixedExpenseModal({
           </div>
         </div>
         <div className="field">
-          <label>Tarjeta</label>
+          <label htmlFor={ids.card}>Tarjeta</label>
           <select
+            id={ids.card}
             value={cardId}
             onChange={(e) => setCardId(e.target.value)}
           >
@@ -94,7 +104,11 @@ export function FixedExpenseModal({
             ))}
           </select>
         </div>
-        {error && <p className="form-error">{error}</p>}
+        {error && (
+          <p className="form-error" role="alert">
+            {error}
+          </p>
+        )}
         <div className="modal__actions">
           <button type="button" className="btn btn--ghost" onClick={onClose}>
             Cancelar
