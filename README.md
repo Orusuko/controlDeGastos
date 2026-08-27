@@ -29,34 +29,41 @@ nube (por ejemplo Supabase) más adelante.
 Enlace directo y estable: siempre apunta a la última compilación generada
 automáticamente desde `main` (workflow
 [`android-release.yml`](.github/workflows/android-release.yml)). Es un APK de
-depuración (sin firmar para producción ni publicado en Google Play), pensado
-para instalar y probar la app directamente en tu teléfono:
+**sideload** (no está en Google Play). El `versionCode` actual es
+**20260829** (`versionName` **1.4.0**).
 
-1. Descarga el APK desde el enlace anterior en tu Android. Si ya tenías un
-   archivo `control-financiero.apk` en Descargas, bórralo primero: el
-   enlace es el mismo (`android-latest`) y el navegador puede servirte
-   la copia vieja.
-2. Si Android lo bloquea, activa **"Instalar apps desconocidas"** para el
-   navegador/gestor de archivos que usaste para descargarlo.
-3. Abre el archivo descargado y confirma la instalación **encima** de la
-   app que ya tienes. **No la desinstales** (perderías los datos). El
-   `versionCode` actual es **20260828** (`versionName` **1.3.0**),
-   claramente distinto de las compilaciones anteriores (`1` / `1.0`,
-   `2` / `1.1`, `3` / `1.1.1` y `20260827` / `1.2.0`). Android solo ofrece actualizar si el
-   `versionCode` nuevo es mayor.
-4. Abre **Ajustes** y comprueba que ponga **v1.3.0 (20260828)**. Si no
-   aparece esa versión (o Android dice que ya está instalada), es un APK
-   viejo o cacheado: borra `control-financiero.apk` de Descargas y
-   vuelve a bajarlo. El enlace `android-latest` no cambia de nombre;
-   GitHub puede seguir mostrando la fecha original de la release aunque
-   el APK sí se haya regenerado. Prefiere el archivo versionado
-   `control-financiero-1.3.0.apk` de la misma release si el navegador
-   reutiliza la copia vieja.
+### Antes de desinstalar: exporta el JSON
+
+Tus tarjetas, gastos fijos y mensualidades viven **solo en el teléfono**.
+Desinstalar borra ese almacenamiento. En **Ajustes → Respaldo**:
+
+1. **Exportar respaldo** — guarda o comparte un `.json` (Descargas, Drive,
+   WhatsApp, correo…). Hazlo **antes** de desinstalar.
+2. **Importar respaldo** — elige ese JSON. La app valida la forma y pide
+   confirmación para **reemplazar todo**. Si el archivo no es válido, no
+   se tocan los datos.
+
+### Cómo actualizar el APK
+
+1. Exporta el respaldo (por si acaso). Si ya tenías `control-financiero.apk`
+   en Descargas, bórralo: el enlace no cambia de nombre y el navegador
+   puede servirte la copia vieja. Prefiere
+   `control-financiero-1.4.0.apk` de la misma release si duda.
+2. Activa **"Instalar apps desconocidas"** si Android lo pide.
+3. Instala **encima** de la app. **No desinstales** si Android ofrece
+   actualizar: los datos se conservan.
+4. Abre **Ajustes** y comprueba **v1.4.0 (20260829)**.
+
+Si Android dice que ya está instalada o **bloquea** la instalación
+(conflicto de firma: el APK viejo se firmó con otro debug de CI/agente):
+
+**exportar → desinstalar → instalar el APK nuevo → importar el JSON.**
+
+No empieces de cero. El JSON es el salvavidas.
 
 > El APK de `android-latest` **solo se regenera al fusionar a `main`**
 > (workflow `android-release.yml`, ~2 min). Hasta entonces el enlace
-> sigue sirviendo el binario anterior. Cada nuevo push a `main` que
-> toque la app actualiza ese mismo APK.
+> sigue sirviendo el binario anterior.
 
 ## Stack
 
@@ -172,19 +179,34 @@ Android → Run workflow**.
 
 ### Datos al actualizar el APK
 
-Instalar un APK nuevo **encima** de la app (mismo `appId`
+Instalar un APK nuevo **encima** de la app (mismo `applicationId`
 `com.controlfinanciero.app`) **no borra** tus datos. Se guardan en el
-almacenamiento local del WebView, cuyo origen es `https://localhost`
-(Capacitor `server.androidScheme: "https"`). Ese origen y el `appId` no
-cambian entre actualizaciones, así que `localStorage` (clave
-`control-financiero:v1`) se conserva.
+almacenamiento local del WebView (`https://localhost`, clave Zustand
+`control-financiero:v1`). Ese origen y el `appId` no cambian.
 
-**Desinstalar** la app sí borra todos los datos locales. No hay copia en la
-nube. Si Android dice que el APK ya está instalado o no ofrece
-"Actualizar", borra el archivo descargado, vuelve a bajar el de
-`android-latest` (o el APK versionado `control-financiero-1.3.0.apk` de
-la misma release) y comprueba que el `versionCode` del APK nuevo sea
-**20260828** (`1.3.0`). En Ajustes debe leerse **v1.3.0 (20260828)**.
+**Desinstalar sí borra todo.** No hay copia en la nube. Por eso existe
+**Ajustes → Exportar / Importar respaldo** (JSON portable con el 100 %
+del store).
+
+Si Android no ofrece actualizar: o el `versionCode` no es mayor, o hay
+**conflicto de firmas**. Los APK antiguos de CI se firmaban con el
+debug keystore efímero de cada runner (certificado distinto en cada
+build). A partir de 1.4.0, CI y local usan el mismo
+`android/app/debug.keystore` de sideload.
+
+### Firma de sideload (no Play Store)
+
+`android/app/debug.keystore` está versionado **solo para sideload**,
+para que GitHub Actions y tu máquina firmen igual y Android permita
+actualizar encima. **No es un keystore de producción.** No lo uses para
+Google Play ni lo trates como secreto de release.
+
+| Campo | Valor |
+| --- | --- |
+| Archivo | `android/app/debug.keystore` |
+| Alias | `androiddebugkey` |
+| Store password | `android` |
+| Key password | `android` |
 
 ### Notas
 
@@ -207,6 +229,7 @@ src/
   types.ts                 # modelos de datos
   store/useFinanceStore.ts # estado + persistencia local (Supabase-ready)
   store/persist.ts         # merge/migrate para JSON antiguos
+  store/backup.ts          # export/import JSON (respaldo portable)
   lib/
     finance.ts             # cálculos (totales, mensualidades, por tarjeta)
     advice.ts              # consejos financieros según el sueldo

@@ -13,5 +13,7 @@ describe("appVersion", () => {
     expect(gradle).toMatch(
       new RegExp(`versionName "${APP_VERSION_NAME.replace(/\./g, "\\.")}"`)
     );
+    expect(gradle).toContain('applicationId "com.controlfinanciero.app"');
+    expect(gradle).toContain('storeFile file("debug.keystore")');
   });
 });

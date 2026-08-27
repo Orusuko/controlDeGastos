@@ -63,7 +63,7 @@ jobs:
           js=$(ls dist-android/assets/*.js | head -n 1)
           echo "Bundle: $js"
           missing=0
-          for needle in "Apariencia" "Oscuro" "Editar gasto fijo" "Ordenar por" "control-financiero:v1" "Vista de cuadrícula"; do
+          for needle in "Apariencia" "Oscuro" "Editar gasto fijo" "Ordenar por" "control-financiero:v1" "Vista de cuadrícula" "Exportar respaldo" "Importar respaldo"; do
             if grep -qF "$needle" "$js"; then
               echo "OK  $needle"
             else
@@ -100,13 +100,17 @@ jobs:
           - **Commit:** \`${SHA}\`
           - **Compilado:** ${STAMP} UTC
 
-          Incluye modo oscuro, detalle por tarjeta, edición de gastos, vista lista/cuadrícula y ordenamiento.
+          Incluye respaldo JSON (exportar/importar en Ajustes), modo oscuro, detalle por tarjeta, edición de gastos, vista lista/cuadrícula y ordenamiento.
 
-          Instálalo **encima** de la app (no desinstales: conservarías los datos). Si el navegador te da un APK cacheado, borra \`control-financiero.apk\` de Descargas y vuelve a bajarlo, o usa el archivo versionado \`control-financiero-${VERSION_NAME}.apk\`.
+          **Antes de desinstalar:** Ajustes → Exportar respaldo. Guarda el JSON.
 
-          Comprueba en **Ajustes** que aparezca **v${VERSION_NAME} (${VERSION_CODE})**. Si ves una versión anterior, es el APK viejo.
+          Instálalo **encima** de la app (no desinstales: perderías los datos). Si Android bloquea la instalación por conflicto de firma: exportar → desinstalar → instalar → Importar respaldo.
 
-          No está firmado para producción ni publicado en Google Play.
+          Si el navegador te da un APK cacheado, borra \`control-financiero.apk\` de Descargas y vuelve a bajarlo, o usa el archivo versionado \`control-financiero-${VERSION_NAME}.apk\`.
+
+          Comprueba en **Ajustes** que aparezca **v${VERSION_NAME} (${VERSION_CODE})**.
+
+          APK de sideload firmado con el \`debug.keystore\` del repo. No es para Google Play.
           EOF
           echo "version_name=${VERSION_NAME}" >> "$GITHUB_OUTPUT"
           echo "version_code=${VERSION_CODE}" >> "$GITHUB_OUTPUT"
