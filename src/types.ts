@@ -44,8 +44,26 @@ export interface Installment {
   payments: InstallmentPayment[];
 }
 
+export type ThemePreference = "system" | "light" | "dark";
+export type ListLayout = "list" | "grid";
+export type FixedSort = "name" | "amount" | "category";
+export type InstallmentSort = "name" | "amount" | "remaining";
+
 export interface Settings {
   monthlySalary: number;
   currency: string;
   locale: string;
+  /**
+   * Apariencia. Ausente en datos viejos → se trata como "system"
+   * (respeta prefers-color-scheme).
+   */
+  theme?: ThemePreference;
+  /** Vista de gastos fijos. Ausente → "list". */
+  fixedLayout?: ListLayout;
+  /** Vista de compras a meses. Ausente → "list". */
+  installmentLayout?: ListLayout;
+  /** Orden de gastos fijos. Ausente → "name". */
+  fixedSort?: FixedSort;
+  /** Orden de mensualidades. Ausente → "remaining". */
+  installmentSort?: InstallmentSort;
 }

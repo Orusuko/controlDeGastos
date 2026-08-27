@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { BottomNav, type View } from "./components/BottomNav";
 import { Dashboard } from "./pages/Dashboard";
 import { CardsPage } from "./pages/CardsPage";
@@ -6,6 +6,8 @@ import { FixedExpensesPage } from "./pages/FixedExpensesPage";
 import { InstallmentsPage } from "./pages/InstallmentsPage";
 import { SettingsPage } from "./pages/SettingsPage";
 import { formatMonth, currentMonth } from "./lib/format";
+import { applyResolvedTheme, resolveTheme } from "./lib/theme";
+import { useFinanceStore } from "./store/useFinanceStore";
 
 const SUBTITLES: Record<View, string> = {
   dashboard: "Tu mes en un vistazo",
@@ -15,8 +17,40 @@ const SUBTITLES: Record<View, string> = {
   settings: "Ajustes",
 };
 
+function useHydrated(): boolean {
+  const [hydrated, setHydrated] = useState(
+    useFinanceStore.persist.hasHydrated()
+  );
+  useEffect(() => {
+    if (hydrated) return;
+    return useFinanceStore.persist.onFinishHydration(() => setHydrated(true));
+  }, [hydrated]);
+  return hydrated;
+}
+
+function useApplyTheme() {
+  const hydrated = useHydrated();
+  const theme = useFinanceStore((s) => s.settings.theme);
+
+  useEffect(() => {
+    if (!hydrated) return;
+    const apply = () => {
+      const systemDark = window.matchMedia(
+        "(prefers-color-scheme: dark)"
+      ).matches;
+      applyResolvedTheme(resolveTheme(theme, systemDark));
+    };
+    apply();
+    if ((theme ?? "system") !== "system") return;
+    const mq = window.matchMedia("(prefers-color-scheme: dark)");
+    mq.addEventListener("change", apply);
+    return () => mq.removeEventListener("change", apply);
+  }, [hydrated, theme]);
+}
+
 export default function App() {
   const [view, setView] = useState<View>("dashboard");
+  useApplyTheme();
 
   return (
     <div className="app">
@@ -24,7 +58,7 @@ export default function App() {
         <h1>
           <span aria-hidden>💰</span> Control Financiero
         </h1>
-        <p>
+        <p className="app__header-sub">
           {SUBTITLES[view]} · {formatMonth(currentMonth())}
         </p>
       </header>
@@ -32,8 +66,8 @@ export default function App() {
       <main className="app__content">
         {view === "dashboard" && <Dashboard onNavigate={setView} />}
         {view === "cards" && <CardsPage />}
-        {view === "fixed" && <FixedExpensesPage />}
-        {view === "installments" && <InstallmentsPage />}
+        {view === "fixed" && <FixedExpensesPage onNavigate={setView} />}
+        {view === "installments" && <InstallmentsPage onNavigate={setView} />}
         {view === "settings" && <SettingsPage />}
       </main>
 

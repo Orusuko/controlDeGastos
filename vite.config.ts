@@ -1,4 +1,4 @@
-import { defineConfig } from "vite";
+import { defineConfig } from "vitest/config";
 import react from "@vitejs/plugin-react";
 
 // En desarrollo la app se sirve en la raíz ("/"). En producción (build y
@@ -20,5 +20,9 @@ export default defineConfig(({ mode }) => ({
   preview: {
     host: true,
     port: 4173,
+  },
+  test: {
+    environment: "happy-dom",
+    include: ["src/**/*.test.ts"],
   },
 }));

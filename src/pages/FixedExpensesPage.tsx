@@ -1,190 +1,106 @@
 import { useState } from "react";
 import { useFinanceStore } from "../store/useFinanceStore";
-import { Modal } from "../components/Modal";
-import { formatCurrency } from "../lib/format";
-import { FIXED_CATEGORIES, type FixedCategory } from "../types";
+import { FixedExpenseModal } from "../components/FixedExpenseModal";
+import { FixedExpenseItem } from "../components/FixedExpenseItem";
+import { ViewToolbar } from "../components/ViewToolbar";
+import { EmptyState } from "../components/EmptyState";
+import { sortFixed } from "../lib/sort";
+import type { View } from "../components/BottomNav";
+import type { FixedExpense, FixedSort, ListLayout } from "../types";
 
-const CATEGORY_COLORS: Record<string, string> = {
-  Streaming: "#ec4899",
-  Servicios: "#0ea5e9",
-  Software: "#8b5cf6",
-  Membresías: "#f59e0b",
-  Telefonía: "#14b8a6",
-  Otros: "#64748b",
-};
+const SORT_OPTIONS: { value: FixedSort; label: string }[] = [
+  { value: "name", label: "Nombre" },
+  { value: "amount", label: "Importe" },
+  { value: "category", label: "Categoría" },
+];
 
-export function FixedExpensesPage() {
-  const { cards, fixed, settings, addFixed, removeFixed } = useFinanceStore();
-  const [open, setOpen] = useState(false);
+export function FixedExpensesPage({
+  onNavigate,
+}: {
+  onNavigate: (v: View) => void;
+}) {
+  const { cards, fixed, settings, addFixed, updateFixed, removeFixed, updateSettings } =
+    useFinanceStore();
+  const [modal, setModal] = useState<FixedExpense | null | "new">(null);
 
-  const [name, setName] = useState("");
-  const [amount, setAmount] = useState("");
-  const [category, setCategory] = useState<FixedCategory>("Streaming");
-  const [cardId, setCardId] = useState("");
-  const [error, setError] = useState<string | null>(null);
-
-  function openModal() {
-    setName("");
-    setAmount("");
-    setCategory("Streaming");
-    setCardId(cards[0]?.id ?? "");
-    setError(null);
-    setOpen(true);
-  }
-
-  function submit(e: React.FormEvent) {
-    e.preventDefault();
-    const amt = Number(amount);
-    if (!name.trim()) return setError("Escribe el nombre del gasto.");
-    if (!Number.isFinite(amt) || amt <= 0)
-      return setError("Indica un importe mayor que cero.");
-    if (!cardId) return setError("Selecciona una tarjeta.");
-    addFixed({ name: name.trim(), amount: amt, category, cardId });
-    setError(null);
-    setOpen(false);
-  }
-
+  const layout: ListLayout = settings.fixedLayout ?? "list";
+  const sort: FixedSort = settings.fixedSort ?? "name";
+  const items = sortFixed(fixed, sort);
   const cardName = (id: string) => cards.find((c) => c.id === id)?.name ?? "—";
 
   return (
     <>
       <div className="section-title">
-        <span>Gastos fijos</span>
+        <h2>Gastos fijos</h2>
         {cards.length > 0 && (
-          <button className="fab-add" onClick={openModal}>
+          <button type="button" className="fab-add" onClick={() => setModal("new")}>
             + Añadir
           </button>
         )}
       </div>
 
       {cards.length === 0 ? (
-        <div className="card empty">
-          <span className="empty__emoji" aria-hidden>
-            💳
-          </span>
-          Primero añade una tarjeta en la pestaña “Tarjetas” para asignar tus
-          gastos fijos.
-        </div>
+        <EmptyState
+          emoji="💳"
+          action={
+            <button
+              type="button"
+              className="btn"
+              onClick={() => onNavigate("cards")}
+            >
+              Ir a Tarjetas
+            </button>
+          }
+        >
+          Primero añade una tarjeta para asignar tus gastos fijos.
+        </EmptyState>
       ) : fixed.length === 0 ? (
-        <div className="card empty">
-          <span className="empty__emoji" aria-hidden>
-            🔁
-          </span>
-          Registra tus suscripciones y pagos recurrentes (Netflix, Spotify,
-          gimnasio…) para saber cuánto se te va cada mes.
-        </div>
+        <EmptyState
+          emoji="🔁"
+          action={
+            <button type="button" className="btn" onClick={() => setModal("new")}>
+              Registrar un gasto fijo
+            </button>
+          }
+        >
+          Registra suscripciones y pagos recurrentes (Netflix, Spotify, gimnasio…)
+          para saber cuánto se te va cada mes.
+        </EmptyState>
       ) : (
-        <div className="list">
-          {fixed.map((f) => (
-            <div className="row" key={f.id}>
-              <div
-                className="row__badge"
-                style={{ background: CATEGORY_COLORS[f.category] ?? "#64748b" }}
-                aria-hidden
-              >
-                {f.category.slice(0, 1)}
-              </div>
-              <div className="row__body">
-                <div className="row__title">{f.name}</div>
-                <div className="row__sub">
-                  <span
-                    className="tag"
-                    style={{
-                      background: `${CATEGORY_COLORS[f.category] ?? "#64748b"}22`,
-                      color: CATEGORY_COLORS[f.category] ?? "#64748b",
-                    }}
-                  >
-                    {f.category}
-                  </span>{" "}
-                  · {cardName(f.cardId)}
-                </div>
-              </div>
-              <div className="row__amount">
-                {formatCurrency(f.amount, settings)}
-              </div>
-              <button
-                className="icon-btn"
-                aria-label={`Eliminar ${f.name}`}
-                onClick={() => removeFixed(f.id)}
-              >
-                🗑
-              </button>
-            </div>
-          ))}
-        </div>
+        <>
+          <ViewToolbar
+            layout={layout}
+            onLayout={(fixedLayout) => updateSettings({ fixedLayout })}
+            sort={sort}
+            sortOptions={SORT_OPTIONS}
+            onSort={(fixedSort) => updateSettings({ fixedSort })}
+          />
+          <div className={`list${layout === "grid" ? " list--grid" : ""}`}>
+            {items.map((f) => (
+              <FixedExpenseItem
+                key={f.id}
+                expense={f}
+                cardName={cardName(f.cardId)}
+                settings={settings}
+                onEdit={() => setModal(f)}
+                onDelete={() => removeFixed(f.id)}
+              />
+            ))}
+          </div>
+        </>
       )}
 
-      {open && (
-        <Modal title="Nuevo gasto fijo" onClose={() => setOpen(false)}>
-          <form onSubmit={submit}>
-            <div className="field">
-              <label>Nombre</label>
-              <input
-                type="text"
-                value={name}
-                autoFocus
-                placeholder="Netflix, Spotify, gimnasio…"
-                onChange={(e) => setName(e.target.value)}
-              />
-            </div>
-            <div className="field-row">
-              <div className="field">
-                <label>Importe mensual</label>
-                <input
-                  type="number"
-                  inputMode="decimal"
-                  min="0.01"
-                  step="0.01"
-                  value={amount}
-                  placeholder="0.00"
-                  onWheel={(e) => e.currentTarget.blur()}
-                  onChange={(e) => setAmount(e.target.value)}
-                />
-              </div>
-              <div className="field">
-                <label>Categoría</label>
-                <select
-                  value={category}
-                  onChange={(e) =>
-                    setCategory(e.target.value as FixedCategory)
-                  }
-                >
-                  {FIXED_CATEGORIES.map((c) => (
-                    <option key={c} value={c}>
-                      {c}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
-            <div className="field">
-              <label>Tarjeta</label>
-              <select
-                value={cardId}
-                onChange={(e) => setCardId(e.target.value)}
-              >
-                {cards.map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-            {error && <p className="form-error">{error}</p>}
-            <div className="modal__actions">
-              <button
-                type="button"
-                className="btn btn--ghost"
-                onClick={() => setOpen(false)}
-              >
-                Cancelar
-              </button>
-              <button type="submit" className="btn">
-                Guardar
-              </button>
-            </div>
-          </form>
-        </Modal>
+      {modal !== null && (
+        <FixedExpenseModal
+          cards={cards}
+          initial={modal === "new" ? null : modal}
+          onClose={() => setModal(null)}
+          onSave={(data) => {
+            if (modal === "new") addFixed(data);
+            else updateFixed(modal.id, data);
+            setModal(null);
+          }}
+        />
       )}
     </>
   );

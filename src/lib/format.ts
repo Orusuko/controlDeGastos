@@ -12,8 +12,9 @@ export function formatCurrency(value: number, settings: Settings): string {
   }
 }
 
-export function currentMonth(): string {
-  return new Date().toISOString().slice(0, 7);
+/** Mes actual en zona horaria local (YYYY-MM). No usar toISOString (UTC). */
+export function currentMonth(now: Date = new Date()): string {
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
 }
 
 /** Convierte "2026-08" en "ago 2026". */
