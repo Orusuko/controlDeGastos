@@ -145,6 +145,16 @@ export function IconBack(props: Props) {
   );
 }
 
+export function IconTarget(props: Props) {
+  return (
+    <Svg {...props}>
+      <circle cx="12" cy="12" r="8.25" />
+      <circle cx="12" cy="12" r="4.25" />
+      <circle cx="12" cy="12" r="1.15" fill="currentColor" stroke="none" />
+    </Svg>
+  );
+}
+
 export function IconChevron(props: Props) {
   return (
     <Svg {...props}>

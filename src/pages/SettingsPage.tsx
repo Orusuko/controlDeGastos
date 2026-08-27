@@ -41,7 +41,11 @@ function summarizeBackup(slice: PersistedSlice): string {
   return `${countLabel(s.cards, "tarjeta", "tarjetas")}, ${countLabel(s.fixed, "fijo", "fijos")}, ${countLabel(s.installments, "mensualidad", "mensualidades")}`;
 }
 
-export function SettingsPage() {
+export function SettingsPage({
+  onNavigate,
+}: {
+  onNavigate?: (view: "strategies") => void;
+}) {
   const { settings, updateSettings, resetAll, importBackup } = useFinanceStore();
   const [salary, setSalary] = useState(
     settings.monthlySalary ? String(settings.monthlySalary) : ""
@@ -163,6 +167,21 @@ export function SettingsPage() {
             </button>
           ))}
         </div>
+      </div>
+
+      <div className="card">
+        <h2>Ahorro</h2>
+        <p className="muted" style={{ marginTop: 0 }}>
+          Plan de ataque con tu sueldo, fijos y mensualidades: qué liquidar
+          primero, qué recortar y cuándo no abrir otra compra a meses.
+        </p>
+        <button
+          type="button"
+          className="btn"
+          onClick={() => onNavigate?.("strategies")}
+        >
+          Ver estrategias de ahorro
+        </button>
       </div>
 
       <div className="card">

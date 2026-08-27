@@ -235,7 +235,7 @@ html[data-modal-open] .app__content {
   background: var(--nav-bg);
   border-top: 1px solid var(--border);
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(6, 1fr);
   gap: 2px;
   z-index: 30;
   backdrop-filter: blur(18px) saturate(1.2);
@@ -251,7 +251,7 @@ html[data-modal-open] .app__content {
   align-items: center;
   justify-content: center;
   gap: 3px;
-  font-size: 0.68rem;
+  font-size: 0.62rem;
   font-weight: 650;
   letter-spacing: 0.01em;
   min-height: 52px;
@@ -903,11 +903,47 @@ html[data-modal-open] .app__content {
   font-size: 0.9rem;
 }
 
+.advice__kicker {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--primary);
+  margin-bottom: 2px;
+}
+
+.advice__metric {
+  font-family: var(--font-display);
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  font-size: 0.88rem;
+  letter-spacing: -0.03em;
+  margin-top: 2px;
+}
+
 .advice__text {
   font-size: 0.82rem;
   color: var(--muted);
   margin-top: 2px;
   line-height: 1.4;
+}
+
+.strategy-hero__note {
+  margin: 8px 0 0;
+  font-size: 0.82rem;
+  opacity: 0.9;
+  line-height: 1.4;
+}
+
+.strategy-lead {
+  margin: 0;
+  line-height: 1.45;
+}
+
+.strategy-links {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
 /* ---- Empty state ---- */

@@ -5,6 +5,7 @@ import { CardsPage } from "./pages/CardsPage";
 import { FixedExpensesPage } from "./pages/FixedExpensesPage";
 import { InstallmentsPage } from "./pages/InstallmentsPage";
 import { SettingsPage } from "./pages/SettingsPage";
+import { StrategiesPage } from "./pages/StrategiesPage";
 import { IconLedger } from "./components/icons";
 import { formatMonth, currentMonth } from "./lib/format";
 import { applyResolvedTheme, resolveTheme } from "./lib/theme";
@@ -15,6 +16,7 @@ const SUBTITLES: Record<View, string> = {
   cards: "Tus tarjetas",
   fixed: "Gastos fijos y suscripciones",
   installments: "Compras a meses",
+  strategies: "Plan de ahorro",
   settings: "Ajustes",
 };
 
@@ -77,7 +79,8 @@ export default function App() {
         {view === "cards" && <CardsPage />}
         {view === "fixed" && <FixedExpensesPage onNavigate={setView} />}
         {view === "installments" && <InstallmentsPage onNavigate={setView} />}
-        {view === "settings" && <SettingsPage />}
+        {view === "strategies" && <StrategiesPage onNavigate={setView} />}
+        {view === "settings" && <SettingsPage onNavigate={setView} />}
       </main>
 
       <BottomNav view={view} onChange={setView} />

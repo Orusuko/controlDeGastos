@@ -5,6 +5,7 @@ import {
   IconChart,
   IconRepeat,
   IconSettings,
+  IconTarget,
 } from "./icons";
 
 export type View =
@@ -12,6 +13,7 @@ export type View =
   | "cards"
   | "fixed"
   | "installments"
+  | "strategies"
   | "settings";
 
 const ITEMS: {
@@ -23,6 +25,7 @@ const ITEMS: {
   { view: "cards", label: "Tarjetas", Icon: IconCard },
   { view: "fixed", label: "Fijos", Icon: IconRepeat },
   { view: "installments", label: "Meses", Icon: IconCalendar },
+  { view: "strategies", label: "Ahorro", Icon: IconTarget },
   { view: "settings", label: "Ajustes", Icon: IconSettings },
 ];
 
