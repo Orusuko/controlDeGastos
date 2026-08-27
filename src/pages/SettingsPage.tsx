@@ -32,6 +32,15 @@ const THEMES: { value: ThemePreference; label: string; hint: string }[] = [
 
 type Status = { kind: "ok" | "err"; text: string } | null;
 
+function countLabel(n: number, one: string, many: string): string {
+  return `${n} ${n === 1 ? one : many}`;
+}
+
+function summarizeBackup(slice: PersistedSlice): string {
+  const s = backupSummary(slice);
+  return `${countLabel(s.cards, "tarjeta", "tarjetas")}, ${countLabel(s.fixed, "fijo", "fijos")}, ${countLabel(s.installments, "mensualidad", "mensualidades")}`;
+}
+
 export function SettingsPage() {
   const { settings, updateSettings, resetAll, importBackup } = useFinanceStore();
   const [salary, setSalary] = useState(
@@ -123,15 +132,12 @@ export function SettingsPage() {
         ? String(pendingImport.settings.monthlySalary)
         : ""
     );
-    const s = backupSummary(pendingImport);
     setPendingImport(null);
     setStatus({
       kind: "ok",
-      text: `Respaldo restaurado: ${s.cards} tarjetas, ${s.fixed} fijos, ${s.installments} mensualidades.`,
+      text: `Respaldo restaurado: ${summarizeBackup(pendingImport)}.`,
     });
   }
-
-  const importSummary = pendingImport ? backupSummary(pendingImport) : null;
 
   return (
     <>
@@ -287,10 +293,10 @@ export function SettingsPage() {
         />
       )}
 
-      {pendingImport && importSummary && (
+      {pendingImport && (
         <ConfirmDialog
           title="Reemplazar todos los datos"
-          message={`Se sustituirán tarjetas, gastos y mensualidades actuales por este respaldo: ${importSummary.cards} tarjetas, ${importSummary.fixed} fijos, ${importSummary.installments} mensualidades. Esta acción no se puede deshacer.`}
+          message={`Se sustituirán tarjetas, gastos y mensualidades actuales por este respaldo: ${summarizeBackup(pendingImport)}. Esta acción no se puede deshacer.`}
           confirmLabel="Reemplazar todo"
           onCancel={() => setPendingImport(null)}
           onConfirm={confirmImport}
