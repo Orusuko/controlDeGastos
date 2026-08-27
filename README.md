@@ -42,6 +42,11 @@ para instalar y probar la app directamente en tu teléfono:
    app que ya tienes. **No la desinstales** (perderías los datos). El
    `versionCode` sube en cada publicación para que Android reconozca la
    actualización.
+4. Abre **Ajustes** y comprueba que ponga **v1.1.1 (3)**. Si no aparece
+   esa versión (o no ves Apariencia / Oscuro), es un APK viejo o
+   cacheado: borra el archivo en Descargas y vuelve a bajarlo. El enlace
+   `android-latest` no cambia de nombre; GitHub puede seguir mostrando la
+   fecha original de la release aunque el APK sí se haya regenerado.
 
 > El enlace empieza a funcionar en cuanto el workflow `android-release.yml` se
 > ejecuta por primera vez en `main` (o se lanza manualmente desde la pestaña
@@ -172,8 +177,10 @@ cambian entre actualizaciones, así que `localStorage` (clave
 **Desinstalar** la app sí borra todos los datos locales. No hay copia en la
 nube. Si Android dice que el APK ya está instalado o no ofrece
 "Actualizar", borra el archivo descargado, vuelve a bajar el de
-`android-latest` y comprueba que el `versionCode` del APK nuevo sea mayor
-que el instalado (ahora `2` / `1.1`).
+`android-latest` (o el APK versionado `control-financiero-1.1.1.apk` de
+la misma release) y comprueba que el `versionCode` del APK nuevo sea
+mayor que el instalado (ahora `3` / `1.1.1`). En Ajustes debe leerse
+**v1.1.1 (3)**.
 
 ### Notas
 
