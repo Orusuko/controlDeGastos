@@ -62,6 +62,8 @@ describe("hidratación del store desde JSON v1", () => {
     expect(state.settings.currency).toBe("MXN");
     expect(state.settings.theme).toBe("system");
     expect(state.settings.fixedLayout).toBe("list");
+    expect(state.settings.fixedSortDir).toBe("asc");
+    expect(state.settings.installmentSortDir).toBe("desc");
     expect(state.cards).toHaveLength(2);
   });
 

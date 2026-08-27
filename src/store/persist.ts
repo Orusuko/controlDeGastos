@@ -7,6 +7,7 @@ import type {
   ThemePreference,
   FixedSort,
   InstallmentSort,
+  SortDir,
 } from "../types";
 
 /** Clave de localStorage. NO cambiar: perdería los datos al actualizar el APK. */
@@ -29,6 +30,7 @@ const THEMES: ThemePreference[] = ["system", "light", "dark"];
 const LAYOUTS: ListLayout[] = ["list", "grid"];
 const FIXED_SORTS: FixedSort[] = ["name", "amount", "category"];
 const INSTALLMENT_SORTS: InstallmentSort[] = ["name", "amount", "remaining"];
+const SORT_DIRS: SortDir[] = ["asc", "desc"];
 
 function isOneOf<T extends string>(value: unknown, allowed: readonly T[]): value is T {
   return typeof value === "string" && (allowed as readonly string[]).includes(value);
@@ -42,7 +44,9 @@ export const DEFAULT_SETTINGS: Settings = {
   fixedLayout: "list",
   installmentLayout: "list",
   fixedSort: "name",
+  fixedSortDir: "asc",
   installmentSort: "remaining",
+  installmentSortDir: "desc",
 };
 
 /** Completa campos nuevos sin pisar sueldo/moneda/locale de un JSON antiguo. */
@@ -75,6 +79,12 @@ export function normalizeSettings(raw: unknown): Settings {
     installmentSort: isOneOf(s.installmentSort, INSTALLMENT_SORTS)
       ? s.installmentSort
       : DEFAULT_SETTINGS.installmentSort,
+    fixedSortDir: isOneOf(s.fixedSortDir, SORT_DIRS)
+      ? s.fixedSortDir
+      : DEFAULT_SETTINGS.fixedSortDir,
+    installmentSortDir: isOneOf(s.installmentSortDir, SORT_DIRS)
+      ? s.installmentSortDir
+      : DEFAULT_SETTINGS.installmentSortDir,
   };
 }
 

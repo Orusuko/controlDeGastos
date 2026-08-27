@@ -1142,11 +1142,18 @@ html[data-modal-open] .app__content {
 /* ---- Toolbar lista/grid + sort ---- */
 .view-toolbar {
   display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 8px;
+  margin: -4px 0 4px;
+}
+
+.view-toolbar__row {
+  display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  margin: -4px 0 4px;
-  flex-wrap: wrap;
+  min-width: 0;
 }
 
 .seg {

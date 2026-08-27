@@ -57,6 +57,8 @@ describe("persistencia local", () => {
     expect(settings.installmentLayout).toBe("list");
     expect(settings.fixedSort).toBe("name");
     expect(settings.installmentSort).toBe("remaining");
+    expect(settings.fixedSortDir).toBe("asc");
+    expect(settings.installmentSortDir).toBe("desc");
   });
 
   it("migra un snapshot v1 conservando tarjetas, fijos y mensualidades", () => {
@@ -92,5 +94,7 @@ describe("persistencia local", () => {
     expect(merged.installments[0].name).toBe("RTX4060");
     expect(merged.settings.theme).toBe("system");
     expect(merged.settings.monthlySalary).toBe(10500);
+    expect(merged.settings.fixedSortDir).toBe("asc");
+    expect(merged.settings.installmentSortDir).toBe("desc");
   });
 });
