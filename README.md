@@ -32,10 +32,16 @@ automáticamente desde `main` (workflow
 depuración (sin firmar para producción ni publicado en Google Play), pensado
 para instalar y probar la app directamente en tu teléfono:
 
-1. Descarga el APK desde el enlace anterior en tu Android.
+1. Descarga el APK desde el enlace anterior en tu Android. Si ya tenías un
+   archivo `control-financiero.apk` en Descargas, bórralo primero: el
+   enlace es el mismo (`android-latest`) y el navegador puede servirte
+   la copia vieja.
 2. Si Android lo bloquea, activa **"Instalar apps desconocidas"** para el
    navegador/gestor de archivos que usaste para descargarlo.
-3. Abre el archivo descargado y confirma la instalación.
+3. Abre el archivo descargado y confirma la instalación **encima** de la
+   app que ya tienes. **No la desinstales** (perderías los datos). El
+   `versionCode` sube en cada publicación para que Android reconozca la
+   actualización.
 
 > El enlace empieza a funcionar en cuanto el workflow `android-release.yml` se
 > ejecuta por primera vez en `main` (o se lanza manualmente desde la pestaña
@@ -164,7 +170,10 @@ cambian entre actualizaciones, así que `localStorage` (clave
 `control-financiero:v1`) se conserva.
 
 **Desinstalar** la app sí borra todos los datos locales. No hay copia en la
-nube.
+nube. Si Android dice que el APK ya está instalado o no ofrece
+"Actualizar", borra el archivo descargado, vuelve a bajar el de
+`android-latest` y comprueba que el `versionCode` del APK nuevo sea mayor
+que el instalado (ahora `2` / `1.1`).
 
 ### Notas
 
