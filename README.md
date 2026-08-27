@@ -14,6 +14,8 @@ Permite:
 - Un **dashboard** con el total a pagar del mes, uso del sueldo, gráficas
   (distribución por categoría y gasto por tarjeta) y **consejos financieros**
   según tu sueldo mensual.
+- **Modo oscuro** (ledger nocturno), **detalle por tarjeta**, edición de
+  gastos y un interruptor lista/cuadrícula con ordenamiento.
 
 Los datos se guardan **localmente en el dispositivo** (almacenamiento del
 navegador vía Zustand `persist`). La capa de datos está aislada en
@@ -67,6 +69,7 @@ npm run dev       # app en http://localhost:5173
 
 ```bash
 npm run build     # type-check (tsc) + build de producción
+npm run test      # pruebas de persistencia, tema y ordenamiento
 npm run preview   # sirve el build de producción en http://localhost:4173/controlDeGastos/
 ```
 
@@ -151,6 +154,18 @@ aparece al principio de este README, en la sección "Descargar el APK".
 También se puede lanzar a mano desde **Actions → Compilar y publicar APK de
 Android → Run workflow**.
 
+### Datos al actualizar el APK
+
+Instalar un APK nuevo **encima** de la app (mismo `appId`
+`com.controlfinanciero.app`) **no borra** tus datos. Se guardan en el
+almacenamiento local del WebView, cuyo origen es `https://localhost`
+(Capacitor `server.androidScheme: "https"`). Ese origen y el `appId` no
+cambian entre actualizaciones, así que `localStorage` (clave
+`control-financiero:v1`) se conserva.
+
+**Desinstalar** la app sí borra todos los datos locales. No hay copia en la
+nube.
+
 ### Notas
 
 - El `appId` de la app es `com.controlfinanciero.app` (ver
@@ -171,11 +186,14 @@ Android → Run workflow**.
 src/
   types.ts                 # modelos de datos
   store/useFinanceStore.ts # estado + persistencia local (Supabase-ready)
+  store/persist.ts         # merge/migrate para JSON antiguos
   lib/
     finance.ts             # cálculos (totales, mensualidades, por tarjeta)
     advice.ts              # consejos financieros según el sueldo
     format.ts              # formato de moneda y fechas
-  components/              # Modal, navegación inferior
+    theme.ts               # resolución claro/oscuro/sistema
+    sort.ts                # ordenamiento de fijos y meses
+  components/              # Modal, navegación, toolbar, formularios
   pages/                   # Dashboard, Tarjetas, Gastos fijos, Mensualidades, Ajustes
 android/                   # Proyecto nativo de Android generado por Capacitor
 resources/                 # Logo fuente para generar íconos/splash de Android
