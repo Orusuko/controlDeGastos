@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { adjacentView, classifySwipe, SWIPE_VIEWS } from "./swipeNav";
+import {
+  adjacentView,
+  classifySwipe,
+  SWIPE_VIEWS,
+  toSwipeView,
+} from "./swipeNav";
 
 describe("classifySwipe", () => {
   it("ignora un toque corto", () => {
@@ -31,5 +36,15 @@ describe("adjacentView", () => {
     expect(adjacentView("settings", "next")).toBe("settings");
     expect(adjacentView("dashboard", "prev")).toBe("dashboard");
     expect(SWIPE_VIEWS).toContain("loans");
+  });
+
+  it("trata Más como vista propia, no como alias de tarjetas", () => {
+    expect(toSwipeView("more")).toBe("more");
+    expect(adjacentView("fixed", "next")).toBe("more");
+    expect(adjacentView("more", "next")).toBe("cards");
+    expect(adjacentView("more", "prev")).toBe("fixed");
+    expect(SWIPE_VIEWS.indexOf("more")).toBeLessThan(
+      SWIPE_VIEWS.indexOf("cards")
+    );
   });
 });

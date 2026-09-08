@@ -41,7 +41,12 @@ export function generateAdvice(
   const salary = settings.monthlySalary;
   const advice: Advice[] = [];
   const active = installments.filter(isActive);
-  const hasCommitments = fixed.length > 0 || active.length > 0;
+  const hasCommitments =
+    fixed.length > 0 ||
+    active.length > 0 ||
+    totals.expenses > 0 ||
+    totals.loanOwed > 0 ||
+    totals.loanReceivable > 0;
 
   if (!hasCommitments && (!salary || salary <= 0)) {
     advice.push({
@@ -266,6 +271,45 @@ export function generateAdvice(
         available,
         settings
       )}. Apártalos el mismo día del pago, no al final del mes.`,
+    });
+  }
+
+  if (totals.loanOwed > 0) {
+    advice.push({
+      level: "warn",
+      kicker: "Préstamos",
+      title: "Tienes préstamos que tú debes",
+      metric: money(totals.loanOwed, settings),
+      text: `Debes ${money(
+        totals.loanOwed,
+        settings
+      )} en préstamos (Yo debo). Un abono parcial baja el saldo; no registres el restante de un toque si solo pagaste una parte.`,
+    });
+  }
+
+  if (totals.loanReceivable > 0) {
+    advice.push({
+      level: "info",
+      kicker: "Préstamos",
+      title: "Te deben dinero",
+      metric: money(totals.loanReceivable, settings),
+      text: `Me deben ${money(
+        totals.loanReceivable,
+        settings
+      )}. Anota cada abono que te paguen para no perder el hilo.`,
+    });
+  }
+
+  if (totals.expenses > 0) {
+    advice.push({
+      level: "info",
+      kicker: "Gastos del mes",
+      title: "Los gastos variables ya suman",
+      metric: money(totals.expenses, settings),
+      text: `Este mes llevas ${money(
+        totals.expenses,
+        settings
+      )} en gastos del día a día, aparte de fijos y mensualidades. Si el sueldo ya está justo, recorta aquí primero.`,
     });
   }
 

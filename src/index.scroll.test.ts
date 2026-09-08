@@ -26,6 +26,11 @@ describe("shell de scroll táctil", () => {
     expect(css).toMatch(/\.app__content > \* \{[^}]*flex-shrink:\s*0/s);
   });
 
+  it("la nav de 6 ítems puede desplazarse en 320px", () => {
+    expect(css).toMatch(/\.nav \{[^}]*overflow-x:\s*auto/s);
+    expect(css).not.toMatch(/grid-template-columns:\s*repeat\(6/);
+  });
+
   it("reserva espacio inferior para la nav y el safe-area", () => {
     expect(css).toMatch(
       /padding:[^;]*var\(--nav-h\) \+ env\(safe-area-inset-bottom/

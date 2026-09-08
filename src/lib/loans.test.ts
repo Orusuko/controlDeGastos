@@ -4,6 +4,7 @@ import {
   loanPartyRemaining,
   loanRemaining,
   loanTotal,
+  reconcileLoanPayments,
 } from "./loans";
 import type { Loan } from "../types";
 
@@ -38,5 +39,37 @@ describe("saldos de préstamo", () => {
     expect(canRegisterLoanPayment(loan, "p1", 1500)).toBe(true);
     expect(canRegisterLoanPayment(loan, "p1", 1500.01)).toBe(false);
     expect(canRegisterLoanPayment(loan, "p2", 0)).toBe(false);
+  });
+
+  it("elimina abonos de una persona que ya no está en el préstamo", () => {
+    const parties = [{ id: "p2", name: "Beto", shareAmount: 1000 }];
+    const payments = [
+      {
+        id: "pay1",
+        partyId: "p1",
+        amount: 500,
+        paidAt: "2026-09-02T00:00:00.000Z",
+      },
+      {
+        id: "pay2",
+        partyId: "p2",
+        amount: 100,
+        paidAt: "2026-09-03T00:00:00.000Z",
+      },
+    ];
+    expect(reconcileLoanPayments(parties, payments).map((p) => p.id)).toEqual([
+      "pay2",
+    ]);
+  });
+
+  it("tira los abonos más nuevos si el cupo de la persona baja", () => {
+    const parties = [{ id: "p1", name: "Ana", shareAmount: 400 }];
+    const payments = [
+      { id: "a", partyId: "p1", amount: 300, paidAt: "2026-09-01T00:00:00.000Z" },
+      { id: "b", partyId: "p1", amount: 200, paidAt: "2026-09-02T00:00:00.000Z" },
+    ];
+    expect(reconcileLoanPayments(parties, payments).map((p) => p.id)).toEqual([
+      "a",
+    ]);
   });
 });

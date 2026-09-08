@@ -58,6 +58,7 @@ export const DEFAULT_SETTINGS: Settings = {
   expenseLayout: "list",
   expenseSort: "date",
   expenseSortDir: "desc",
+  loanLayout: "list",
   loanSort: "remaining",
   loanSortDir: "desc",
 };
@@ -107,6 +108,9 @@ export function normalizeSettings(raw: unknown): Settings {
     expenseSortDir: isOneOf(s.expenseSortDir, SORT_DIRS)
       ? s.expenseSortDir
       : DEFAULT_SETTINGS.expenseSortDir,
+    loanLayout: isOneOf(s.loanLayout, LAYOUTS)
+      ? s.loanLayout
+      : DEFAULT_SETTINGS.loanLayout,
     loanSort: isOneOf(s.loanSort, LOAN_SORTS)
       ? s.loanSort
       : DEFAULT_SETTINGS.loanSort,

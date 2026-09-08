@@ -132,6 +132,8 @@ export interface Settings {
   expenseSort?: ExpenseSort;
   /** Dirección del orden de gastos. Ausente → "desc" (más recientes). */
   expenseSortDir?: SortDir;
+  /** Vista de préstamos. Ausente → "list". */
+  loanLayout?: ListLayout;
   /** Orden de préstamos. Ausente → "remaining". */
   loanSort?: LoanSort;
   /** Dirección del orden de préstamos. Ausente → "desc" (más saldo). */

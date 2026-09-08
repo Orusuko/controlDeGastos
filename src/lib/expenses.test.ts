@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { expensesInMonth, expensesTotal } from "./expenses";
+import { expensesInMonth, expensesTotal, uniqueExpenseMonths } from "./expenses";
 import type { Expense } from "../types";
 
 const items: Expense[] = [
@@ -25,5 +25,13 @@ describe("gastos del mes", () => {
     expect(sept.map((e) => e.name)).toEqual(["Tacos"]);
     expect(expensesTotal(sept)).toBe(120);
     expect(expensesTotal(items)).toBe(200);
+  });
+
+  it("lista meses únicos descendente e incluye el mes extra", () => {
+    expect(uniqueExpenseMonths(items, "2026-09")).toEqual([
+      "2026-09",
+      "2026-08",
+    ]);
+    expect(uniqueExpenseMonths(items)).toEqual(["2026-09", "2026-08"]);
   });
 });
