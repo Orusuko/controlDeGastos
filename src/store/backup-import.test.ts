@@ -78,6 +78,8 @@ describe("importar respaldo en el store", () => {
       cards: useFinanceStore.getState().cards,
       fixed: useFinanceStore.getState().fixed,
       installments: useFinanceStore.getState().installments,
+      expenses: useFinanceStore.getState().expenses,
+      loans: useFinanceStore.getState().loans,
       settings: useFinanceStore.getState().settings,
     });
     useFinanceStore.getState().resetAll();
@@ -108,5 +110,53 @@ describe("importar respaldo en el store", () => {
 
     expect(useFinanceStore.getState().cards.map((c) => c.name)).toEqual(before);
     expect(PERSIST_NAME).toBe("control-financiero:v1");
+  });
+
+  it("conserva gastos y préstamos en el roundtrip de respaldo", async () => {
+    const { useFinanceStore } = await import("./useFinanceStore");
+    await useFinanceStore.persist.rehydrate();
+    useFinanceStore.getState().addExpense({
+      name: "Tacos",
+      amount: 120,
+      category: "Comida",
+      date: "2026-09-07",
+    });
+    useFinanceStore.getState().addLoan({
+      title: "Renta",
+      direction: "en_contra",
+      parties: [
+        { id: "p1", name: "Ana", shareAmount: 2000 },
+        { id: "p2", name: "Beto", shareAmount: 1000 },
+      ],
+    });
+    const loanId = useFinanceStore.getState().loans[0]?.id;
+    expect(loanId).toBeTruthy();
+    useFinanceStore.getState().registerLoanPayment(loanId, {
+      partyId: "p1",
+      amount: 500,
+      paidAt: "2026-09-08T00:00:00.000Z",
+    });
+
+    const json = serializeBackup({
+      cards: useFinanceStore.getState().cards,
+      fixed: useFinanceStore.getState().fixed,
+      installments: useFinanceStore.getState().installments,
+      expenses: useFinanceStore.getState().expenses,
+      loans: useFinanceStore.getState().loans,
+      settings: useFinanceStore.getState().settings,
+    });
+    useFinanceStore.getState().resetAll();
+    expect(useFinanceStore.getState().expenses).toHaveLength(0);
+
+    const parsed = parseBackupJson(json);
+    expect(parsed.ok).toBe(true);
+    if (!parsed.ok) return;
+    useFinanceStore.getState().importBackup(parsed.data);
+
+    const state = useFinanceStore.getState();
+    expect(state.expenses[0]?.name).toBe("Tacos");
+    expect(state.loans[0]?.title).toBe("Renta");
+    expect(state.loans[0]?.payments).toHaveLength(1);
+    expect(state.loans[0]?.payments[0]?.amount).toBe(500);
   });
 });

@@ -13,6 +13,7 @@ import {
 import type { PersistedSlice } from "../store/persist";
 import { ConfirmDialog } from "../components/ConfirmDialog";
 import type { ThemePreference } from "../types";
+import type { View } from "../components/BottomNav";
 
 const CURRENCIES: { code: string; label: string; locale: string }[] = [
   { code: "MXN", label: "Peso mexicano (MXN)", locale: "es-MX" },
@@ -38,13 +39,13 @@ function countLabel(n: number, one: string, many: string): string {
 
 function summarizeBackup(slice: PersistedSlice): string {
   const s = backupSummary(slice);
-  return `${countLabel(s.cards, "tarjeta", "tarjetas")}, ${countLabel(s.fixed, "fijo", "fijos")}, ${countLabel(s.installments, "mensualidad", "mensualidades")}`;
+  return `${countLabel(s.cards, "tarjeta", "tarjetas")}, ${countLabel(s.fixed, "fijo", "fijos")}, ${countLabel(s.installments, "mensualidad", "mensualidades")}, ${countLabel(s.expenses, "gasto", "gastos")}, ${countLabel(s.loans, "préstamo", "préstamos")}`;
 }
 
 export function SettingsPage({
   onNavigate,
 }: {
-  onNavigate?: (view: "strategies") => void;
+  onNavigate?: (view: View) => void;
 }) {
   const { settings, updateSettings, resetAll, importBackup } = useFinanceStore();
   const [salary, setSalary] = useState(
@@ -82,6 +83,8 @@ export function SettingsPage({
         cards: state.cards,
         fixed: state.fixed,
         installments: state.installments,
+        expenses: state.expenses,
+        loans: state.loans,
         settings: state.settings,
       });
       const mode = await saveBackupFile(json, backupFilename());
@@ -233,7 +236,8 @@ export function SettingsPage({
       <div className="card">
         <h2>Respaldo</h2>
         <p className="muted" style={{ marginTop: 0 }}>
-          Exporta un JSON con tarjetas, gastos fijos, mensualidades y ajustes.
+          Exporta un JSON con tarjetas, gastos fijos, gastos del día,
+          préstamos, mensualidades y ajustes.
           Hazlo <strong>antes de desinstalar</strong>. Actualizar encima no
           borra datos; desinstalar sí. Si Android bloquea la instalación por
           otra firma, exporta → desinstala → instala → importa.
@@ -301,7 +305,7 @@ export function SettingsPage({
       {confirmReset && (
         <ConfirmDialog
           title="Borrar todos los datos"
-          message="Se eliminarán tarjetas, gastos y mensualidades. Esta acción no se puede deshacer."
+          message="Se eliminarán tarjetas, gastos, préstamos y mensualidades. Esta acción no se puede deshacer."
           confirmLabel="Borrar todo"
           onCancel={() => setConfirmReset(false)}
           onConfirm={() => {
@@ -315,7 +319,7 @@ export function SettingsPage({
       {pendingImport && (
         <ConfirmDialog
           title="Reemplazar todos los datos"
-          message={`Se sustituirán tarjetas, gastos y mensualidades actuales por este respaldo: ${summarizeBackup(pendingImport)}. Esta acción no se puede deshacer.`}
+          message={`Se sustituirán tarjetas, gastos, préstamos y mensualidades actuales por este respaldo: ${summarizeBackup(pendingImport)}. Esta acción no se puede deshacer.`}
           confirmLabel="Reemplazar todo"
           onCancel={() => setPendingImport(null)}
           onConfirm={confirmImport}

@@ -19,6 +19,14 @@ export const CATEGORY_COLORS: Record<string, string> = {
   Telefonía: "#0E8A82",
   Otros: "#6A6480",
   Mensualidades: "#5348E8",
+  Comida: "#C2410C",
+  Transporte: "#0369A1",
+  Salud: "#0F766E",
+  Hogar: "#7C3AED",
+  Entretenimiento: "#C63B93",
+  Ropa: "#B45309",
+  Educación: "#1D4ED8",
+  Gastos: "#C2410C",
 };
 
 export const CATEGORY_FALLBACK = "#6A6480";

@@ -1,32 +1,41 @@
 import type { ComponentType, SVGProps } from "react";
 import {
   IconCalendar,
-  IconCard,
   IconChart,
+  IconLoan,
+  IconMore,
+  IconReceipt,
   IconRepeat,
-  IconSettings,
-  IconTarget,
 } from "./icons";
 
 export type View =
   | "dashboard"
-  | "cards"
-  | "fixed"
+  | "expenses"
+  | "loans"
   | "installments"
+  | "fixed"
+  | "cards"
   | "strategies"
-  | "settings";
+  | "settings"
+  | "more";
 
 const ITEMS: {
   view: View;
   label: string;
   Icon: ComponentType<SVGProps<SVGSVGElement>>;
+  match?: View[];
 }[] = [
   { view: "dashboard", label: "Resumen", Icon: IconChart },
-  { view: "cards", label: "Tarjetas", Icon: IconCard },
-  { view: "fixed", label: "Fijos", Icon: IconRepeat },
+  { view: "expenses", label: "Gastos", Icon: IconReceipt },
+  { view: "loans", label: "Préstamos", Icon: IconLoan },
   { view: "installments", label: "Meses", Icon: IconCalendar },
-  { view: "strategies", label: "Ahorro", Icon: IconTarget },
-  { view: "settings", label: "Ajustes", Icon: IconSettings },
+  { view: "fixed", label: "Fijos", Icon: IconRepeat },
+  {
+    view: "more",
+    label: "Más",
+    Icon: IconMore,
+    match: ["more", "cards", "strategies", "settings"],
+  },
 ];
 
 interface BottomNavProps {
@@ -38,7 +47,9 @@ export function BottomNav({ view, onChange }: BottomNavProps) {
   return (
     <nav className="nav" aria-label="Secciones de la app">
       {ITEMS.map((item) => {
-        const active = view === item.view;
+        const active = item.match
+          ? item.match.includes(view)
+          : view === item.view;
         return (
           <button
             key={item.view}

@@ -80,7 +80,15 @@ describe("estrategias de ahorro", () => {
     const emptySettings = { ...settings, monthlySalary: 0 };
     const advice = generateAdvice(
       emptySettings,
-      { fixed: 0, installments: 0, total: 0, remainingDebt: 0 },
+      {
+        fixed: 0,
+        installments: 0,
+        expenses: 0,
+        total: 0,
+        remainingDebt: 0,
+        loanOwed: 0,
+        loanReceivable: 0,
+      },
       [],
       []
     );

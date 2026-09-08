@@ -44,7 +44,7 @@ const LEGACY_V1 = {
 describe("persistencia local", () => {
   it("mantiene la clave de localStorage para no perder datos al actualizar el APK", () => {
     expect(PERSIST_NAME).toBe("control-financiero:v1");
-    expect(PERSIST_VERSION).toBe(2);
+    expect(PERSIST_VERSION).toBe(3);
   });
 
   it("rellena settings nuevos sin tocar sueldo ni moneda de un JSON v1", () => {
@@ -59,6 +59,9 @@ describe("persistencia local", () => {
     expect(settings.installmentSort).toBe("remaining");
     expect(settings.fixedSortDir).toBe("asc");
     expect(settings.installmentSortDir).toBe("desc");
+    expect(settings.expenseSort).toBe("date");
+    expect(settings.expenseSortDir).toBe("desc");
+    expect(settings.loanSort).toBe("remaining");
   });
 
   it("migra un snapshot v1 conservando tarjetas, fijos y mensualidades", () => {
@@ -66,6 +69,8 @@ describe("persistencia local", () => {
     expect(next.cards).toEqual(LEGACY_V1.cards);
     expect(next.fixed).toEqual(LEGACY_V1.fixed);
     expect(next.installments).toEqual(LEGACY_V1.installments);
+    expect(next.expenses).toEqual([]);
+    expect(next.loans).toEqual([]);
     expect(next.settings.monthlySalary).toBe(10500);
     expect(next.settings.theme).toBe("system");
   });
@@ -78,6 +83,8 @@ describe("persistencia local", () => {
     expect(next.cards).toHaveLength(2);
     expect(next.fixed).toHaveLength(1);
     expect(next.installments).toHaveLength(1);
+    expect(next.expenses).toEqual([]);
+    expect(next.loans).toEqual([]);
     expect(next.settings).toEqual(DEFAULT_SETTINGS);
   });
 
@@ -86,6 +93,8 @@ describe("persistencia local", () => {
       cards: [],
       fixed: [],
       installments: [],
+      expenses: [],
+      loans: [],
       settings: DEFAULT_SETTINGS,
     };
     const merged = mergePersistedState(LEGACY_V1, current);

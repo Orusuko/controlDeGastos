@@ -2,12 +2,16 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import type {
   Card,
+  Expense,
   FixedExpense,
   Installment,
   InstallmentPayment,
+  Loan,
+  LoanPayment,
   Settings,
 } from "../types";
 import { currentMonth } from "../lib/format";
+import { canRegisterLoanPayment } from "../lib/loans";
 import { CARD_COLORS } from "../lib/colors";
 import {
   DEFAULT_SETTINGS,
@@ -28,6 +32,8 @@ interface FinanceState {
   cards: Card[];
   fixed: FixedExpense[];
   installments: Installment[];
+  expenses: Expense[];
+  loans: Loan[];
   settings: Settings;
 
   addCard: (name: string, color?: string) => void;
@@ -49,6 +55,21 @@ interface FinanceState {
   registerPayment: (id: string, payment: InstallmentPayment) => void;
   removePayment: (id: string, month: string) => void;
 
+  addExpense: (data: Omit<Expense, "id">) => void;
+  updateExpense: (id: string, patch: Partial<Omit<Expense, "id">>) => void;
+  removeExpense: (id: string) => void;
+
+  addLoan: (
+    data: Omit<Loan, "id" | "payments" | "createdAt"> & { createdAt?: string }
+  ) => void;
+  updateLoan: (
+    id: string,
+    patch: Partial<Omit<Loan, "id" | "payments">>
+  ) => void;
+  removeLoan: (id: string) => void;
+  registerLoanPayment: (loanId: string, payment: Omit<LoanPayment, "id">) => void;
+  removeLoanPayment: (loanId: string, paymentId: string) => void;
+
   updateSettings: (patch: Partial<Settings>) => void;
   importBackup: (slice: PersistedSlice) => void;
   resetAll: () => void;
@@ -60,6 +81,8 @@ export const useFinanceStore = create<FinanceState>()(
       cards: [],
       fixed: [],
       installments: [],
+      expenses: [],
+      loans: [],
       settings: DEFAULT_SETTINGS,
 
       addCard: (name, color) =>
@@ -83,6 +106,9 @@ export const useFinanceStore = create<FinanceState>()(
           cards: state.cards.filter((c) => c.id !== id),
           fixed: state.fixed.filter((f) => f.cardId !== id),
           installments: state.installments.filter((i) => i.cardId !== id),
+          expenses: state.expenses.map((e) =>
+            e.cardId === id ? { ...e, cardId: undefined } : e
+          ),
         })),
 
       addFixed: (data) =>
@@ -132,6 +158,66 @@ export const useFinanceStore = create<FinanceState>()(
           ),
         })),
 
+      addExpense: (data) =>
+        set((state) => ({
+          expenses: [...state.expenses, { ...data, id: uid() }],
+        })),
+      updateExpense: (id, patch) =>
+        set((state) => ({
+          expenses: state.expenses.map((e) =>
+            e.id === id ? { ...e, ...patch } : e
+          ),
+        })),
+      removeExpense: (id) =>
+        set((state) => ({
+          expenses: state.expenses.filter((e) => e.id !== id),
+        })),
+
+      addLoan: (data) =>
+        set((state) => ({
+          loans: [
+            ...state.loans,
+            {
+              ...data,
+              id: uid(),
+              createdAt: data.createdAt ?? new Date().toISOString(),
+              payments: [],
+            },
+          ],
+        })),
+      updateLoan: (id, patch) =>
+        set((state) => ({
+          loans: state.loans.map((l) => (l.id === id ? { ...l, ...patch } : l)),
+        })),
+      removeLoan: (id) =>
+        set((state) => ({
+          loans: state.loans.filter((l) => l.id !== id),
+        })),
+      registerLoanPayment: (loanId, payment) =>
+        set((state) => ({
+          loans: state.loans.map((l) => {
+            if (l.id !== loanId) return l;
+            if (!canRegisterLoanPayment(l, payment.partyId, payment.amount)) {
+              return l;
+            }
+            return {
+              ...l,
+              payments: [...l.payments, { ...payment, id: uid() }],
+            };
+          }),
+        })),
+      removeLoanPayment: (loanId, paymentId) =>
+        set((state) => ({
+          loans: state.loans.map((l) =>
+            l.id === loanId
+              ? {
+                  ...l,
+                  payments: l.payments.filter((p) => p.id !== paymentId),
+                }
+              : l
+          ),
+        })),
+
       updateSettings: (patch) =>
         set((state) => ({ settings: { ...state.settings, ...patch } })),
       importBackup: (slice) =>
@@ -139,6 +225,8 @@ export const useFinanceStore = create<FinanceState>()(
           cards: slice.cards,
           fixed: slice.fixed,
           installments: slice.installments,
+          expenses: slice.expenses,
+          loans: slice.loans,
           settings: slice.settings,
         }),
       resetAll: () =>
@@ -146,6 +234,8 @@ export const useFinanceStore = create<FinanceState>()(
           cards: [],
           fixed: [],
           installments: [],
+          expenses: [],
+          loans: [],
           settings: DEFAULT_SETTINGS,
         }),
     }),
@@ -160,6 +250,8 @@ export const useFinanceStore = create<FinanceState>()(
         cards: state.cards,
         fixed: state.fixed,
         installments: state.installments,
+        expenses: state.expenses,
+        loans: state.loans,
         settings: state.settings,
       }),
     }

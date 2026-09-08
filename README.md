@@ -6,6 +6,8 @@ Permite:
 
 - Registrar **tarjetas** de crédito (solo el nombre, sin datos bancarios) para
   distinguir los gastos de cada una.
+- Registrar **gastos del día a día** (comida, transporte…) con historial.
+- Registrar **préstamos A favor / En contra** con varias personas y abonos.
 - Registrar **gastos fijos / suscripciones** (streaming, servicios, software…)
   por tarjeta y categoría.
 - Registrar **compras a meses (mensualidades)**: importe total y número de meses;
@@ -30,7 +32,7 @@ Enlace directo y estable: siempre apunta a la última compilación generada
 automáticamente desde `main` (workflow
 [`android-release.yml`](.github/workflows/android-release.yml)). Es un APK de
 **sideload** (no está en Google Play). El `versionCode` actual es
-**20260830** (`versionName` **1.5.0**).
+**20260908** (`versionName` **1.6.0**).
 
 ### Antes de desinstalar: exporta el JSON
 
@@ -48,11 +50,11 @@ Desinstalar borra ese almacenamiento. En **Ajustes → Respaldo**:
 1. Exporta el respaldo (por si acaso). Si ya tenías `control-financiero.apk`
    en Descargas, bórralo: el enlace no cambia de nombre y el navegador
    puede servirte la copia vieja. Prefiere
-   `control-financiero-1.5.0.apk` de la misma release si duda.
+   `control-financiero-1.6.0.apk` de la misma release si duda.
 2. Activa **"Instalar apps desconocidas"** si Android lo pide.
 3. Instala **encima** de la app. **No desinstales** si Android ofrece
    actualizar: los datos se conservan.
-4. Abre **Ajustes** y comprueba **v1.5.0 (20260830)**.
+4. Abre **Ajustes** y comprueba **v1.6.0 (20260908)**.
 
 Si Android dice que ya está instalada o **bloquea** la instalación
 (conflicto de firma: el APK viejo se firmó con otro debug de CI/agente):
@@ -237,7 +239,7 @@ src/
     theme.ts               # resolución claro/oscuro/sistema
     sort.ts                # ordenamiento de fijos y meses
   components/              # Modal, navegación, toolbar, formularios
-  pages/                   # Dashboard, Tarjetas, Gastos fijos, Mensualidades, Ajustes
+  pages/                   # Resumen, Gastos, Préstamos, Fijos, Meses, Más
 android/                   # Proyecto nativo de Android generado por Capacitor
 resources/                 # Logo fuente para generar íconos/splash de Android
 ```

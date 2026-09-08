@@ -1,4 +1,7 @@
-import type { Card, FixedExpense, Installment } from "../types";
+import type { Card, Expense, FixedExpense, Installment, Loan } from "../types";
+import { expensesInMonth, expensesTotal } from "./expenses";
+import { currentMonth } from "./format";
+import { loanOwedTotal, loanReceivableTotal } from "./loans";
 
 export function monthlyAmount(inst: Installment): number {
   if (!inst.months) return 0;
@@ -63,13 +66,19 @@ export function monthlyTotalForCard(
 export interface Totals {
   fixed: number;
   installments: number;
+  expenses: number;
   total: number;
   remainingDebt: number;
+  loanOwed: number;
+  loanReceivable: number;
 }
 
 export function computeTotals(
   fixed: FixedExpense[],
-  installments: Installment[]
+  installments: Installment[],
+  expenses: Expense[] = [],
+  loans: Loan[] = [],
+  month: string = currentMonth()
 ): Totals {
   const fixedTotal = fixed.reduce((sum, f) => sum + f.amount, 0);
   const installmentsTotal = installments
@@ -79,11 +88,15 @@ export function computeTotals(
     (sum, i) => sum + remainingAmount(i),
     0
   );
+  const expensesMonth = expensesTotal(expensesInMonth(expenses, month));
   return {
     fixed: fixedTotal,
     installments: installmentsTotal,
-    total: fixedTotal + installmentsTotal,
+    expenses: expensesMonth,
+    total: fixedTotal + installmentsTotal + expensesMonth,
     remainingDebt,
+    loanOwed: loanOwedTotal(loans),
+    loanReceivable: loanReceivableTotal(loans),
   };
 }
 
