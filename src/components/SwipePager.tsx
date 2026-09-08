@@ -36,6 +36,15 @@ export function SwipePager({
   }
 
   useEffect(() => {
+    function onMove(e: globalThis.PointerEvent) {
+      const origin = start.current;
+      if (!origin || origin.id !== e.pointerId) return;
+      const decision = classifySwipe({
+        dx: e.clientX - origin.x,
+        dy: e.clientY - origin.y,
+      });
+      if (decision.kind === "vertical") start.current = null;
+    }
     function finish(e: globalThis.PointerEvent) {
       const origin = start.current;
       start.current = null;
@@ -53,9 +62,11 @@ export function SwipePager({
     function cancel() {
       start.current = null;
     }
+    window.addEventListener("pointermove", onMove, { passive: true });
     window.addEventListener("pointerup", finish);
     window.addEventListener("pointercancel", cancel);
     return () => {
+      window.removeEventListener("pointermove", onMove);
       window.removeEventListener("pointerup", finish);
       window.removeEventListener("pointercancel", cancel);
     };

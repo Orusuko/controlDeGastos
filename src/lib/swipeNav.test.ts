@@ -28,6 +28,11 @@ describe("classifySwipe", () => {
   it("cede el gesto al scroll vertical", () => {
     expect(classifySwipe({ dx: 20, dy: 70 })).toEqual({ kind: "vertical" });
   });
+
+  it("un pan vertical con un poco de X no cambia de pestaña", () => {
+    expect(classifySwipe({ dx: 60, dy: 50 })).toEqual({ kind: "vertical" });
+    expect(classifySwipe({ dx: -40, dy: 80 })).toEqual({ kind: "vertical" });
+  });
 });
 
 describe("adjacentView", () => {
