@@ -10,8 +10,8 @@ export function StrategiesPage({
 }: {
   onNavigate: (v: View) => void;
 }) {
-  const { fixed, installments, settings } = useFinanceStore();
-  const totals = computeTotals(fixed, installments);
+  const { fixed, installments, expenses, loans, settings } = useFinanceStore();
+  const totals = computeTotals(fixed, installments, expenses, loans);
   const advice = generateAdvice(settings, totals, fixed, installments);
   const salary = settings.monthlySalary;
   const available = salary > 0 ? salary - totals.total : 0;

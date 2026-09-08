@@ -39,6 +39,8 @@ const LEGACY_V1 = {
     currency: "MXN",
     locale: "es-MX",
   },
+  expenses: [],
+  loans: [],
 };
 
 describe("respaldo JSON", () => {

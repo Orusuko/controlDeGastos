@@ -78,6 +78,8 @@ describe("importar respaldo en el store", () => {
       cards: useFinanceStore.getState().cards,
       fixed: useFinanceStore.getState().fixed,
       installments: useFinanceStore.getState().installments,
+      expenses: useFinanceStore.getState().expenses,
+      loans: useFinanceStore.getState().loans,
       settings: useFinanceStore.getState().settings,
     });
     useFinanceStore.getState().resetAll();

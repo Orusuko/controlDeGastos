@@ -1,3 +1,20 @@
+# Theme tokens
+
+## Compact summary
+
+- Display: Bricolage Grotesque Variable
+- Body: Source Sans 3 Variable
+- Radius: 18px
+- Nav height: 74px
+- Tap target: 44px
+- Light: ink #241c6a, iris #5348e8, paper #f1eff7, slip #fffbff, teal #0f766e
+- Dark: paper #0b0914, slip #16122a, iris #a99bff
+- Semantic: good / warn / danger / info
+- Shell: `.app` max-width 480px, `.app__content` scrolls, `touch-action: pan-x pan-y`
+
+## Raw source
+
+```css
 :root,
 [data-theme="light"] {
   /* Tinta de talonario: índigo profundo, no el púrpura SaaS de plantilla. */
@@ -1582,3 +1599,5 @@ html[data-modal-open] .app__content {
     transform: none;
   }
 }
+
+```

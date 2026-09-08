@@ -21,7 +21,7 @@ describe("shell de scroll táctil", () => {
       /\.app__content \{[^}]*-webkit-overflow-scrolling:\s*touch/s
     );
     expect(css).toMatch(
-      /\.app__content \{[^}]*touch-action:\s*pan-y/s
+      /\.app__content \{[^}]*touch-action:\s*pan-x pan-y/s
     );
     expect(css).toMatch(/\.app__content > \* \{[^}]*flex-shrink:\s*0/s);
   });

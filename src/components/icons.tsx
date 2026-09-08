@@ -162,3 +162,33 @@ export function IconChevron(props: Props) {
     </Svg>
   );
 }
+
+export function IconReceipt(props: Props) {
+  return (
+    <Svg {...props}>
+      <path d="M7 3.75h10a1.5 1.5 0 0 1 1.5 1.5v15l-2.1-1.3-1.9 1.3-1.9-1.3-1.9 1.3-1.9-1.3-2.1 1.3v-15A1.5 1.5 0 0 1 7 3.75z" />
+      <path d="M9.2 8.4h5.6M9.2 11.6h5.6M9.2 14.8h3.4" />
+    </Svg>
+  );
+}
+
+export function IconLoan(props: Props) {
+  return (
+    <Svg {...props}>
+      <circle cx="8" cy="9" r="2.3" />
+      <circle cx="16" cy="9" r="2.3" />
+      <path d="M4.4 16.6c.5-2.2 2-3.4 3.6-3.4s3.1 1.2 3.6 3.4" />
+      <path d="M12.4 16.6c.5-2.2 2-3.4 3.6-3.4s3.1 1.2 3.6 3.4" />
+    </Svg>
+  );
+}
+
+export function IconMore(props: Props) {
+  return (
+    <Svg {...props}>
+      <circle cx="6" cy="12" r="1.35" fill="currentColor" stroke="none" />
+      <circle cx="12" cy="12" r="1.35" fill="currentColor" stroke="none" />
+      <circle cx="18" cy="12" r="1.35" fill="currentColor" stroke="none" />
+    </Svg>
+  );
+}

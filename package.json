@@ -1,6 +1,6 @@
 {
   "name": "control-financiero",
-  "version": "1.5.0",
+  "version": "1.6.0",
   "private": true,
   "type": "module",
   "description": "App de control financiero personal (local-first), disponible como web y como app nativa de Android vía Capacitor. Tarjetas, gastos fijos, mensualidades, dashboard y consejos.",

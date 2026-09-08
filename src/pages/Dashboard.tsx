@@ -16,6 +16,8 @@ import {
   categoryBreakdown,
   computeTotals,
 } from "../lib/finance";
+import { expensesInMonth } from "../lib/expenses";
+import { currentMonth } from "../lib/format";
 import { generateAdvice } from "../lib/advice";
 import type { View } from "../components/BottomNav";
 import { EmptyState } from "../components/EmptyState";
@@ -28,14 +30,19 @@ function truncateLabel(value: string, max = 8): string {
 }
 
 export function Dashboard({ onNavigate }: { onNavigate: (v: View) => void }) {
-  const { cards, fixed, installments, settings } = useFinanceStore();
-  const totals = computeTotals(fixed, installments);
+  const { cards, fixed, installments, expenses, loans, settings } =
+    useFinanceStore();
+  const totals = computeTotals(fixed, installments, expenses, loans);
   const advice = generateAdvice(settings, totals, fixed, installments);
   const salary = settings.monthlySalary;
 
-  const hasData = fixed.length > 0 || installments.length > 0;
+  const hasData =
+    fixed.length > 0 ||
+    installments.length > 0 ||
+    expenses.length > 0 ||
+    loans.length > 0;
 
-  if (cards.length === 0 && !hasData) {
+  if (!hasData && cards.length === 0) {
     return (
       <EmptyState
         icon={<IconCard />}
@@ -43,14 +50,14 @@ export function Dashboard({ onNavigate }: { onNavigate: (v: View) => void }) {
           <button
             type="button"
             className="btn"
-            onClick={() => onNavigate("cards")}
+            onClick={() => onNavigate("expenses")}
           >
-            Añadir mi primera tarjeta
+            Registrar un gasto
           </button>
         }
       >
-        Empieza con una tarjeta y registra tus gastos fijos y compras a meses.
-        Todo se queda en este teléfono.
+        Empieza con un gasto del día, un préstamo o una tarjeta. Todo se queda
+        en este teléfono.
       </EmptyState>
     );
   }
@@ -63,11 +70,17 @@ export function Dashboard({ onNavigate }: { onNavigate: (v: View) => void }) {
       ? "var(--warn)"
       : "var(--good)";
 
+  const monthExpenses = expensesInMonth(expenses, currentMonth());
+  const expensePie = new Map<string, number>();
+  for (const e of monthExpenses) {
+    expensePie.set(e.category, (expensePie.get(e.category) ?? 0) + e.amount);
+  }
   const pieData = [
     ...categoryBreakdown(fixed).map((c) => ({
       name: c.category,
       value: c.total,
     })),
+    ...[...expensePie.entries()].map(([name, value]) => ({ name, value })),
     ...(totals.installments > 0
       ? [{ name: "Mensualidades", value: totals.installments }]
       : []),
@@ -119,6 +132,10 @@ export function Dashboard({ onNavigate }: { onNavigate: (v: View) => void }) {
             <span>Mensualidades</span>
             <strong>{formatCurrency(totals.installments, settings)}</strong>
           </div>
+          <div className="hero-stat__pill">
+            <span>Gastos del mes</span>
+            <strong>{formatCurrency(totals.expenses, settings)}</strong>
+          </div>
         </div>
       </div>
 
@@ -126,6 +143,14 @@ export function Dashboard({ onNavigate }: { onNavigate: (v: View) => void }) {
         <div className="mini-stat">
           <span>Deuda a meses pendiente</span>
           <strong>{formatCurrency(totals.remainingDebt, settings)}</strong>
+        </div>
+        <div className="mini-stat">
+          <span>Debo (préstamos)</span>
+          <strong>{formatCurrency(totals.loanOwed, settings)}</strong>
+        </div>
+        <div className="mini-stat mini-stat--good">
+          <span>Me deben</span>
+          <strong>{formatCurrency(totals.loanReceivable, settings)}</strong>
         </div>
         <div className="mini-stat mini-stat--good">
           <span>Disponible tras pagos</span>
