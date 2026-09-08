@@ -11,7 +11,7 @@ import type {
   Settings,
 } from "../types";
 import { currentMonth } from "../lib/format";
-import { canRegisterLoanPayment } from "../lib/loans";
+import { canRegisterLoanPayment, reconcileLoanPayments } from "../lib/loans";
 import { CARD_COLORS } from "../lib/colors";
 import {
   DEFAULT_SETTINGS,
@@ -187,7 +187,17 @@ export const useFinanceStore = create<FinanceState>()(
         })),
       updateLoan: (id, patch) =>
         set((state) => ({
-          loans: state.loans.map((l) => (l.id === id ? { ...l, ...patch } : l)),
+          loans: state.loans.map((l) => {
+            if (l.id !== id) return l;
+            const next = { ...l, ...patch };
+            if (patch.parties) {
+              next.payments = reconcileLoanPayments(
+                next.parties,
+                next.payments
+              );
+            }
+            return next;
+          }),
         })),
       removeLoan: (id) =>
         set((state) => ({

@@ -95,4 +95,20 @@ describe("estrategias de ahorro", () => {
     expect(advice.length).toBeGreaterThan(0);
     expect(advice[0].text.length).toBeGreaterThan(20);
   });
+
+  it("menciona préstamos y gastos variables cuando hay saldo", () => {
+    const totals = {
+      fixed: 0,
+      installments: 0,
+      expenses: 400,
+      total: 400,
+      remainingDebt: 0,
+      loanOwed: 8000,
+      loanReceivable: 1500,
+    };
+    const advice = generateAdvice(settings, totals, [], []);
+    const text = advice.map((a) => `${a.title} ${a.text}`).join(" ");
+    expect(text).toMatch(/debo|préstamo/i);
+    expect(text).toMatch(/gasto/i);
+  });
 });

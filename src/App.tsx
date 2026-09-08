@@ -18,7 +18,7 @@ import { useFinanceStore } from "./store/useFinanceStore";
 const SUBTITLES: Record<View, string> = {
   dashboard: "Tu mes en un vistazo",
   expenses: "Gastos del día a día",
-  loans: "A favor y en contra",
+  loans: "Yo debo y me deben",
   cards: "Tus tarjetas",
   fixed: "Gastos fijos y suscripciones",
   installments: "Compras a meses",

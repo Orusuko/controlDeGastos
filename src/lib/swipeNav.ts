@@ -4,6 +4,7 @@ export const SWIPE_VIEWS = [
   "loans",
   "installments",
   "fixed",
+  "more",
   "cards",
   "strategies",
   "settings",
@@ -39,4 +40,9 @@ export function adjacentView(
 
 export function isSwipeView(value: string): value is SwipeView {
   return (SWIPE_VIEWS as readonly string[]).includes(value);
+}
+
+export function toSwipeView(view: string): SwipeView {
+  if (isSwipeView(view)) return view;
+  return "dashboard";
 }

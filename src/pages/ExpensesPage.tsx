@@ -6,7 +6,11 @@ import { ViewToolbar } from "../components/ViewToolbar";
 import { EmptyState } from "../components/EmptyState";
 import { IconPlus, IconReceipt } from "../components/icons";
 import { currentMonth, formatCurrency, formatMonth } from "../lib/format";
-import { expensesInMonth, expensesTotal } from "../lib/expenses";
+import {
+  expensesInMonth,
+  expensesTotal,
+  uniqueExpenseMonths,
+} from "../lib/expenses";
 import { sortExpenses } from "../lib/sort";
 import type { Expense, ExpenseSort, ListLayout, SortDir } from "../types";
 
@@ -33,22 +37,17 @@ export function ExpensesPage() {
     updateSettings,
   } = useFinanceStore();
   const [modal, setModal] = useState<Expense | null | "new">(null);
-  const month = currentMonth();
+  const [selectedMonth, setSelectedMonth] = useState(currentMonth);
   const layout: ListLayout = settings.expenseLayout ?? "list";
   const sort: ExpenseSort = settings.expenseSort ?? "date";
   const sortDir: SortDir = settings.expenseSortDir ?? "desc";
-  const monthItems = useMemo(
-    () => sortExpenses(expensesInMonth(expenses, month), sort, sortDir),
-    [expenses, month, sort, sortDir]
+  const months = useMemo(
+    () => uniqueExpenseMonths(expenses, currentMonth()),
+    [expenses]
   );
-  const history = useMemo(
-    () =>
-      sortExpenses(
-        expenses.filter((e) => e.date.slice(0, 7) !== month),
-        "date",
-        "desc"
-      ),
-    [expenses, month]
+  const monthItems = useMemo(
+    () => sortExpenses(expensesInMonth(expenses, selectedMonth), sort, sortDir),
+    [expenses, selectedMonth, sort, sortDir]
   );
   const monthTotal = expensesTotal(monthItems);
   const cardName = (id?: string) =>
@@ -64,7 +63,9 @@ export function ExpensesPage() {
       </div>
 
       <div className="hero-stat">
-        <div className="hero-stat__label">Gastos de {formatMonth(month)}</div>
+        <div className="hero-stat__label">
+          Gastos de {formatMonth(selectedMonth)}
+        </div>
         <div className="hero-stat__value">
           {formatCurrency(monthTotal, settings)}
         </div>
@@ -87,6 +88,24 @@ export function ExpensesPage() {
         </EmptyState>
       ) : (
         <>
+          <div
+            className="seg seg--grow month-seg"
+            role="tablist"
+            aria-label="Mes de gastos"
+          >
+            {months.map((m) => (
+              <button
+                key={m}
+                type="button"
+                role="tab"
+                aria-selected={selectedMonth === m}
+                aria-pressed={selectedMonth === m}
+                onClick={() => setSelectedMonth(m)}
+              >
+                {formatMonth(m)}
+              </button>
+            ))}
+          </div>
           <ViewToolbar
             layout={layout}
             onLayout={(expenseLayout) => updateSettings({ expenseLayout })}
@@ -98,7 +117,9 @@ export function ExpensesPage() {
             dirLabels={DIR_LABELS[sort]}
           />
           {monthItems.length === 0 ? (
-            <p className="muted">Aún no hay gastos en {formatMonth(month)}.</p>
+            <p className="muted">
+              Aún no hay gastos en {formatMonth(selectedMonth)}.
+            </p>
           ) : (
             <div className={`list${layout === "grid" ? " list--grid" : ""}`}>
               {monthItems.map((e) => (
@@ -112,25 +133,6 @@ export function ExpensesPage() {
                 />
               ))}
             </div>
-          )}
-          {history.length > 0 && (
-            <>
-              <div className="section-title">
-                <h2>Historial</h2>
-              </div>
-              <div className="list">
-                {history.map((e) => (
-                  <ExpenseItem
-                    key={e.id}
-                    expense={e}
-                    cardName={cardName(e.cardId)}
-                    settings={settings}
-                    onEdit={() => setModal(e)}
-                    onDelete={() => removeExpense(e.id)}
-                  />
-                ))}
-              </div>
-            </>
           )}
         </>
       )}

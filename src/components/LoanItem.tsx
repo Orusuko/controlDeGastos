@@ -1,5 +1,5 @@
 import { formatCurrency } from "../lib/format";
-import { loanRemaining, loanTotal } from "../lib/loans";
+import { loanPaid, loanRemaining, loanTotal } from "../lib/loans";
 import type { Loan, Settings } from "../types";
 import { ItemActions } from "./ItemActions";
 
@@ -8,8 +8,8 @@ export function directionLabel(direction: Loan["direction"]): {
   hint: string;
 } {
   return direction === "a_favor"
-    ? { badge: "A favor", hint: "Yo debo" }
-    : { badge: "En contra", hint: "Me deben" };
+    ? { badge: "Yo debo", hint: "A favor" }
+    : { badge: "Me deben", hint: "En contra" };
 }
 
 export function LoanItem({
@@ -25,8 +25,10 @@ export function LoanItem({
   onEdit: () => void;
   onDelete: () => void;
 }) {
+  const paid = loanPaid(loan);
   const leftover = loanRemaining(loan);
   const total = loanTotal(loan);
+  const ratio = total > 0 ? paid / total : 0;
   const copy = directionLabel(loan.direction);
   const people = loan.parties.map((p) => p.name).join(", ");
 
@@ -35,7 +37,7 @@ export function LoanItem({
       className="row row--tap row--loan"
       role="link"
       tabIndex={0}
-      aria-label={`${loan.title}, ${copy.badge}, restante ${formatCurrency(leftover, settings)}`}
+      aria-label={`${loan.title}, ${copy.badge}, llevas ${formatCurrency(paid, settings)}, restan ${formatCurrency(leftover, settings)}`}
       onClick={onOpen}
       onKeyDown={(e) => {
         if (e.key === "Enter" || e.key === " ") {
@@ -63,7 +65,8 @@ export function LoanItem({
       <div className="row__amount-block">
         <div className="row__amount">{formatCurrency(leftover, settings)}</div>
         <div className="row__sub row__sub--end">
-          de {formatCurrency(total, settings)}
+          Llevas {formatCurrency(paid, settings)} · restan{" "}
+          {formatCurrency(leftover, settings)}
         </div>
       </div>
       <ItemActions
@@ -72,6 +75,14 @@ export function LoanItem({
         onDelete={onDelete}
         deleteMessage={`¿Eliminar “${loan.title}” y sus abonos?`}
       />
+      <div className="progress progress--row">
+        <div className="progress__track">
+          <div
+            className="progress__fill"
+            style={{ width: `${Math.min(100, ratio * 100)}%` }}
+          />
+        </div>
+      </div>
     </div>
   );
 }
