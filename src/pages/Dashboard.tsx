@@ -1,3 +1,4 @@
+import { useState } from "react";
 import {
   PieChart,
   Pie,
@@ -7,17 +8,15 @@ import {
   Bar,
   XAxis,
   YAxis,
-  Tooltip,
 } from "recharts";
 import { useFinanceStore } from "../store/useFinanceStore";
-import { formatCurrency } from "../lib/format";
+import { currentMonth, formatCurrency } from "../lib/format";
 import {
   cardBreakdowns,
-  categoryBreakdown,
   computeTotals,
+  monthPieSlices,
+  type PieSlice,
 } from "../lib/finance";
-import { expensesInMonth } from "../lib/expenses";
-import { currentMonth } from "../lib/format";
 import { generateAdvice } from "../lib/advice";
 import type { View } from "../components/BottomNav";
 import { EmptyState } from "../components/EmptyState";
@@ -32,9 +31,12 @@ function truncateLabel(value: string, max = 8): string {
 export function Dashboard({ onNavigate }: { onNavigate: (v: View) => void }) {
   const { cards, fixed, installments, expenses, loans, settings } =
     useFinanceStore();
+  const [inspect, setInspect] = useState<PieSlice | null>(null);
+  const [barInspect, setBarInspect] = useState<string | null>(null);
   const totals = computeTotals(fixed, installments, expenses, loans);
   const advice = generateAdvice(settings, totals, fixed, installments);
   const salary = settings.monthlySalary;
+  const month = currentMonth();
 
   const hasData =
     fixed.length > 0 ||
@@ -70,25 +72,20 @@ export function Dashboard({ onNavigate }: { onNavigate: (v: View) => void }) {
       ? "var(--warn)"
       : "var(--good)";
 
-  const monthExpenses = expensesInMonth(expenses, currentMonth());
-  const expensePie = new Map<string, number>();
-  for (const e of monthExpenses) {
-    expensePie.set(e.category, (expensePie.get(e.category) ?? 0) + e.amount);
-  }
-  const pieData = [
-    ...categoryBreakdown(fixed).map((c) => ({
-      name: c.category,
-      value: c.total,
-    })),
-    ...[...expensePie.entries()].map(([name, value]) => ({ name, value })),
-    ...(totals.installments > 0
-      ? [{ name: "Mensualidades", value: totals.installments }]
-      : []),
-  ];
-
-  const bars = cardBreakdowns(cards, fixed, installments).filter(
-    (b) => b.total > 0
+  const pieData = monthPieSlices(
+    fixed,
+    expenses,
+    totals.installments,
+    month
   );
+
+  const bars = cardBreakdowns(
+    cards,
+    fixed,
+    installments,
+    expenses,
+    month
+  ).filter((b) => b.total > 0);
 
   return (
     <>
@@ -133,7 +130,7 @@ export function Dashboard({ onNavigate }: { onNavigate: (v: View) => void }) {
             <strong>{formatCurrency(totals.installments, settings)}</strong>
           </div>
           <div className="hero-stat__pill">
-            <span>Gastos del mes</span>
+            <span>Este mes</span>
             <strong>{formatCurrency(totals.expenses, settings)}</strong>
           </div>
         </div>
@@ -145,7 +142,7 @@ export function Dashboard({ onNavigate }: { onNavigate: (v: View) => void }) {
           <strong>{formatCurrency(totals.remainingDebt, settings)}</strong>
         </div>
         <div className="mini-stat">
-          <span>Debo (préstamos)</span>
+          <span>Yo debo</span>
           <strong>{formatCurrency(totals.loanOwed, settings)}</strong>
         </div>
         <div className="mini-stat mini-stat--good">
@@ -181,20 +178,13 @@ export function Dashboard({ onNavigate }: { onNavigate: (v: View) => void }) {
                 >
                   {pieData.map((entry) => (
                     <Cell
-                      key={entry.name}
-                      fill={CATEGORY_COLORS[entry.name] ?? CATEGORY_FALLBACK}
+                      key={entry.key}
+                      fill={
+                        CATEGORY_COLORS[entry.colorKey] ?? CATEGORY_FALLBACK
+                      }
                     />
                   ))}
                 </Pie>
-                <Tooltip
-                  formatter={(value) => formatCurrency(Number(value), settings)}
-                  contentStyle={{
-                    background: "var(--surface)",
-                    border: "1px solid var(--border)",
-                    borderRadius: 12,
-                    color: "var(--text)",
-                  }}
-                />
               </PieChart>
             </ResponsiveContainer>
             <div className="chart-donut-center" aria-hidden>
@@ -204,18 +194,36 @@ export function Dashboard({ onNavigate }: { onNavigate: (v: View) => void }) {
           </div>
           <div className="legend">
             {pieData.map((d) => (
-              <div className="legend__item" key={d.name}>
+              <button
+                type="button"
+                className={
+                  inspect?.key === d.key
+                    ? "legend__item legend__item--on"
+                    : "legend__item"
+                }
+                key={d.key}
+                onClick={() =>
+                  setInspect((cur) => (cur?.key === d.key ? null : d))
+                }
+              >
                 <span
                   className="dot"
-                  style={{ background: CATEGORY_COLORS[d.name] ?? CATEGORY_FALLBACK }}
+                  style={{
+                    background: CATEGORY_COLORS[d.colorKey] ?? CATEGORY_FALLBACK,
+                  }}
                 />
                 <span className="legend__name">{d.name}</span>
                 <span className="legend__value">
                   {formatCurrency(d.value, settings)}
                 </span>
-              </div>
+              </button>
             ))}
           </div>
+          {inspect && (
+            <p className="chart-inspect" role="status">
+              {inspect.name}: {formatCurrency(inspect.value, settings)}
+            </p>
+          )}
         </div>
       )}
 
@@ -241,16 +249,6 @@ export function Dashboard({ onNavigate }: { onNavigate: (v: View) => void }) {
                   interval={0}
                 />
                 <YAxis hide />
-                <Tooltip
-                  formatter={(value) => formatCurrency(Number(value), settings)}
-                  cursor={{ fill: "color-mix(in srgb, var(--primary) 10%, transparent)" }}
-                  contentStyle={{
-                    background: "var(--surface)",
-                    border: "1px solid var(--border)",
-                    borderRadius: 12,
-                    color: "var(--text)",
-                  }}
-                />
                 <Bar dataKey="total" radius={[8, 8, 0, 0]} maxBarSize={48}>
                   {bars.map((b) => (
                     <Cell key={b.card.id} fill={b.card.color} />
@@ -259,6 +257,39 @@ export function Dashboard({ onNavigate }: { onNavigate: (v: View) => void }) {
               </BarChart>
             </ResponsiveContainer>
           </div>
+          <div className="legend">
+            {bars.map((b) => (
+              <button
+                type="button"
+                className={
+                  barInspect === b.card.id
+                    ? "legend__item legend__item--on"
+                    : "legend__item"
+                }
+                key={b.card.id}
+                onClick={() =>
+                  setBarInspect((cur) => (cur === b.card.id ? null : b.card.id))
+                }
+              >
+                <span className="dot" style={{ background: b.card.color }} />
+                <span className="legend__name">{b.card.name}</span>
+                <span className="legend__value">
+                  {formatCurrency(b.total, settings)}
+                </span>
+              </button>
+            ))}
+          </div>
+          {barInspect &&
+            bars
+              .filter((b) => b.card.id === barInspect)
+              .map((b) => (
+                <p className="chart-inspect" role="status" key={b.card.id}>
+                  {b.card.name}: {formatCurrency(b.total, settings)}
+                  {b.expenses > 0
+                    ? ` · gastos ${formatCurrency(b.expenses, settings)}`
+                    : ""}
+                </p>
+              ))}
         </div>
       )}
 
