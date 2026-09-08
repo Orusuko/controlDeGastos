@@ -2,8 +2,25 @@ import { useId, useState } from "react";
 import { Modal } from "./Modal";
 import type { Loan, LoanParty } from "../types";
 import { canRegisterLoanPayment, loanPartyRemaining } from "../lib/loans";
-import { formatCurrency } from "../lib/format";
+import {
+  currentDate,
+  currentTime,
+  formatCurrency,
+  isValidPaidDate,
+  isValidPaidTime,
+} from "../lib/format";
 import type { Settings } from "../types";
+
+export type LoanPaymentSave = {
+  amount: number;
+  paidDate: string;
+  paidTime: string;
+  note?: string;
+};
+
+function asHm(value: string): string {
+  return value.slice(0, 5);
+}
 
 export function LoanPaymentModal({
   loan,
@@ -16,11 +33,18 @@ export function LoanPaymentModal({
   party: LoanParty;
   settings: Settings;
   onClose: () => void;
-  onSave: (amount: number, note?: string) => void;
+  onSave: (data: LoanPaymentSave) => void;
 }) {
-  const ids = { amount: useId(), note: useId() };
+  const ids = {
+    amount: useId(),
+    date: useId(),
+    time: useId(),
+    note: useId(),
+  };
   const remaining = loanPartyRemaining(loan, party.id);
   const [amount, setAmount] = useState("");
+  const [paidDate, setPaidDate] = useState(currentDate());
+  const [paidTime, setPaidTime] = useState(currentTime());
   const [note, setNote] = useState("");
   const [error, setError] = useState<string | null>(null);
   const iPay = loan.direction === "a_favor";
@@ -31,12 +55,21 @@ export function LoanPaymentModal({
   function submit(e: React.FormEvent) {
     e.preventDefault();
     const nextAmt = Number(amount);
+    const time = asHm(paidTime);
+    if (!isValidPaidDate(paidDate) || !isValidPaidTime(time)) {
+      return setError("Indica la fecha y la hora de la transferencia.");
+    }
     if (!canRegisterLoanPayment(loan, party.id, nextAmt)) {
       return setError(
         `El abono no puede pasar de ${formatCurrency(remaining, settings)}.`
       );
     }
-    onSave(nextAmt, note.trim() || undefined);
+    onSave({
+      amount: nextAmt,
+      paidDate,
+      paidTime: time,
+      note: note.trim() || undefined,
+    });
   }
 
   return (
@@ -49,7 +82,8 @@ export function LoanPaymentModal({
           {iPay
             ? `Registras lo que tú le pagas a ${party.name}.`
             : `Registras lo que ${party.name} te pagó.`}{" "}
-          Resta {formatCurrency(remaining, settings)}.
+          Resta {formatCurrency(remaining, settings)}. Anota la fecha, hora y
+          monto de la transferencia para cotejarlos luego en tu banco.
         </p>
         <div className="field">
           <label htmlFor={ids.amount}>Importe del abono</label>
@@ -86,13 +120,35 @@ export function LoanPaymentModal({
         <p className="muted">
           Después restan {formatCurrency(previewLeft, settings)}.
         </p>
+        <div className="field-row">
+          <div className="field">
+            <label htmlFor={ids.date}>Fecha de la transferencia</label>
+            <input
+              id={ids.date}
+              type="date"
+              value={paidDate}
+              required
+              onChange={(e) => setPaidDate(e.target.value)}
+            />
+          </div>
+          <div className="field">
+            <label htmlFor={ids.time}>Hora de la transferencia</label>
+            <input
+              id={ids.time}
+              type="time"
+              value={paidTime}
+              required
+              onChange={(e) => setPaidTime(asHm(e.target.value))}
+            />
+          </div>
+        </div>
         <div className="field">
           <label htmlFor={ids.note}>Nota</label>
           <input
             id={ids.note}
             type="text"
             value={note}
-            placeholder="Opcional"
+            placeholder="Opcional · ref. SPEI, concepto…"
             onChange={(e) => setNote(e.target.value)}
           />
         </div>

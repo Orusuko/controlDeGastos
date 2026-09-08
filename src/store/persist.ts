@@ -13,6 +13,7 @@ import type {
   InstallmentSort,
   SortDir,
 } from "../types";
+import { normalizeLoanPayment } from "../lib/loans";
 
 /** Clave de localStorage. NO cambiar: perdería los datos al actualizar el APK. */
 export const PERSIST_NAME = "control-financiero:v1";
@@ -124,6 +125,16 @@ function asArray<T>(value: unknown): T[] {
   return Array.isArray(value) ? (value as T[]) : [];
 }
 
+function withPaymentReceipts(loans: Loan[]): Loan[] {
+  return loans.map((loan) => ({
+    ...loan,
+    payments: (loan.payments ?? []).map((p) => {
+      const next = normalizeLoanPayment(p);
+      return next ? { ...p, ...next } : p;
+    }),
+  }));
+}
+
 /**
  * Migra un snapshot persistido (cualquier versión anterior) al esquema actual.
  * Nunca descarta tarjetas, fijos, mensualidades, gastos ni préstamos.
@@ -138,7 +149,7 @@ export function migratePersistedState(
     fixed: asArray<FixedExpense>(p.fixed),
     installments: asArray<Installment>(p.installments),
     expenses: asArray<Expense>(p.expenses),
-    loans: asArray<Loan>(p.loans),
+    loans: withPaymentReceipts(asArray<Loan>(p.loans)),
     settings: normalizeSettings(p.settings),
   };
 }

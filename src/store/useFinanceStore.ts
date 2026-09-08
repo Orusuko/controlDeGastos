@@ -11,7 +11,7 @@ import type {
   Settings,
 } from "../types";
 import { currentMonth } from "../lib/format";
-import { canRegisterLoanPayment, reconcileLoanPayments } from "../lib/loans";
+import { canRegisterLoanPayment, normalizeLoanPayment, reconcileLoanPayments } from "../lib/loans";
 import { CARD_COLORS } from "../lib/colors";
 import {
   DEFAULT_SETTINGS,
@@ -67,7 +67,10 @@ interface FinanceState {
     patch: Partial<Omit<Loan, "id" | "payments">>
   ) => void;
   removeLoan: (id: string) => void;
-  registerLoanPayment: (loanId: string, payment: Omit<LoanPayment, "id">) => void;
+  registerLoanPayment: (
+    loanId: string,
+    payment: Omit<LoanPayment, "id" | "paidAt"> & { paidAt?: string }
+  ) => void;
   removeLoanPayment: (loanId: string, paymentId: string) => void;
 
   updateSettings: (patch: Partial<Settings>) => void;
@@ -207,12 +210,14 @@ export const useFinanceStore = create<FinanceState>()(
         set((state) => ({
           loans: state.loans.map((l) => {
             if (l.id !== loanId) return l;
-            if (!canRegisterLoanPayment(l, payment.partyId, payment.amount)) {
+            const stamp = normalizeLoanPayment(payment);
+            if (!stamp) return l;
+            if (!canRegisterLoanPayment(l, stamp.partyId, stamp.amount)) {
               return l;
             }
             return {
               ...l,
-              payments: [...l.payments, { ...payment, id: uid() }],
+              payments: [...l.payments, { ...stamp, id: uid() }],
             };
           }),
         })),

@@ -69,4 +69,25 @@ describe("abonos de préstamo en el store", () => {
     expect(loanPaid(updated)).toBe(0);
     expect(loanRemaining(updated)).toBe(1000);
   });
+
+  it("persiste fecha, hora y monto del abono para cotejar el banco", () => {
+    const { addLoan, registerLoanPayment } = useFinanceStore.getState();
+    addLoan({
+      title: "Xbox",
+      direction: "a_favor",
+      parties: [{ id: "p1", name: "Tienda", shareAmount: 10000 }],
+    });
+    const loan = useFinanceStore.getState().loans[0];
+    registerLoanPayment(loan.id, {
+      partyId: loan.parties[0].id,
+      amount: 2000,
+      paidDate: "2026-09-08",
+      paidTime: "14:30",
+    });
+    const payment = useFinanceStore.getState().loans[0].payments[0];
+    expect(payment.amount).toBe(2000);
+    expect(payment.paidDate).toBe("2026-09-08");
+    expect(payment.paidTime).toBe("14:30");
+    expect(payment.paidAt).toBeTruthy();
+  });
 });
