@@ -62,6 +62,9 @@ export const DEFAULT_SETTINGS: Settings = {
   loanLayout: "list",
   loanSort: "remaining",
   loanSortDir: "desc",
+  autoBackupSetupDone: false,
+  autoBackupEnabled: false,
+  autoBackupLabel: "",
 };
 
 /** Completa campos nuevos sin pisar sueldo/moneda/locale de un JSON antiguo. */
@@ -118,6 +121,10 @@ export function normalizeSettings(raw: unknown): Settings {
     loanSortDir: isOneOf(s.loanSortDir, SORT_DIRS)
       ? s.loanSortDir
       : DEFAULT_SETTINGS.loanSortDir,
+    autoBackupSetupDone: s.autoBackupSetupDone === true,
+    autoBackupEnabled: s.autoBackupEnabled === true,
+    autoBackupLabel:
+      typeof s.autoBackupLabel === "string" ? s.autoBackupLabel : "",
   };
 }
 

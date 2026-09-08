@@ -10,7 +10,10 @@ import { InstallmentsPage } from "./pages/InstallmentsPage";
 import { SettingsPage } from "./pages/SettingsPage";
 import { StrategiesPage } from "./pages/StrategiesPage";
 import { MorePage } from "./pages/MorePage";
-import { IconLedger } from "./components/icons";
+import { ConfirmDialog } from "./components/ConfirmDialog";
+import { BackupSetupModal } from "./components/BackupSetupModal";
+import { useAutoBackup } from "./components/useAutoBackup";
+import { IconMark } from "./components/icons";
 import { formatMonth, currentMonth } from "./lib/format";
 import { applyResolvedTheme, resolveTheme } from "./lib/theme";
 import { useFinanceStore } from "./store/useFinanceStore";
@@ -61,7 +64,9 @@ function useApplyTheme() {
 export default function App() {
   const [view, setView] = useState<View>("dashboard");
   const contentRef = useRef<HTMLElement>(null);
+  const hydrated = useHydrated();
   useApplyTheme();
+  const backup = useAutoBackup(hydrated);
 
   useEffect(() => {
     contentRef.current?.scrollTo({ top: 0, left: 0 });
@@ -72,7 +77,7 @@ export default function App() {
       <header className="app__header">
         <h1>
           <span className="app__mark" aria-hidden>
-            <IconLedger />
+            <IconMark />
           </span>
           Control Financiero
         </h1>
@@ -96,6 +101,27 @@ export default function App() {
       </main>
 
       <BottomNav view={view} onChange={setView} />
+
+      {backup.showSetup && (
+        <BackupSetupModal
+          busy={backup.busy}
+          error={backup.error}
+          canPickFolder={backup.canPickFolder}
+          onUseDocuments={() => void backup.useDocuments()}
+          onPickFolder={() => void backup.pickFolder()}
+          onSkip={backup.skipSetup}
+        />
+      )}
+      {backup.pendingRestore && (
+        <ConfirmDialog
+          title="Cargar respaldo automático"
+          message="Hay un JSON en la carpeta de respaldo. ¿Lo cargas para recuperar gastos, préstamos y abonos?"
+          confirmLabel="Cargar"
+          cancelLabel="Ahora no"
+          onCancel={backup.dismissRestore}
+          onConfirm={backup.confirmRestore}
+        />
+      )}
     </div>
   );
 }

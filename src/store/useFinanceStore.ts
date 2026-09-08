@@ -19,6 +19,7 @@ import {
   PERSIST_VERSION,
   mergePersistedState,
   migratePersistedState,
+  normalizeSettings,
   type PersistedSlice,
 } from "./persist";
 
@@ -242,7 +243,7 @@ export const useFinanceStore = create<FinanceState>()(
           installments: slice.installments,
           expenses: slice.expenses,
           loans: slice.loans,
-          settings: slice.settings,
+          settings: normalizeSettings(slice.settings),
         }),
       resetAll: () =>
         set({

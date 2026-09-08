@@ -63,6 +63,8 @@ describe("persistencia local", () => {
     expect(settings.expenseSortDir).toBe("desc");
     expect(settings.loanSort).toBe("remaining");
     expect(settings.loanLayout).toBe("list");
+    expect(settings.autoBackupSetupDone).toBe(false);
+    expect(settings.autoBackupEnabled).toBe(false);
   });
 
   it("migra un snapshot v1 conservando tarjetas, fijos y mensualidades", () => {

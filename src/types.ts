@@ -145,4 +145,10 @@ export interface Settings {
   loanSort?: LoanSort;
   /** Dirección del orden de préstamos. Ausente → "desc" (más saldo). */
   loanSortDir?: SortDir;
+  /** El usuario ya vio el wizard de carpeta de respaldo. */
+  autoBackupSetupDone?: boolean;
+  /** Escribe el JSON en Documentos (o carpeta elegida) al guardar. */
+  autoBackupEnabled?: boolean;
+  /** Texto de la ruta, p.ej. Documentos/ControlFinanciero/. */
+  autoBackupLabel?: string;
 }
