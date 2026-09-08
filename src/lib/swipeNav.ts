@@ -21,10 +21,11 @@ export function classifySwipe(input: { dx: number; dy: number }): SwipeDecision 
   const absX = Math.abs(input.dx);
   const absY = Math.abs(input.dy);
   if (absX < 48 && absY < 48) return { kind: "none" };
-  if (absX >= 56 && absX > absY * 1.15) {
+  if (absY >= 16 && absY >= absX * 0.55) return { kind: "vertical" };
+  if (absX >= 72 && absX > absY * 1.8) {
     return { kind: "horizontal", direction: input.dx < 0 ? "next" : "prev" };
   }
-  if (absY >= 24 && absY >= absX) return { kind: "vertical" };
+  if (absY >= 16) return { kind: "vertical" };
   return { kind: "none" };
 }
 

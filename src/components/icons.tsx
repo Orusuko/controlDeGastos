@@ -19,15 +19,42 @@ function Svg({ children, ...props }: Props) {
   );
 }
 
-/** Marca de la app: un cuaderno de cuentas, no un emoji. */
-export function IconLedger(props: Props) {
+/** Sello de talonario: peso ₱ sobre papel (legible en el header índigo). */
+export function IconMark(props: Props) {
   return (
-    <Svg {...props}>
-      <rect x="4" y="4.5" width="16" height="15" rx="2.4" />
-      <path d="M8 4.5v15" />
-      <path d="M11.2 9.2h6.2M11.2 12.5h4.4" />
-    </Svg>
+    <svg viewBox="0 0 32 32" aria-hidden {...props}>
+      <circle cx="16" cy="16" r="14" fill="#fffbff" />
+      <circle
+        cx="16"
+        cy="16"
+        r="11.2"
+        fill="none"
+        stroke="#c4b5fd"
+        strokeWidth="1.15"
+        strokeDasharray="1.6 1.7"
+      />
+      <path
+        d="M12.2 8.1h5.35c3.15 0 5.25 1.9 5.25 4.6 0 2.72-2.1 4.65-5.25 4.65H14.55V23.7"
+        fill="none"
+        stroke="#241c6a"
+        strokeWidth="2.2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M10.4 12.15h9.1M10.4 15.65h9.1"
+        fill="none"
+        stroke="#241c6a"
+        strokeWidth="2.05"
+        strokeLinecap="round"
+      />
+    </svg>
   );
+}
+
+/** Marca de la app: sello de cuentas. */
+export function IconLedger(props: Props) {
+  return <IconMark {...props} />;
 }
 
 export function IconChart(props: Props) {

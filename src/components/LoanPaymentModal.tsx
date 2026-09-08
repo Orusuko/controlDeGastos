@@ -82,8 +82,8 @@ export function LoanPaymentModal({
           {iPay
             ? `Registras lo que tú le pagas a ${party.name}.`
             : `Registras lo que ${party.name} te pagó.`}{" "}
-          Resta {formatCurrency(remaining, settings)}. Anota la fecha, hora y
-          monto de la transferencia para cotejarlos luego en tu banco.
+          Resta {formatCurrency(remaining, settings)}. Fecha y hora se rellenan
+          solas con el reloj de ahora; cámbialas si la transferencia fue antes.
         </p>
         <div className="field">
           <label htmlFor={ids.amount}>Importe del abono</label>
@@ -141,6 +141,19 @@ export function LoanPaymentModal({
               onChange={(e) => setPaidTime(asHm(e.target.value))}
             />
           </div>
+        </div>
+        <div className="amount-chips" role="group" aria-label="Hora del abono">
+          <button
+            type="button"
+            className="chip"
+            onClick={() => {
+              const now = new Date();
+              setPaidDate(currentDate(now));
+              setPaidTime(currentTime(now));
+            }}
+          >
+            Ahora
+          </button>
         </div>
         <div className="field">
           <label htmlFor={ids.note}>Nota</label>
