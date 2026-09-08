@@ -4,3 +4,4 @@ dist-android/
 *.log
 .DS_Store
 .env
+.superdesign/tmp/

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { currentMonth, formatMonth } from "./format";
+import { currentDate, currentMonth, formatMonth } from "./format";
 
 describe("currentMonth", () => {
   it("usa el calendario local, no UTC", () => {
@@ -10,6 +10,12 @@ describe("currentMonth", () => {
   it("no se adelanta al mes UTC cerca de medianoche", () => {
     const lateEvening = new Date(2026, 7, 31, 22, 0);
     expect(currentMonth(lateEvening)).toBe("2026-08");
+  });
+});
+
+describe("currentDate", () => {
+  it("usa el calendario local YYYY-MM-DD", () => {
+    expect(currentDate(new Date(2026, 8, 8, 23, 0))).toBe("2026-09-08");
   });
 });
 

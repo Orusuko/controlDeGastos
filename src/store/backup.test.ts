@@ -79,6 +79,8 @@ describe("respaldo JSON", () => {
       cards: 2,
       fixed: 1,
       installments: 1,
+      expenses: 0,
+      loans: 0,
     });
   });
 

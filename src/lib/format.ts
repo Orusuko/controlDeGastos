@@ -17,6 +17,14 @@ export function currentMonth(now: Date = new Date()): string {
   return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
 }
 
+/** Fecha local YYYY-MM-DD. No usar toISOString (UTC). */
+export function currentDate(now: Date = new Date()): string {
+  const y = now.getFullYear();
+  const m = String(now.getMonth() + 1).padStart(2, "0");
+  const d = String(now.getDate()).padStart(2, "0");
+  return `${y}-${m}-${d}`;
+}
+
 /** Convierte "2026-08" en "ago 2026". */
 export function formatMonth(month: string, locale = "es-MX"): string {
   const [y, m] = month.split("-").map(Number);

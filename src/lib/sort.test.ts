@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { sortFixed, sortInstallments } from "./sort";
-import type { FixedExpense, Installment } from "../types";
+import { sortExpenses, sortFixed, sortInstallments, sortLoans } from "./sort";
+import type { Expense, FixedExpense, Installment, Loan } from "../types";
 
 const fixed: FixedExpense[] = [
   { id: "1", name: "Spotify", amount: 129, category: "Streaming", cardId: "c" },
@@ -104,6 +104,44 @@ describe("ordenamiento", () => {
     expect(
       sortInstallments(installments, "name", "desc").map((i) => i.name)
     ).toEqual(["RTX4060", "PowerBank", "Auriculares"]);
+  });
+
+  it("ordena gastos por fecha más reciente primero", () => {
+    const expenses: Expense[] = [
+      { id: "1", name: "Tacos", amount: 80, category: "Comida", date: "2026-09-01" },
+      { id: "2", name: "Uber", amount: 40, category: "Transporte", date: "2026-09-08" },
+      { id: "3", name: "Farmacia", amount: 200, category: "Salud", date: "2026-09-05" },
+    ];
+    expect(sortExpenses(expenses, "date", "desc").map((e) => e.name)).toEqual([
+      "Uber",
+      "Farmacia",
+      "Tacos",
+    ]);
+  });
+
+  it("ordena préstamos por saldo restante", () => {
+    const loans: Loan[] = [
+      {
+        id: "a",
+        title: "Ana",
+        direction: "en_contra",
+        createdAt: "x",
+        parties: [{ id: "p1", name: "Ana", shareAmount: 500 }],
+        payments: [],
+      },
+      {
+        id: "b",
+        title: "Beto",
+        direction: "a_favor",
+        createdAt: "x",
+        parties: [{ id: "p2", name: "Beto", shareAmount: 2000 }],
+        payments: [],
+      },
+    ];
+    expect(sortLoans(loans, "remaining", "desc").map((l) => l.title)).toEqual([
+      "Beto",
+      "Ana",
+    ]);
   });
 
   it("sin dirección usa el default previo (fijos A→Z, meses más tiempo)", () => {

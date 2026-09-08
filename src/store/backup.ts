@@ -35,6 +35,8 @@ export function pickPersistedSlice(state: PersistedSlice): PersistedSlice {
     cards: state.cards,
     fixed: state.fixed,
     installments: state.installments,
+    expenses: state.expenses ?? [],
+    loans: state.loans ?? [],
     settings: state.settings ?? DEFAULT_SETTINGS,
   };
 }
@@ -73,7 +75,7 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 
 /**
  * Forma mínima: cards, fixed e installments deben ser arrays.
- * settings es opcional (se rellena al migrar).
+ * expenses y loans son opcionales (JSON v1/v2). settings se rellena al migrar.
  */
 export function isPersistedSliceShape(value: unknown): value is PersistedSlice {
   if (!isRecord(value)) return false;
@@ -127,10 +129,14 @@ export function backupSummary(slice: PersistedSlice): {
   cards: number;
   fixed: number;
   installments: number;
+  expenses: number;
+  loans: number;
 } {
   return {
     cards: slice.cards.length,
     fixed: slice.fixed.length,
     installments: slice.installments.length,
+    expenses: slice.expenses.length,
+    loans: slice.loans.length,
   };
 }

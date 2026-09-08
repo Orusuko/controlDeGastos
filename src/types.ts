@@ -44,10 +44,62 @@ export interface Installment {
   payments: InstallmentPayment[];
 }
 
+export const EXPENSE_CATEGORIES = [
+  "Comida",
+  "Transporte",
+  "Salud",
+  "Hogar",
+  "Entretenimiento",
+  "Ropa",
+  "Educación",
+  "Otros",
+] as const;
+
+export type ExpenseCategory = (typeof EXPENSE_CATEGORIES)[number];
+
+export interface Expense {
+  id: string;
+  name: string;
+  amount: number;
+  category: ExpenseCategory;
+  /** Fecha local YYYY-MM-DD. */
+  date: string;
+  cardId?: string;
+  note?: string;
+}
+
+export type LoanDirection = "a_favor" | "en_contra";
+
+export interface LoanParty {
+  id: string;
+  name: string;
+  shareAmount: number;
+}
+
+export interface LoanPayment {
+  id: string;
+  partyId: string;
+  amount: number;
+  paidAt: string;
+  note?: string;
+}
+
+export interface Loan {
+  id: string;
+  title: string;
+  direction: LoanDirection;
+  createdAt: string;
+  parties: LoanParty[];
+  payments: LoanPayment[];
+  note?: string;
+}
+
 export type ThemePreference = "system" | "light" | "dark";
 export type ListLayout = "list" | "grid";
 export type FixedSort = "name" | "amount" | "category";
 export type InstallmentSort = "name" | "amount" | "remaining";
+export type ExpenseSort = "date" | "amount" | "name";
+export type LoanSort = "remaining" | "amount" | "name";
 export type SortDir = "asc" | "desc";
 
 export interface Settings {
@@ -74,4 +126,14 @@ export interface Settings {
    * (más meses restantes / más caras primero, el comportamiento previo).
    */
   installmentSortDir?: SortDir;
+  /** Vista de gastos variables. Ausente → "list". */
+  expenseLayout?: ListLayout;
+  /** Orden de gastos variables. Ausente → "date". */
+  expenseSort?: ExpenseSort;
+  /** Dirección del orden de gastos. Ausente → "desc" (más recientes). */
+  expenseSortDir?: SortDir;
+  /** Orden de préstamos. Ausente → "remaining". */
+  loanSort?: LoanSort;
+  /** Dirección del orden de préstamos. Ausente → "desc" (más saldo). */
+  loanSortDir?: SortDir;
 }
