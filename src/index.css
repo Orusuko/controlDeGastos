@@ -556,13 +556,23 @@ html[data-modal-open] .app__content {
 
 .party-row {
   display: grid;
-  grid-template-columns: 1fr 0.8fr auto;
+  grid-template-columns: 1fr 7.5rem auto;
   gap: 8px;
   align-items: end;
 }
 
 .party-row .field {
   margin-bottom: 10px;
+  min-width: 0;
+}
+
+.swipe-pager input,
+.swipe-pager select,
+.swipe-pager textarea,
+.modal,
+.modal-backdrop,
+.nav {
+  touch-action: manipulation;
 }
 
 .row__body {

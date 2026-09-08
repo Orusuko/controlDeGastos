@@ -23,8 +23,16 @@ export function SwipePager({
 }) {
   const start = useRef<{ x: number; y: number; id: number } | null>(null);
 
+  function ignoreTarget(target: EventTarget | null): boolean {
+    if (document.documentElement.dataset.modalOpen) return true;
+    const el = target instanceof HTMLElement ? target : null;
+    return Boolean(
+      el?.closest(".modal, .modal-backdrop, .nav, input, select, textarea, button")
+    );
+  }
+
   function onPointerDown(e: PointerEvent<HTMLDivElement>) {
-    if (document.documentElement.dataset.modalOpen) return;
+    if (ignoreTarget(e.target)) return;
     if (e.pointerType === "mouse" && e.button !== 0) return;
     start.current = { x: e.clientX, y: e.clientY, id: e.pointerId };
   }
