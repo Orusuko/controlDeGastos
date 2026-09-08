@@ -1,4 +1,4 @@
-import { useRef, type PointerEvent, type ReactNode } from "react";
+import { useEffect, useRef, type PointerEvent, type ReactNode } from "react";
 import {
   adjacentView,
   classifySwipe,
@@ -12,6 +12,14 @@ function toSwipeView(view: string): SwipeView {
   return "dashboard";
 }
 
+function ignoreTarget(target: EventTarget | null): boolean {
+  if (document.documentElement.dataset.modalOpen) return true;
+  const el = target instanceof HTMLElement ? target : null;
+  return Boolean(
+    el?.closest(".modal, .modal-backdrop, .nav, input, select, textarea")
+  );
+}
+
 export function SwipePager({
   view,
   onChange,
@@ -22,14 +30,10 @@ export function SwipePager({
   children: ReactNode;
 }) {
   const start = useRef<{ x: number; y: number; id: number } | null>(null);
-
-  function ignoreTarget(target: EventTarget | null): boolean {
-    if (document.documentElement.dataset.modalOpen) return true;
-    const el = target instanceof HTMLElement ? target : null;
-    return Boolean(
-      el?.closest(".modal, .modal-backdrop, .nav, input, select, textarea, button")
-    );
-  }
+  const viewRef = useRef(view);
+  const onChangeRef = useRef(onChange);
+  viewRef.current = view;
+  onChangeRef.current = onChange;
 
   function onPointerDown(e: PointerEvent<HTMLDivElement>) {
     if (ignoreTarget(e.target)) return;
@@ -37,29 +41,34 @@ export function SwipePager({
     start.current = { x: e.clientX, y: e.clientY, id: e.pointerId };
   }
 
-  function finish(e: PointerEvent<HTMLDivElement>) {
-    const origin = start.current;
-    start.current = null;
-    if (!origin || origin.id !== e.pointerId) return;
-    if (document.documentElement.dataset.modalOpen) return;
-    const decision = classifySwipe({
-      dx: e.clientX - origin.x,
-      dy: e.clientY - origin.y,
-    });
-    if (decision.kind !== "horizontal") return;
-    const next = adjacentView(toSwipeView(view), decision.direction);
-    if (next !== toSwipeView(view)) onChange(next);
-  }
+  useEffect(() => {
+    function finish(e: globalThis.PointerEvent) {
+      const origin = start.current;
+      start.current = null;
+      if (!origin || origin.id !== e.pointerId) return;
+      if (document.documentElement.dataset.modalOpen) return;
+      const decision = classifySwipe({
+        dx: e.clientX - origin.x,
+        dy: e.clientY - origin.y,
+      });
+      if (decision.kind !== "horizontal") return;
+      const current = toSwipeView(viewRef.current);
+      const next = adjacentView(current, decision.direction);
+      if (next !== current) onChangeRef.current(next);
+    }
+    function cancel() {
+      start.current = null;
+    }
+    window.addEventListener("pointerup", finish);
+    window.addEventListener("pointercancel", cancel);
+    return () => {
+      window.removeEventListener("pointerup", finish);
+      window.removeEventListener("pointercancel", cancel);
+    };
+  }, []);
 
   return (
-    <div
-      className="swipe-pager"
-      onPointerDown={onPointerDown}
-      onPointerUp={finish}
-      onPointerCancel={() => {
-        start.current = null;
-      }}
-    >
+    <div className="swipe-pager" onPointerDown={onPointerDown}>
       {children}
     </div>
   );

@@ -1109,6 +1109,7 @@ html[data-modal-open] .app__content {
   overflow: hidden;
   min-width: 0;
   touch-action: pan-y;
+  pointer-events: none;
 }
 
 .chart-box--donut {
