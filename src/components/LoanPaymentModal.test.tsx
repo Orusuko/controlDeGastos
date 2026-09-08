@@ -35,6 +35,36 @@ describe("LoanPaymentModal", () => {
     );
     const input = screen.getByLabelText("Importe del abono") as HTMLInputElement;
     expect(input.value).toBe("");
+    const date = screen.getByLabelText(
+      "Fecha de la transferencia"
+    ) as HTMLInputElement;
+    const time = screen.getByLabelText(
+      "Hora de la transferencia"
+    ) as HTMLInputElement;
+    expect(date.value).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+    expect(time.value).toMatch(/^\d{2}:\d{2}/);
+    expect(screen.getByText(/se rellenan solas con el reloj/)).toBeTruthy();
+  });
+
+  it("el chip Ahora restaura fecha y hora del reloj", () => {
+    render(
+      <LoanPaymentModal
+        loan={loan}
+        party={party}
+        settings={settings}
+        onClose={() => {}}
+        onSave={() => {}}
+      />
+    );
+    fireEvent.change(screen.getByLabelText("Fecha de la transferencia"), {
+      target: { value: "2020-01-01" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Ahora" }));
+    const date = screen.getByLabelText(
+      "Fecha de la transferencia"
+    ) as HTMLInputElement;
+    expect(date.value).not.toBe("2020-01-01");
+    expect(date.value).toMatch(/^\d{4}-\d{2}-\d{2}$/);
   });
 
   it("chips de mitad y restante y preview del saldo", () => {

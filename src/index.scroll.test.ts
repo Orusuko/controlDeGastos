@@ -12,7 +12,7 @@ describe("shell de scroll táctil", () => {
 
   it("solo .app__content desplaza en vertical con gesto táctil", () => {
     expect(css).toMatch(
-      /\.app__content \{[^}]*overflow-y:\s*auto/s
+      /\.app__content \{[^}]*overflow-y:\s*scroll/s
     );
     expect(css).toMatch(
       /\.app__content \{[^}]*min-height:\s*0/s
@@ -21,9 +21,10 @@ describe("shell de scroll táctil", () => {
       /\.app__content \{[^}]*-webkit-overflow-scrolling:\s*touch/s
     );
     expect(css).toMatch(
-      /\.app__content \{[^}]*touch-action:\s*pan-x pan-y/s
+      /\.app__content \{[^}]*touch-action:\s*pan-y/s
     );
     expect(css).toMatch(/\.app__content > \* \{[^}]*flex-shrink:\s*0/s);
+    expect(css).toMatch(/\.swipe-pager \{[^}]*touch-action:\s*pan-y/s);
   });
 
   it("la nav de 6 ítems puede desplazarse en 320px", () => {

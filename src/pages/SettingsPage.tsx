@@ -4,9 +4,22 @@ import { formatCurrency } from "../lib/format";
 import { APP_VERSION_CODE, APP_VERSION_NAME } from "../lib/appVersion";
 import { saveBackupFile } from "../lib/shareBackup";
 import {
+  AUTO_BACKUP_LABEL_DOCUMENTS,
+  hasLocalFinanceData,
+  shouldWriteAutoBackup,
+} from "../lib/autoBackup";
+import {
+  canPickWebFolder,
+  enableDocumentsBackup,
+  pickWebBackupFolder,
+  readAutoBackup,
+  writeAutoBackup,
+} from "../lib/autoBackupIO";
+import {
   backupFilename,
   backupSummary,
   parseBackupJson,
+  pickPersistedSlice,
   serializeBackup,
   type ParseBackupResult,
 } from "../store/backup";
@@ -230,6 +243,127 @@ export function SettingsPage({
               </option>
             ))}
           </select>
+        </div>
+      </div>
+
+      <div className="card">
+        <h2>Respaldo automático</h2>
+        <p className="muted" style={{ marginTop: 0 }}>
+          El JSON se escribe solo en una carpeta fuera de la app. Desinstalar
+          no borra ese archivo; al reabrir, elige la misma ruta para
+          recuperarlo. En Android queda en Documentos/ControlFinanciero/.
+        </p>
+        <p className="muted">
+          {settings.autoBackupEnabled
+            ? `Activo en ${settings.autoBackupLabel || AUTO_BACKUP_LABEL_DOCUMENTS}`
+            : "Aún no hay carpeta. Sin esto, desinstalar borra los datos."}
+        </p>
+        <div className="settings-actions">
+          <button
+            type="button"
+            className="btn"
+            onClick={() => {
+              void (async () => {
+                try {
+                  const { label } = await enableDocumentsBackup();
+                  const existing = await readAutoBackup();
+                  const parsed = existing ? parseBackupJson(existing) : null;
+                  const state = useFinanceStore.getState();
+                  updateSettings({
+                    autoBackupSetupDone: true,
+                    autoBackupEnabled: true,
+                    autoBackupLabel: label,
+                  });
+                  if (parsed?.ok && !hasLocalFinanceData(state)) {
+                    setPendingImport({
+                      ...parsed.data,
+                      settings: {
+                        ...parsed.data.settings,
+                        autoBackupSetupDone: true,
+                        autoBackupEnabled: true,
+                        autoBackupLabel: label,
+                      },
+                    });
+                    setStatus({
+                      kind: "ok",
+                      text: `Hay un JSON en ${label}. Confirma para cargarlo.`,
+                    });
+                    return;
+                  }
+                  if (shouldWriteAutoBackup(state)) {
+                    await writeAutoBackup(
+                      serializeBackup(pickPersistedSlice(state))
+                    );
+                  }
+                  setStatus({
+                    kind: "ok",
+                    text: `Respaldo automático en ${label}`,
+                  });
+                } catch {
+                  setStatus({
+                    kind: "err",
+                    text: "No se pudo activar Documentos.",
+                  });
+                }
+              })();
+            }}
+          >
+            Usar Documentos
+          </button>
+          {canPickWebFolder() && (
+            <button
+              type="button"
+              className="btn btn--ghost"
+              onClick={() => {
+                void (async () => {
+                  try {
+                    const picked = await pickWebBackupFolder();
+                    if (!picked) return;
+                    const existing = await readAutoBackup();
+                    const parsed = existing ? parseBackupJson(existing) : null;
+                    const state = useFinanceStore.getState();
+                    updateSettings({
+                      autoBackupSetupDone: true,
+                      autoBackupEnabled: true,
+                      autoBackupLabel: picked.label,
+                    });
+                    if (parsed?.ok && !hasLocalFinanceData(state)) {
+                      setPendingImport({
+                        ...parsed.data,
+                        settings: {
+                          ...parsed.data.settings,
+                          autoBackupSetupDone: true,
+                          autoBackupEnabled: true,
+                          autoBackupLabel: picked.label,
+                        },
+                      });
+                      setStatus({
+                        kind: "ok",
+                        text: `Hay un JSON en ${picked.label}. Confirma para cargarlo.`,
+                      });
+                      return;
+                    }
+                    if (shouldWriteAutoBackup(state)) {
+                      await writeAutoBackup(
+                        serializeBackup(pickPersistedSlice(state))
+                      );
+                    }
+                    setStatus({
+                      kind: "ok",
+                      text: `Carpeta: ${picked.label}`,
+                    });
+                  } catch {
+                    setStatus({
+                      kind: "err",
+                      text: "No se eligió la carpeta.",
+                    });
+                  }
+                })();
+              }}
+            >
+              Elegir carpeta
+            </button>
+          )}
         </div>
       </div>
 
