@@ -588,6 +588,10 @@ html[data-modal-open] .app__content {
   text-overflow: ellipsis;
 }
 
+.row--loan .row__title {
+  white-space: normal;
+}
+
 .row__sub {
   color: var(--muted);
   font-size: 0.8rem;

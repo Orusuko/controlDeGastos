@@ -2,7 +2,6 @@ import { formatCurrency } from "../lib/format";
 import { loanRemaining, loanTotal } from "../lib/loans";
 import type { Loan, Settings } from "../types";
 import { ItemActions } from "./ItemActions";
-import { IconChevron } from "./icons";
 
 export function directionLabel(direction: Loan["direction"]): {
   badge: string;
@@ -33,7 +32,7 @@ export function LoanItem({
 
   return (
     <div
-      className="row row--tap"
+      className="row row--tap row--loan"
       role="link"
       tabIndex={0}
       aria-label={`${loan.title}, ${copy.badge}, restante ${formatCurrency(leftover, settings)}`}
@@ -73,9 +72,6 @@ export function LoanItem({
         onDelete={onDelete}
         deleteMessage={`¿Eliminar “${loan.title}” y sus abonos?`}
       />
-      <span className="row__chevron" aria-hidden>
-        <IconChevron />
-      </span>
     </div>
   );
 }
