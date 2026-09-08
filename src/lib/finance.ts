@@ -1,5 +1,5 @@
 import type { Card, Expense, FixedExpense, Installment, Loan } from "../types";
-import { expensesInMonth, expensesTotal } from "./expenses";
+import { expenseMonth, expensesInMonth, expensesTotal } from "./expenses";
 import { currentMonth } from "./format";
 import { loanOwedTotal, loanReceivableTotal } from "./loans";
 
@@ -52,14 +52,27 @@ export function installmentMonthlyForCard(
     .reduce((sum, i) => sum + monthlyAmount(i), 0);
 }
 
+export function expenseTotalForCard(
+  expenses: Expense[],
+  cardId: string,
+  month: string
+): number {
+  return expenses
+    .filter((e) => e.cardId === cardId && expenseMonth(e) === month)
+    .reduce((sum, e) => sum + e.amount, 0);
+}
+
 export function monthlyTotalForCard(
   fixed: FixedExpense[],
   installments: Installment[],
-  cardId: string
+  cardId: string,
+  expenses: Expense[] = [],
+  month: string = currentMonth()
 ): number {
   return (
     fixedTotalForCard(fixed, cardId) +
-    installmentMonthlyForCard(installments, cardId)
+    installmentMonthlyForCard(installments, cardId) +
+    expenseTotalForCard(expenses, cardId, month)
   );
 }
 
@@ -104,21 +117,34 @@ export interface CardBreakdown {
   card: Card;
   fixed: number;
   installments: number;
+  expenses: number;
   total: number;
 }
 
 export function cardBreakdowns(
   cards: Card[],
   fixed: FixedExpense[],
-  installments: Installment[]
+  installments: Installment[],
+  expenses: Expense[] = [],
+  month: string = currentMonth()
 ): CardBreakdown[] {
   return cards
-    .map((card) => ({
-      card,
-      fixed: fixedTotalForCard(fixed, card.id),
-      installments: installmentMonthlyForCard(installments, card.id),
-      total: monthlyTotalForCard(fixed, installments, card.id),
-    }))
+    .map((card) => {
+      const expenseAmt = expenseTotalForCard(expenses, card.id, month);
+      return {
+        card,
+        fixed: fixedTotalForCard(fixed, card.id),
+        installments: installmentMonthlyForCard(installments, card.id),
+        expenses: expenseAmt,
+        total: monthlyTotalForCard(
+          fixed,
+          installments,
+          card.id,
+          expenses,
+          month
+        ),
+      };
+    })
     .sort((a, b) => b.total - a.total);
 }
 
@@ -132,4 +158,46 @@ export function categoryBreakdown(
   return [...map.entries()]
     .map(([category, total]) => ({ category, total }))
     .sort((a, b) => b.total - a.total);
+}
+
+export interface PieSlice {
+  key: string;
+  name: string;
+  value: number;
+  colorKey: string;
+}
+
+export function monthPieSlices(
+  fixed: FixedExpense[],
+  expenses: Expense[],
+  installmentsTotal: number,
+  month: string
+): PieSlice[] {
+  const slices: PieSlice[] = categoryBreakdown(fixed).map((c) => ({
+    key: `fixed:${c.category}`,
+    name: `Fijos · ${c.category}`,
+    value: c.total,
+    colorKey: c.category,
+  }));
+  const map = new Map<string, number>();
+  for (const e of expensesInMonth(expenses, month)) {
+    map.set(e.category, (map.get(e.category) ?? 0) + e.amount);
+  }
+  for (const [category, value] of map) {
+    slices.push({
+      key: `expense:${category}`,
+      name: `Gastos · ${category}`,
+      value,
+      colorKey: category,
+    });
+  }
+  if (installmentsTotal > 0) {
+    slices.push({
+      key: "installments",
+      name: "Mensualidades",
+      value: installmentsTotal,
+      colorKey: "Mensualidades",
+    });
+  }
+  return slices.filter((s) => s.value > 0);
 }

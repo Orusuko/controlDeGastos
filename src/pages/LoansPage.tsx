@@ -5,10 +5,12 @@ import { LoanItem, directionLabel } from "../components/LoanItem";
 import { LoanPaymentModal } from "../components/LoanPaymentModal";
 import { EmptyState } from "../components/EmptyState";
 import { ItemActions } from "../components/ItemActions";
+import { ViewToolbar } from "../components/ViewToolbar";
 import { IconBack, IconLoan, IconPlus } from "../components/icons";
 import { formatCurrency } from "../lib/format";
 import {
   loanOwedTotal,
+  loanPaid,
   loanPartyPaid,
   loanPartyRemaining,
   loanReceivableTotal,
@@ -16,7 +18,14 @@ import {
   loanTotal,
 } from "../lib/loans";
 import { sortLoans } from "../lib/sort";
-import type { Loan, LoanDirection, LoanParty, LoanSort, SortDir } from "../types";
+import type {
+  ListLayout,
+  Loan,
+  LoanDirection,
+  LoanParty,
+  LoanSort,
+  SortDir,
+} from "../types";
 
 type Filter = "all" | LoanDirection;
 
@@ -29,6 +38,7 @@ export function LoansPage() {
     removeLoan,
     registerLoanPayment,
     removeLoanPayment,
+    updateSettings,
   } = useFinanceStore();
   const [filter, setFilter] = useState<Filter>("all");
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -36,6 +46,7 @@ export function LoansPage() {
   const [payParty, setPayParty] = useState<LoanParty | null>(null);
   const sort: LoanSort = settings.loanSort ?? "remaining";
   const sortDir: SortDir = settings.loanSortDir ?? "desc";
+  const layout: ListLayout = settings.loanLayout ?? "list";
 
   const selected = loans.find((l) => l.id === selectedId) ?? null;
   const visible = useMemo(() => {
@@ -93,11 +104,11 @@ export function LoansPage() {
 
       <div className="stat-grid">
         <div className="mini-stat">
-          <span>Debo (a favor)</span>
+          <span>Yo debo</span>
           <strong>{formatCurrency(loanOwedTotal(loans), settings)}</strong>
         </div>
         <div className="mini-stat mini-stat--good">
-          <span>Me deben (en contra)</span>
+          <span>Me deben</span>
           <strong>
             {formatCurrency(loanReceivableTotal(loans), settings)}
           </strong>
@@ -108,8 +119,8 @@ export function LoansPage() {
         {(
           [
             ["all", "Todos"],
-            ["a_favor", "A favor"],
-            ["en_contra", "En contra"],
+            ["a_favor", "Yo debo"],
+            ["en_contra", "Me deben"],
           ] as const
         ).map(([value, label]) => (
           <button
@@ -134,24 +145,49 @@ export function LoansPage() {
             </button>
           }
         >
-          Elige A favor si te prestaron (tú debes) o En contra si tú prestaste
-          (te deben). Puedes apuntar a varias personas y sus abonos.
+          Elige Yo debo si te prestaron, o Me deben si tú prestaste. A favor /
+          En contra queda como nota. Puedes apuntar a varias personas y sus
+          abonos.
         </EmptyState>
-      ) : visible.length === 0 ? (
-        <p className="muted">No hay préstamos en este filtro.</p>
       ) : (
-        <div className="list">
-          {visible.map((loan) => (
-            <LoanItem
-              key={loan.id}
-              loan={loan}
-              settings={settings}
-              onOpen={() => setSelectedId(loan.id)}
-              onEdit={() => setModal(loan)}
-              onDelete={() => removeLoan(loan.id)}
-            />
-          ))}
-        </div>
+        <>
+          <ViewToolbar
+            layout={layout}
+            onLayout={(loanLayout) => updateSettings({ loanLayout })}
+            sort={sort}
+            sortOptions={[
+              { value: "remaining", label: "Restante" },
+              { value: "amount", label: "Importe" },
+              { value: "name", label: "Nombre" },
+            ]}
+            onSort={(loanSort) => updateSettings({ loanSort })}
+            sortDir={sortDir}
+            onSortDir={(loanSortDir) => updateSettings({ loanSortDir })}
+            dirLabels={
+              sort === "name"
+                ? { asc: "A → Z", desc: "Z → A" }
+                : sort === "amount"
+                  ? { asc: "Más chicos", desc: "Más grandes" }
+                  : { asc: "Menos saldo", desc: "Más saldo" }
+            }
+          />
+          {visible.length === 0 ? (
+            <p className="muted">No hay préstamos en este filtro.</p>
+          ) : (
+            <div className={`list${layout === "grid" ? " list--grid" : ""}`}>
+              {visible.map((loan) => (
+                <LoanItem
+                  key={loan.id}
+                  loan={loan}
+                  settings={settings}
+                  onOpen={() => setSelectedId(loan.id)}
+                  onEdit={() => setModal(loan)}
+                  onDelete={() => removeLoan(loan.id)}
+                />
+              ))}
+            </div>
+          )}
+        </>
       )}
 
       {modal !== null && (
@@ -205,7 +241,9 @@ function LoanDetail({
 }) {
   const copy = directionLabel(loan.direction);
   const leftover = loanRemaining(loan);
+  const paid = loanPaid(loan);
   const total = loanTotal(loan);
+  const ratio = total > 0 ? paid / total : 0;
   const iPay = loan.direction === "a_favor";
 
   return (
@@ -245,8 +283,24 @@ function LoanDetail({
             <strong>{formatCurrency(leftover, settings)}</strong>
           </div>
           <div>
+            <span>Llevas</span>
+            <strong>{formatCurrency(paid, settings)}</strong>
+          </div>
+          <div>
             <span>Total</span>
             <strong>{formatCurrency(total, settings)}</strong>
+          </div>
+        </div>
+        <p className="muted">
+          Llevas {formatCurrency(paid, settings)} · restan{" "}
+          {formatCurrency(leftover, settings)}
+        </p>
+        <div className="progress">
+          <div className="progress__track">
+            <div
+              className="progress__fill"
+              style={{ width: `${Math.min(100, ratio * 100)}%` }}
+            />
           </div>
         </div>
         {loan.note && <p className="muted">{loan.note}</p>}

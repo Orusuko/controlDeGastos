@@ -91,8 +91,8 @@ export function LoanModal({
               aria-pressed={direction === "a_favor"}
               onClick={() => setDirection("a_favor")}
             >
-              <strong>A favor</strong>
-              <span>Me prestaron · yo debo</span>
+              <strong>Yo debo</strong>
+              <span>A favor · me prestaron</span>
             </button>
             <button
               type="button"
@@ -104,8 +104,8 @@ export function LoanModal({
               aria-pressed={direction === "en_contra"}
               onClick={() => setDirection("en_contra")}
             >
-              <strong>En contra</strong>
-              <span>Yo presté · me deben</span>
+              <strong>Me deben</strong>
+              <span>En contra · yo presté</span>
             </button>
           </div>
         </fieldset>

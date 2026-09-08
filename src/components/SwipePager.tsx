@@ -2,15 +2,9 @@ import { useEffect, useRef, type PointerEvent, type ReactNode } from "react";
 import {
   adjacentView,
   classifySwipe,
-  isSwipeView,
+  toSwipeView,
   type SwipeView,
 } from "../lib/swipeNav";
-
-function toSwipeView(view: string): SwipeView {
-  if (view === "more") return "cards";
-  if (isSwipeView(view)) return view;
-  return "dashboard";
-}
 
 function ignoreTarget(target: EventTarget | null): boolean {
   if (document.documentElement.dataset.modalOpen) return true;

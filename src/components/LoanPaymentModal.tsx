@@ -20,20 +20,23 @@ export function LoanPaymentModal({
 }) {
   const ids = { amount: useId(), note: useId() };
   const remaining = loanPartyRemaining(loan, party.id);
-  const [amount, setAmount] = useState(remaining ? String(remaining) : "");
+  const [amount, setAmount] = useState("");
   const [note, setNote] = useState("");
   const [error, setError] = useState<string | null>(null);
   const iPay = loan.direction === "a_favor";
+  const amt = Number(amount);
+  const previewLeft =
+    Number.isFinite(amt) && amt > 0 ? Math.max(0, remaining - amt) : remaining;
 
   function submit(e: React.FormEvent) {
     e.preventDefault();
-    const amt = Number(amount);
-    if (!canRegisterLoanPayment(loan, party.id, amt)) {
+    const nextAmt = Number(amount);
+    if (!canRegisterLoanPayment(loan, party.id, nextAmt)) {
       return setError(
         `El abono no puede pasar de ${formatCurrency(remaining, settings)}.`
       );
     }
-    onSave(amt, note.trim() || undefined);
+    onSave(nextAmt, note.trim() || undefined);
   }
 
   return (
@@ -59,10 +62,30 @@ export function LoanPaymentModal({
             max={remaining}
             value={amount}
             autoFocus
+            placeholder="0.00"
             onWheel={(e) => e.currentTarget.blur()}
             onChange={(e) => setAmount(e.target.value)}
           />
         </div>
+        <div className="amount-chips" role="group" aria-label="Atajos de importe">
+          <button
+            type="button"
+            className="chip"
+            onClick={() => setAmount(String(remaining / 2))}
+          >
+            La mitad
+          </button>
+          <button
+            type="button"
+            className="chip"
+            onClick={() => setAmount(String(remaining))}
+          >
+            Todo el restante
+          </button>
+        </div>
+        <p className="muted">
+          Después restan {formatCurrency(previewLeft, settings)}.
+        </p>
         <div className="field">
           <label htmlFor={ids.note}>Nota</label>
           <input

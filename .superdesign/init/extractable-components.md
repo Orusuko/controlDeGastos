@@ -10,7 +10,7 @@
 - EmptyState
 - ViewToolbar (lista/grid + sort)
 - ItemActions (editar/borrar)
-- Choice cards A favor / En contra
+- Choice cards Yo debo / Me deben (secondary: A favor / En contra)
 - Row / card / hero-stat / mini-stat (CSS classes, not components)
 
 #### Page-specific
