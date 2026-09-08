@@ -13,7 +13,6 @@ import { MorePage } from "./pages/MorePage";
 import { ConfirmDialog } from "./components/ConfirmDialog";
 import { BackupSetupModal } from "./components/BackupSetupModal";
 import { useAutoBackup } from "./components/useAutoBackup";
-import { IconMark } from "./components/icons";
 import { formatMonth, currentMonth } from "./lib/format";
 import { applyResolvedTheme, resolveTheme } from "./lib/theme";
 import { useFinanceStore } from "./store/useFinanceStore";
@@ -77,7 +76,7 @@ export default function App() {
       <header className="app__header">
         <h1>
           <span className="app__mark" aria-hidden>
-            <IconMark />
+            <img src="/icon.png" alt="" width={36} height={36} />
           </span>
           Control Financiero
         </h1>
