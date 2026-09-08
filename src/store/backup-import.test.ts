@@ -158,5 +158,7 @@ describe("importar respaldo en el store", () => {
     expect(state.loans[0]?.title).toBe("Renta");
     expect(state.loans[0]?.payments).toHaveLength(1);
     expect(state.loans[0]?.payments[0]?.amount).toBe(500);
+    expect(state.loans[0]?.payments[0]?.paidDate).toBeTruthy();
+    expect(state.loans[0]?.payments[0]?.paidTime).toBeTruthy();
   });
 });

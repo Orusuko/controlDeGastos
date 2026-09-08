@@ -7,7 +7,7 @@ import { EmptyState } from "../components/EmptyState";
 import { ItemActions } from "../components/ItemActions";
 import { ViewToolbar } from "../components/ViewToolbar";
 import { IconBack, IconLoan, IconPlus } from "../components/icons";
-import { formatCurrency } from "../lib/format";
+import { formatCurrency, formatPaymentWhen } from "../lib/format";
 import {
   loanOwedTotal,
   loanPaid,
@@ -16,6 +16,7 @@ import {
   loanReceivableTotal,
   loanRemaining,
   loanTotal,
+  paymentReceipt,
 } from "../lib/loans";
 import { sortLoans } from "../lib/sort";
 import type {
@@ -79,13 +80,14 @@ export function LoansPage() {
           updateLoan(selected.id, data);
           setModal(null);
         }}
-        onSavePay={(amount, note) => {
+        onSavePay={(data) => {
           if (!payParty) return;
           registerLoanPayment(selected.id, {
             partyId: payParty.id,
-            amount,
-            paidAt: new Date().toISOString(),
-            note,
+            amount: data.amount,
+            paidDate: data.paidDate,
+            paidTime: data.paidTime,
+            note: data.note,
           });
           setPayParty(null);
         }}
@@ -237,7 +239,12 @@ function LoanDetail({
     parties: LoanParty[];
     note?: string;
   }) => void;
-  onSavePay: (amount: number, note?: string) => void;
+  onSavePay: (data: {
+    amount: number;
+    paidDate: string;
+    paidTime: string;
+    note?: string;
+  }) => void;
 }) {
   const copy = directionLabel(loan.direction);
   const leftover = loanRemaining(loan);
@@ -363,20 +370,39 @@ function LoanDetail({
           <div className="section-title">
             <h2>Abonos</h2>
           </div>
+          <p className="muted strategy-lead">
+            Fecha, hora y monto quedan guardados para que puedas cotejar cada
+            transferencia en tu banco.
+          </p>
           <div className="list">
             {[...loan.payments]
               .sort((a, b) => b.paidAt.localeCompare(a.paidAt))
               .map((p) => {
                 const who =
                   loan.parties.find((x) => x.id === p.partyId)?.name ?? "—";
+                const receipt = paymentReceipt(p);
                 return (
-                  <div className="row" key={p.id}>
+                  <div className="row row--receipt" key={p.id}>
                     <div className="row__body">
                       <div className="row__title">{who}</div>
                       <div className="row__sub">
-                        {new Date(p.paidAt).toLocaleString(settings.locale)}
+                        {formatPaymentWhen(p, settings.locale)}
                         {p.note ? ` · ${p.note}` : ""}
                       </div>
+                      <dl className="receipt-meta">
+                        <div>
+                          <dt>Fecha</dt>
+                          <dd>{receipt.date}</dd>
+                        </div>
+                        <div>
+                          <dt>Hora</dt>
+                          <dd>{receipt.time}</dd>
+                        </div>
+                        <div>
+                          <dt>Monto</dt>
+                          <dd>{formatCurrency(receipt.amount, settings)}</dd>
+                        </div>
+                      </dl>
                     </div>
                     <div className="row__amount">
                       {formatCurrency(p.amount, settings)}

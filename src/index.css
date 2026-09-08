@@ -643,6 +643,31 @@ html[data-modal-open] .app__content {
   text-align: right;
 }
 
+.row--receipt {
+  align-items: flex-start;
+}
+
+.receipt-meta {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin: 8px 0 0;
+}
+
+.receipt-meta dt {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+}
+
+.receipt-meta dd {
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+  font-weight: 650;
+  font-size: 0.86rem;
+}
+
 .row__amount,
 .row__amount-block {
   font-family: var(--font-display);

@@ -1,4 +1,11 @@
-import type { Loan, LoanParty, LoanPayment } from "../types";
+import type { Loan, LoanParty, LoanPayment, LoanPaymentDraft } from "../types";
+import {
+  currentDate,
+  currentTime,
+  isValidPaidDate,
+  isValidPaidTime,
+  localDateTimeToIso,
+} from "./format";
 
 export function loanTotal(loan: Loan): number {
   return loan.parties.reduce((sum, p) => sum + p.shareAmount, 0);
@@ -59,6 +66,63 @@ export function reconcileLoanPayments(
     }
   }
   return kept;
+}
+
+export function paymentReceipt(
+  payment: Pick<LoanPayment, "amount" | "paidAt"> &
+    Partial<Pick<LoanPayment, "paidDate" | "paidTime">>
+): {
+  date: string;
+  time: string;
+  amount: number;
+} {
+  const when = new Date(payment.paidAt);
+  return {
+    date:
+      payment.paidDate && isValidPaidDate(payment.paidDate)
+        ? payment.paidDate
+        : Number.isNaN(when.getTime())
+          ? ""
+          : currentDate(when),
+    time:
+      payment.paidTime && isValidPaidTime(payment.paidTime)
+        ? payment.paidTime
+        : Number.isNaN(when.getTime())
+          ? ""
+          : currentTime(when),
+    amount: payment.amount,
+  };
+}
+
+export function normalizeLoanPayment(
+  input: Omit<LoanPaymentDraft, "paidAt"> & { paidAt?: string }
+): LoanPaymentDraft | null {
+  if (!Number.isFinite(input.amount) || input.amount <= 0) return null;
+  if (!input.partyId) return null;
+
+  let paidDate = input.paidDate;
+  let paidTime = input.paidTime;
+  let paidAt = input.paidAt;
+
+  if (paidDate && paidTime) {
+    if (!isValidPaidDate(paidDate) || !isValidPaidTime(paidTime)) return null;
+    paidAt = localDateTimeToIso(paidDate, paidTime);
+  } else if (paidAt) {
+    const when = new Date(paidAt);
+    if (Number.isNaN(when.getTime())) return null;
+    paidDate = paidDate && isValidPaidDate(paidDate) ? paidDate : currentDate(when);
+    paidTime = paidTime && isValidPaidTime(paidTime) ? paidTime : currentTime(when);
+  } else {
+    return null;
+  }
+
+  return {
+    ...input,
+    amount: input.amount,
+    paidAt,
+    paidDate,
+    paidTime,
+  };
 }
 
 export function loanOwedTotal(loans: Loan[]): number {

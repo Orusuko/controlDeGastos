@@ -80,9 +80,16 @@ export interface LoanPayment {
   id: string;
   partyId: string;
   amount: number;
+  /** Instant ISO; se deriva de paidDate + paidTime locales. */
   paidAt: string;
+  /** Fecha local YYYY-MM-DD (la de la transferencia). */
+  paidDate?: string;
+  /** Hora local HH:mm (la de la transferencia). */
+  paidTime?: string;
   note?: string;
 }
+
+export type LoanPaymentDraft = Omit<LoanPayment, "id"> & { id?: string };
 
 export interface Loan {
   id: string;

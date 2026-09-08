@@ -4,6 +4,8 @@ import {
   loanPartyRemaining,
   loanRemaining,
   loanTotal,
+  normalizeLoanPayment,
+  paymentReceipt,
   reconcileLoanPayments,
 } from "./loans";
 import type { Loan } from "../types";
@@ -71,5 +73,48 @@ describe("saldos de préstamo", () => {
     expect(reconcileLoanPayments(parties, payments).map((p) => p.id)).toEqual([
       "a",
     ]);
+  });
+});
+
+describe("respaldo de abono (fecha, hora, monto)", () => {
+  it("guarda fecha, hora y monto locales para cotejar la transferencia", () => {
+    const n = normalizeLoanPayment({
+      partyId: "p1",
+      amount: 2000,
+      paidDate: "2026-09-08",
+      paidTime: "14:30",
+    });
+    expect(n).not.toBeNull();
+    expect(n?.amount).toBe(2000);
+    expect(n?.paidDate).toBe("2026-09-08");
+    expect(n?.paidTime).toBe("14:30");
+    const when = new Date(n!.paidAt);
+    expect(when.getHours()).toBe(14);
+    expect(when.getMinutes()).toBe(30);
+    expect(paymentReceipt(n!).amount).toBe(2000);
+    expect(paymentReceipt(n!).date).toBe("2026-09-08");
+    expect(paymentReceipt(n!).time).toBe("14:30");
+  });
+
+  it("completa fecha y hora si un JSON viejo solo trae paidAt", () => {
+    const n = normalizeLoanPayment({
+      partyId: "p1",
+      amount: 500,
+      paidAt: new Date(2026, 8, 8, 9, 15).toISOString(),
+    });
+    expect(n?.paidDate).toBe("2026-09-08");
+    expect(n?.paidTime).toBe("09:15");
+    expect(n?.amount).toBe(500);
+  });
+
+  it("rechaza un abono sin fecha u hora válidas", () => {
+    expect(
+      normalizeLoanPayment({
+        partyId: "p1",
+        amount: 2000,
+        paidDate: "ayer",
+        paidTime: "14:30",
+      })
+    ).toBeNull();
   });
 });
